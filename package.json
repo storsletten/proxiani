@@ -9,5 +9,9 @@
     "Miriani",
     "toastsoft.net",
     "VIP Mud"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tms88/proxiani.git"
+  }
 }
