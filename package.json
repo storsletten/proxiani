@@ -1,0 +1,13 @@
+{
+  "name": "proxiani",
+  "version": "1.0.0",
+  "description": "Proxy server designed for optimizing communication between Miriani and VIP Mud",
+  "main": "server.js",
+  "author": "Martin Storsletten",
+  "license": "MIT",
+  "keywords": [
+    "Miriani",
+    "toastsoft.net",
+    "VIP Mud"
+  ]
+}
