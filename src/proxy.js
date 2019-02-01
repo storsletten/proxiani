@@ -1,15 +1,15 @@
 const net = require('net');
+const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
 const Device = require('./device');
 const UserData = require('./userdata');
 const utils = require('./utils');
-const packageInfo = require('../package.json');
 
 class Proxy {
  constructor(options = {}) {
-  this.name = packageInfo.name;
-  this.version = packageInfo.version;
+  this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
+  this.loadPackageInfo();
   this.idCount = 0;
   this.devices = {};
   this.sockets = {};
@@ -20,8 +20,12 @@ class Proxy {
   this.consoleLog = [];
   this.consoleLogMaxSize = options.consoleLogMaxSize || 10;
   this.restartRequested = false;
-  this.console(`Started Proxiani ${this.version}`);
+  this.console(`Started ${this.name} ${this.version}`);
   this.events.on('close', () => {
+   if (this.packageInfoFileWatcher) {
+    this.packageInfoFileWatcher.close();
+    delete this.packageInfoFileWatcher;
+   }
    if (this.restartRequested) {
     this.console(`Restarting Proxiani...`);
     for (let mod in require.cache) delete require.cache[mod];
@@ -47,6 +51,27 @@ class Proxy {
    }
    catch (error) {}
   }
+  this.packageInfoFileWatcher = fs.watch(this.packageInfoFile, { persistent: false }, eventType => {
+   if (eventType !== 'change') return;
+   else if (this.packageInfoFileWatcherTimeout) return;
+   this.packageInfoFileWatcherTimeout = setTimeout(() => {
+    try {
+     this.loadPackageInfo();
+     delete this.packageInfoFileWatcherTimeout;
+     if (this.isOutdated) {
+      for (let id in this.devices) {
+       const device = this.devices[id];
+       if (device.type === 'client') device.respond(`*** New version of ${this.name}: ${this.version} ***`);
+      }
+     }
+    }
+    catch (error) {
+     this.console(error);
+     this.packageInfoFileWatcher.close();
+     delete this.packageInfoFileWatcher;
+    }
+   }, 1000);
+  });
  }
  link(device1, device2) {
   if (device1 === device2) throw `Can't link device ${device1.id} to itself`;
@@ -71,6 +96,13 @@ class Proxy {
   device.link.middleware.persistentStates = {};
   delete device.link.link;
   delete device.link;
+ }
+ loadPackageInfo() {
+  const packageInfo = JSON.parse(fs.readFileSync(this.packageInfoFile));
+  this.name = packageInfo.name.replace(/\b\w/g, l => l.toUpperCase());
+  this.version = packageInfo.version;
+  if (!this.loadedVersion) this.loadedVersion = packageInfo.version;
+  else this.isOutdated = this.version !== this.loadedVersion;
  }
  console(...data) {
   const d = new Date();
