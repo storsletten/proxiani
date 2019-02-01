@@ -22,10 +22,10 @@ if "!InputString!"=="" (
 ) else (
  set "NewRelease=%InputString%"
 )
-echo New release: !NewRelease!
+
+npm version !NewRelease! && npm publish && git push --tags
 
 xcopy "!devDir!middleware" "!pubDir!middleware" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!src" "!pubDir!src" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!package.json" "!pubDir!package.json" /D /Q /V /M /Y>nul
-npm version !NewRelease! && npm publish && git push --tags
 pause
