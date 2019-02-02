@@ -16,7 +16,7 @@ if "!CommitMessage!"=="" (
  exit /b 1
 )
 
-(echo * !CommitMessage!) >"%NewCommitsFile%"
+(echo * !CommitMessage!) >>"%NewCommitsFile%"
 
 git add .
 git commit -m "!CommitMessage!"
