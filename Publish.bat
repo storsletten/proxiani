@@ -30,9 +30,7 @@ if "!InputString!"=="" (
  set "NewRelease=%InputString%"
 )
 
-npm version !NewRelease! && npm publish && git push --tags
-
-for /f "tokens=* USEBACKQ" %%a in (`git describe "--abbrev=0"`) do set tag=%%a
+for /f "tokens=* USEBACKQ" %%a in (`npm version !NewRelease!`) do set tag=%%a
 echo Version %tag:~1%, released %date%:>"%ChangelogFile%.tmp"
 type "%NewCommitsFile%" >>"%ChangelogFile%.tmp"
 echo.>>"%ChangelogFile%.tmp"
@@ -44,5 +42,7 @@ xcopy "!devDir!middleware" "!pubDir!middleware" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!src" "!pubDir!src" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!CHANGELOG.txt" "!pubDir!CHANGELOG.txt" /D /Q /V /M /Y>nul
 xcopy "!devDir!package.json" "!pubDir!package.json" /D /Q /V /M /Y>nul
+
+npm publish && git push --follow-tags
 
 pause
