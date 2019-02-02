@@ -32,6 +32,11 @@ if "!InputString!"=="" (
 
 npm version !NewRelease! && npm publish && git push --tags
 
+if errorlevel 1 (
+ pause
+ exit /b 1
+)
+
 for /f "tokens=* USEBACKQ" %%a in (`git describe "--abbrev=0"`) do set tag=%%a
 echo Version %tag:~1%, released %date%:>"%ChangelogFile%.tmp"
 type "%NewCommitsFile%" >>"%ChangelogFile%.tmp"
