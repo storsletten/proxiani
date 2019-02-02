@@ -6,7 +6,7 @@ const scan = (data, middleware, linkedMiddleware) => {
   const state = middleware.states.scan.data;
   if (!state.object) {
    if (data.input === 'Enter your selection.') middleware.states.scan.timeout = 0;
-   else if ([`I don't understand that.`, 'Invalid selection.', 'That is now out of scanning range.', 'That object was not found.', 'Your sensors are unable to scan those coordinates.'].includes(data.input)) return;
+   else if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'That is now out of scanning range.', 'That object was not found.', 'Your sensors are unable to scan those coordinates.'].includes(data.input)) return;
    else if (data.input.match(separatorRegexp)) state.object = {};
    else state.header = data.input;
    return false;

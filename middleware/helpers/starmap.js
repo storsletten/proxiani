@@ -141,7 +141,7 @@ const parseObjects = (type, text, currentCoordinates) => {
 const reader = (data, state) => {
  if (!state.readingStarmap) {
   if (data.input.length === 0) return true;
-  else if ([`I don't understand that.`, 'Invalid selection.'].includes(data.input)) return false;
+  else if ([`I don't understand that.`, 'Invalid selection.'].includes(data.input) || data.input.slice(0, 5) === 'Wait ') return false;
   const header = getHeader(data.input);
   if (!header) return true;
   state.header = header;

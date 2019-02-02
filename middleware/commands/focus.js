@@ -5,7 +5,7 @@ const focus = (data, middleware, linkedMiddleware) => {
    middleware.states.focus.timeout = 0;
    return false;
   }
-  else if ([`I don't understand that.`, 'Invalid selection.', 'Scanners report that that starship is no longer available.', 'There are no ships here.', 'That object was not found.'].includes(data.input)) return;
+  else if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'Scanners report that that starship is no longer available.', 'There are no ships here.', 'That object was not found.'].includes(data.input)) return;
   const m = data.input.match(/^([^[(:]{2,50})\: ([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})$/);
   if (!m) return false;
   else if (['coordinates', 'current coordinates', 'current galactic coordinates', 'galactic coordinates', 'locked onto coordinates'].includes(m[1].toLowerCase())) return;
