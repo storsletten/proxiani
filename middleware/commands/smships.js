@@ -13,7 +13,7 @@ const modes = {
   else return `${total} ${total === 1 ? 'ship' : 'ships'}.`;
  },
  dir: (ship, index, filter) => filter ? `${ship.dir || 'Here'}, ${ship.match}` : `${ship.dir || 'Here'}, ship ${ship.index + 1}`,
- name: (ship, index, filter) => filter ? `Ship ${ship.index + 1}, ${ship.match}, ${ship.dir || 'here'}` : `Ship ${ship.index + 1}, ${ship.name}, ${ship.dir || 'here'}`,
+ name: (ship, index, filter) => filter ? `Ship ${ship.index + 1}, ${ship.dir || 'here'}, ${ship.match}` : `Ship ${ship.index + 1}, ${ship.dir || 'here'}, ${ship.name}`,
 };
 
 const smships = (data, middleware, linkedMiddleware) => {
