@@ -30,7 +30,7 @@ class Device {
   this.autoReconnectInterval = options.autoReconnectInterval || 3000;
   this.loggerID = options.loggerID;
   this.type = options.type || (('socket' in options) ? 'client' : 'server');
-  this.initialLinkingDelay = options.initialLinkingDelay || 250; // Give VIP Mud enough time to load triggers before data starts pouring in.
+  this.initialLinkingDelay = options.initialLinkingDelay || 200; // Give VIP Mud enough time to load triggers before data starts pouring in.
 
   if (options.link) {
    this.events.once('connect', () => {
@@ -61,7 +61,7 @@ class Device {
    case 'server': {
     this.middleware = new middleware.Server({ device: this });
     this.events.on('ready', () => {
-     this.forward(`${this.oob}${this.proxy.name} version ${this.proxy.version}`)
+     this.forward(`${this.oob}proxiani version ${this.proxy.version}`)
     });
     break;
    }

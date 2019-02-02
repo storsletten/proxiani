@@ -57,10 +57,10 @@ class Proxy {
     try {
      this.loadPackageInfo();
      delete this.packageInfoFileWatcherTimeout;
-     if (this.isOutdated) {
+     if (this.outdated) {
       for (let id in this.devices) {
        const device = this.devices[id];
-       if (device.type === 'client') device.respond(`*** New version of ${this.name}: ${this.version} ***`);
+       if (device.type === 'client') device.respond(`*** New ${this.outdated} update for ${this.name}: ${this.latestVersion} ***`);
       }
      }
     }
@@ -99,9 +99,14 @@ class Proxy {
  loadPackageInfo() {
   const packageInfo = JSON.parse(fs.readFileSync(this.packageInfoFile));
   this.name = packageInfo.name.replace(/\b\w/g, l => l.toUpperCase());
-  this.version = packageInfo.version;
-  if (!this.loadedVersion) this.loadedVersion = packageInfo.version;
-  else this.isOutdated = this.version !== this.loadedVersion;
+  this.latestVersion = packageInfo.version;
+  if (!this.version) this.version = packageInfo.version;
+  else if (this.version !== this.latestVersion) {
+   const current = this.version.split('.');
+   const latest = this.latestVersion.split('.');
+   this.outdated = ['major', 'minor', 'patch'].find((t, i) => current[i] !== latest[i]);
+  }
+  else this.outdated = '';
  }
  console(...data) {
   const d = new Date();
