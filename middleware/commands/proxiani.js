@@ -1,4 +1,11 @@
+const childProcess = require('child_process');
+
 const commands = {
+ changelog: {
+  syntax: 'changelog',
+  description: `Opens the Proxiani changelog in Notepad.`,
+  func: (data, middleware) => childProcess.exec(`cmd.exe /c start "" notepad.exe CHANGELOG.txt`, { cwd: middleware.device.proxy.dir }),
+ },
  date: {
   syntax: 'date',
   description: `Returns Proxiani's current local date and time.`,
