@@ -52,8 +52,7 @@ class Proxy {
    catch (error) {}
   }
   this.packageInfoFileWatcher = fs.watch(this.packageInfoFile, { persistent: false }, eventType => {
-   if (eventType !== 'change') return;
-   else if (this.packageInfoFileWatcherTimeout) return;
+   if (this.packageInfoFileWatcherTimeout) return;
    this.packageInfoFileWatcherTimeout = setTimeout(() => {
     try {
      this.loadPackageInfo();
@@ -70,7 +69,7 @@ class Proxy {
      this.packageInfoFileWatcher.close();
      delete this.packageInfoFileWatcher;
     }
-   }, 1000);
+   }, 500);
   });
  }
  link(device1, device2) {
