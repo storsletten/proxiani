@@ -1,10 +1,18 @@
 const childProcess = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const utils = require('../../src/utils');
 
 const commands = {
  changelog: {
   syntax: 'changelog',
   description: `Opens the Proxiani changelog in Notepad.`,
   func: (data, middleware) => childProcess.exec(`cmd.exe /c start "" notepad.exe CHANGELOG.txt`, { cwd: middleware.device.proxy.dir }),
+ },
+ console: {
+  syntax: 'console',
+  description: `Shows Proxiani's last console messages.`,
+  func: (data, middleware) => data.respond.push(`Showing last ${middleware.device.proxy.consoleLog.length} Proxiani console messages:`, ...middleware.device.proxy.consoleLog),
  },
  date: {
   syntax: 'date',
@@ -29,9 +37,31 @@ const commands = {
   },
  },
  log: {
-  syntax: 'log',
-  description: `Shows Proxiani's console log messages.`,
-  func: (data, middleware) => data.respond.push(`Showing last ${middleware.device.proxy.consoleLog.length} Proxiani console messages:`, ...middleware.device.proxy.consoleLog),
+  syntax: 'log [<date> | <number of days ago>]',
+  description: `Opens a log file in Notepad.`,
+  func: (data, middleware) => {
+   const userData = middleware.device.proxy.userData;
+   const d = new Date();
+   if (data.command.length > 2) {
+    if (data.command.length === 3 && isFinite(data.command[2])) d.setDate(d.getDate() - Number(data.command[2]));
+    else {
+     const t = Date.parse(data.command.slice(2).join(' '));
+     if (isNaN(t)) {
+      data.respond.push(`Invalid date.`);
+      return;
+     }
+     else d.setTime(t);
+    }
+   }
+   const fileName = `${utils.englishOrdinalIndicator(d.getDate())}, ${middleware.device.loggerID}.txt`;
+   const dirName = path.join(userData.dir, userData.logDir, String(d.getFullYear()), String(d.getMonth() + 1));
+   const logFile = path.join(dirName, fileName);
+   if (fs.existsSync(logFile)) {
+    data.respond.push(`Opening log for ${utils.formatDate(d)}...`);
+    childProcess.exec(`cmd.exe /c start "" notepad.exe "${fileName}"`, { cwd: dirName });
+   }
+   else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);
+  },
  },
  memory: {
   syntax: 'memory',
