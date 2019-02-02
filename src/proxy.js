@@ -18,7 +18,7 @@ class Proxy {
   this.events = new EventEmitter();
   this.userData = options.userData || (new UserData({ proxy: this }));
   this.consoleLog = [];
-  this.consoleLogMaxSize = options.consoleLogMaxSize || 10;
+  this.consoleLogMaxSize = options.consoleLogMaxSize || 25;
   this.restartRequested = false;
   this.console(`Started ${this.name} ${this.version}`);
   this.events.on('close', () => {
