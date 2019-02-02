@@ -27,10 +27,10 @@ class UserData {
  constructor(options = {}) {
   this.proxy = options.proxy;
   if (options.dir) this.dir = options.dir;
+  else if (process.argv.length > 2 && process.argv[2]) this.dir = path.isAbsolute(process.argv[2]) ? process.argv[2] : path.join(process.cwd(), process.argv[2]);
   else {
    const dir = path.join(os.homedir(), 'Documents');
-   if (fs.existsSync(dir)) this.dir = path.join(dir, 'Proxiani');
-   else path.join(dir, '..', 'Proxiani');
+   this.dir = path.join(dir, fs.existsSync(dir) ? '.' : '..', 'Proxiani');
   }
   this.configFile = 'Config.json';
   this.customFile = 'Custom.js';
