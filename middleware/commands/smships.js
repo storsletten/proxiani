@@ -13,6 +13,7 @@ const modes = {
   else return `${total} ${total === 1 ? 'ship' : 'ships'}.`;
  },
  dir: (ship, index, filter) => filter ? `${ship.dir || 'Here'}, ${ship.match}` : `${ship.dir || 'Here'}, ship ${ship.index + 1}`,
+ full: (ship, index, filter) => `Ship ${ship.index + 1}, distance ${ship.distance}, coords ${ship.x} ${ship.y} ${ship.z}, dir ${ship.dir || 'here'}, alliance ${ship.alliance || 'unknown'}, ${filter ? `match ${ship.match}, ` : ''}name ${ship.name}`,
  name: (ship, index, filter) => filter ? `Ship ${ship.index + 1}, ${ship.dir || 'here'}, ${ship.match}` : `Ship ${ship.index + 1}, ${ship.dir || 'here'}, ${ship.name}`,
 };
 
