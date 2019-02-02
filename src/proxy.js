@@ -69,7 +69,7 @@ class Proxy {
      this.packageInfoFileWatcher.close();
      delete this.packageInfoFileWatcher;
     }
-   }, 500);
+   }, 1000);
   });
  }
  link(device1, device2) {
