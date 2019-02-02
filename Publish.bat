@@ -43,6 +43,6 @@ xcopy "!devDir!src" "!pubDir!src" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!CHANGELOG.txt" "!pubDir!CHANGELOG.txt" /D /Q /V /M /Y>nul
 xcopy "!devDir!package.json" "!pubDir!package.json" /D /Q /V /M /Y>nul
 
-npm publish && git push --follow-tags
+git push --follow-tags
 
 pause
