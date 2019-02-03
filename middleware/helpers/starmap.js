@@ -3,9 +3,10 @@ const direction = require('./direction');
 const alliances = {
  'A': 'AIE',
  'B': 'Blue',
- 'C': 'CW',
+ 'C': 'C',
  'G': 'Green',
  'H': 'Hale',
+ 'HG': 'HG',
  'K': 'Krenelia',
  'O': 'Observer',
  'P': 'Pink',
