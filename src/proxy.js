@@ -56,7 +56,7 @@ class Proxy {
    this.packageInfoFileWatcherTimeout = setTimeout(() => {
     try {
      this.loadPackageInfo();
-     delete this.packageInfoFileWatcherTimeout;
+     this.packageInfoFileWatcherTimeout = setTimeout(() => delete this.packageInfoFileWatcherTimeout, 2000);
      if (this.outdated) {
       for (let id in this.devices) {
        const device = this.devices[id];
