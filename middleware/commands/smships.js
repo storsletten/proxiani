@@ -92,10 +92,6 @@ const smships = (data, middleware, linkedMiddleware) => {
    const scannedShip = middleware.persistentStates.scan && middleware.persistentStates.scan.objectType === 'starship' && ships.find(ship => ship.name === middleware.persistentStates.scan.name);
    if (aimedShip) aimedShip.priority = -2;
    if (scannedShip) scannedShip.priority = -4;
-   data.forward.push(JSON.stringify({
-    aimedShip,
-    focusedShip,
-   }));
    ships.sort((a, b) => a.distance !== b.distance ? a.distance - b.distance : a.priority - b.priority);
    data.forward.push(`#$#proxiani starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
    if (!focusedShip) {
