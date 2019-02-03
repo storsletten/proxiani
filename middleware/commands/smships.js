@@ -86,7 +86,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    let focusedShip;
    if (middleware.persistentStates.focus) {
     focusedShip = ships.find(ship => ship.name === middleware.persistentStates.focus.name);
-    focusedShip.priority = middleware.persistentStates.focus.implicitFocus ? -1 : -3;
+    if (focusedShip) focusedShip.priority = middleware.persistentStates.focus.implicitFocus ? -1 : -3;
    }
    const aimedShip = middleware.persistentStates.aim && ships.find(ship => direction.here3d(ship, middleware.persistentStates.aim));
    const scannedShip = middleware.persistentStates.scan && middleware.persistentStates.scan.objectType === 'starship' && ships.find(ship => ship.name === middleware.persistentStates.scan.name);
