@@ -57,7 +57,7 @@ const commands = {
    const dirName = path.join(userData.dir, userData.logDir, String(d.getFullYear()), String(d.getMonth() + 1));
    const logFile = path.join(dirName, fileName);
    if (fs.existsSync(logFile)) {
-    data.respond.push(`Opening log for ${utils.formatDate(d)}...`);
+    data.respond.push(`#$#proxiani say Log for ${utils.formatDateWordly(d)}.`);
     childProcess.exec(`cmd.exe /c start "" notepad.exe "${fileName}"`, { cwd: dirName });
    }
    else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);

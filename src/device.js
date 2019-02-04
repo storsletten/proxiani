@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const net = require('net');
@@ -31,10 +32,11 @@ class Device {
   this.loggerID = options.loggerID;
   this.type = options.type || (('socket' in options) ? 'client' : 'server');
   this.initialLinkingDelay = options.initialLinkingDelay || 200; // Give VIP Mud enough time to load triggers before data starts pouring in.
+  this.token = options.token || crypto.randomBytes(4).toString('hex');
 
   if (options.link) {
    this.events.once('connect', () => {
-    if (this.initialLinkingDelay) {
+    if (this.initialLinkingDelay && this.lastConnectionAttempt) {
      const wait = this.initialLinkingDelay - ((new Date()) - this.lastConnectionAttempt);
      if (wait > 0) {
       this.timers.initialLinkingDelay = setTimeout(() => {
@@ -60,9 +62,7 @@ class Device {
    }
    case 'server': {
     this.middleware = new middleware.Server({ device: this });
-    this.events.on('ready', () => {
-     this.forward(`${this.oob}proxiani version ${this.proxy.version}`)
-    });
+    this.events.on('ready', () => this.forward(`#$#proxiani session version ${this.proxy.version} | token ${this.link.token}`));
     break;
    }
    default: {

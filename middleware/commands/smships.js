@@ -28,6 +28,7 @@ const smships = (data, middleware, linkedMiddleware) => {
   if (starmap.reader(data, state)) return false;
   if (!state.readingComplete) return;
   const oob = starmap.oob(state);
+  oob.push(`token ${linkedMiddleware.device.token}`);
   if (!state.starships) {
    data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
    data.forward.push(`No ships.`);
