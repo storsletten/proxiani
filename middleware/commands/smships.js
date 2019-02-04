@@ -93,62 +93,39 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (aimedShip) aimedShip.priority = -2;
    if (scannedShip) scannedShip.priority = -4;
    ships.sort((a, b) => a.distance !== b.distance ? a.distance - b.distance : a.priority - b.priority);
+   if (mode === 'dir') {
+    if (!focusedShip && ships[0].distance <= 1) {
+     focusedShip = ships[0];
+     middleware.persistentStates.focus = { implicitFocus: true, name: focusedShip.name, x: focusedShip.x, y: focusedShip.y, z: focusedShip.z };
+    }
+    else if (focusedShip && focusedShip !== ships[0]) {
+     for (let i=1; i<ships.length; i++) {
+      if (focusedShip === ships[i]) {
+       ships.splice(i, 1);
+       ships.unshift(focusedShip);
+       break;
+      }
+     }
+    }
+   }
+   else {
+    let indexPastZeroDistance = 0;
+    if (ships[ships.length - 1].distance !== 0) {
+     while (ships[indexPastZeroDistance].distance === 0) indexPastZeroDistance++;
+    }
+    if (indexPastZeroDistance > 0 && ships[indexPastZeroDistance].distance === 1) {
+     const cuddledShips = ships.splice(0, indexPastZeroDistance);
+     let indexForInsertingCuddledShips = 1;
+     if (ships[ships.length - 1].distance > 1) {
+      while (ships[indexForInsertingCuddledShips].distance === 1) indexForInsertingCuddledShips++;
+     }
+     else indexForInsertingCuddledShips = ships.length - 1;
+     ships.splice(indexForInsertingCuddledShips, 0, ...cuddledShips);
+    }
+   }
    data.forward.push(`#$#proxiani starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
-   if (!focusedShip) {
-    for (let i=0; i<ships.length; i++) {
-     if (ships[i].distance === 1) {
-      focusedShip = ships[i];
-      break;
-     }
-     else if (ships[i].distance > 1) {
-      if (ships[0].distance === 0) focusedShip = ships[0];
-      break;
-     }
-    }
-    if (focusedShip) middleware.persistentStates.focus = { implicitFocus: true, name: focusedShip.name, x: focusedShip.x, y: focusedShip.y, z: focusedShip.z };
-   }
-   if (mode === 'dir' && focusedShip && focusedShip !== ships[0]) {
-    for (let i=1; i<ships.length; i++) {
-     if (focusedShip === ships[i]) {
-      ships = ships.splice(i, 1);
-      ships.unshift(focusedShip);
-      break;
-     }
-    }
-   }
-   let shipsHere = [];
-   while (ships.length > 0 && ships[0].distance === 0) shipsHere.push(ships.shift());
-   if (mode === 'dir' && focusedShip && focusedShip.distance === 0) {
-    for (let i=0; i<shipsHere.length; i++) {
-     if (focusedShip === shipsHere[i]) {
-      ships.unshift(focusedShip);
-      shipsHere = shipsHere.splice(i, 1);
-      break;
-     }
-    }
-   }
-   if (ships.length > 0 && shipsHere.length > 0 && ships[0].distance > 1 && (mode !== 'dir' || ships[0] !== focusedShip)) ships.unshift(shipsHere.shift());
-   if (ships.length > 0) {
-    const maxShips = Math.max(1, maxNumberOfShips - shipsHere.length);
-    if (ships.length > maxShips) ships = ships.slice(0, maxShips);
-    data.forward.push(...ships.map((ship, index) => modes[mode](ship, index, filter)));
-   }
-   if (shipsHere.length > 0) {
-    data.forward.push(`Cuddling${shipsHere.length > 1 ? `${shipsHere.length} ships` : ''}:`);
-    if (mode === 'full') {
-     const maxShips = Math.max(1, maxNumberOfShips - ships.length);
-     if (shipsHere.length > maxShips) shipsHere = shipsHere.slice(0, maxShips);
-     data.forward.push(...shipsHere.map((ship, index) => modes[mode](ship, index, filter)));
-    }
-    else {
-     if (mode === 'coords') {
-      const { x, y, z } = state.currentCoordinates;
-      data.forward.push(`${x} ${y} ${z}.`);
-     }
-     if (filter) data.forward.push(...shipsHere.map((ship, index) => `Ship ${ship.index + 1}, ${ship.match}, ${ship.name}`));
-     else data.forward.push(...shipsHere.map((ship, index) => `Ship ${ship.index + 1}, ${ship.name}`));
-    }
-   }
+   if (ships.length > maxNumberOfShips) ships = ships.slice(0, maxNumberOfShips);
+   data.forward.push(...ships.map((ship, index) => modes[mode](ship, index, filter)));
   }
  }, {
   command: data.command,
