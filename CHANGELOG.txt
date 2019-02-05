@@ -1,0 +1,25 @@
+Version 1.0.11, released 2019-02-04:
+* Changed the message that indicates which log file you open with px log. It now uses an OOB message for say. And also changed some more OOB message stuff along the way.
+
+Version 1.0.10, released 2019-02-04:
+* smc, smf, and sms will no longer announce cuddles if there is at least one ship that is one unit away. Cuddled ships will appear after ships that are one unit away, which will only show if you specify a number of ships to show that is greater than, you guessed it, the number of ships that are one unit away.
+
+Version 1.0.9, released 2019-02-03:
+* smships assess will now recognize High Guard ships.
+
+Version 1.0.8, released 2019-02-03:
+* Fixed some smships bugs. Also made the cuddle notice less verbose if you're only cuddling one starship.
+
+Version 1.0.7, released 2019-02-02:
+* Changed px log to px console, and added px log for opening log files in Notepad. The px log command also supports arguments for specifying either a date, or a number indicating how many days you would like to go back. For instance, px l 3, would show you the log file for three days ago.
+* Increased the number of buffered console messages from 10 to 25.
+
+Version 1.0.6, released 2019-02-02:
+* Added smships full, for those times when you would like to see all the available information about the nearest ship.
+
+Version 1.0.5, released 2019-02-02:
+* Proxiani now lets you specify its user data path by passing it as a command line argument when starting Proxiani. Start.vbs has been updated as well so it will forward the first command line argument.
+* Changed smships name so it shows name/match last.
+
+Version 1.0.4, released 2019-02-02:
+* Added px changelog, for opening the Proxiani changelog file in Notepad.
