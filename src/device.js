@@ -12,6 +12,7 @@ class Device {
   this.proxy = options.proxy;
   this.id = options.id || this.proxy.getNewID();
   this.proxy.devices[this.id] = this;
+  this.proxy.devicesCount++;
   this.buffer = Buffer.from('');
   this.timers = {};
   this.events = new EventEmitter();
@@ -228,9 +229,11 @@ class Device {
      catch (error) {}
      delete this.logger;
     }
-    delete this.proxy.devices[this.id];
-    delete this.proxy;
     delete this.events;
+    delete this.proxy.devices[this.id];
+    this.proxy.devicesCount--;
+    if (this.proxy.socketsCount === 0 && this.proxy.devicesCount === 0) this.proxy.events.emit('close');
+    delete this.proxy;
    }
   });
   this.socket.on('data', data => {

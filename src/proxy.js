@@ -12,6 +12,7 @@ class Proxy {
   this.loadPackageInfo();
   this.idCount = 0;
   this.devices = {};
+  this.devicesCount = 0;
   this.sockets = {};
   this.socketsCount = 0;
   this.dir = path.dirname(__dirname);
@@ -29,16 +30,9 @@ class Proxy {
    if (this.restartRequested) {
     this.console(`Restarting Proxiani...`);
     for (let mod in require.cache) delete require.cache[mod];
-    try {
-     require('../server.js');
-    }
-    catch (error) {
-     console.log(`Fatal error:`, error);
-    }
+    setTimeout(() => require('../server.js'), 50);
    }
-   else {
-    this.console(`Shutting down Proxiani`);
-   }
+   else this.console(`Shutting down Proxiani`);
    delete this.events;
    delete this.devices;
    delete this.sockets;
@@ -127,7 +121,18 @@ class Proxy {
  }
  close() {
   for (let id in this.sockets) this.sockets[id].close();
-  for (let id in this.devices) this.devices[id].close();
+  const clients = [];
+  for (let id in this.devices) {
+   const device = this.devices[id];
+   if (device.type === 'server') {
+    if (device.link && device.link.type === 'client') clients.push(device.link.id);
+    device.close();
+   }
+  }
+  for (let id in this.devices) {
+   const device = this.devices[id];
+   if (device.type === 'client' && !clients.includes(id)) device.close();
+  }
  }
  getNewID() {
   return String(++this.idCount);
@@ -153,12 +158,11 @@ class Proxy {
    this.console(`${title} socket error: ${error}`);
   });
   socket.on('close', () => {
+   this.console(`${title} stopped listening for incoming connections`);
    socket.unref();
    delete this.sockets[id];
-   setTimeout(() => {
-    this.console(`${title} closed`);
-    if ((--this.socketsCount) === 0) this.events.emit('close');
-   }, 250);
+   this.socketsCount--;
+   if (this.socketsCount === 0 && this.devicesCount === 0) this.events.emit('close');
   });
   socket.on('listening', () => {
    const { address, port, family } = socket.address();
