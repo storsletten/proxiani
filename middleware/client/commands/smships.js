@@ -1,5 +1,5 @@
-const direction = require('../helpers/direction');
-const starmap = require('../helpers/starmap');
+const direction = require('../../helpers/direction');
+const starmap = require('../../helpers/starmap');
 
 const modes = {
  assess: (label, count) => `${count} ${label}`,
@@ -25,8 +25,8 @@ const smships = (data, middleware, linkedMiddleware) => {
  data.forward[0] = 'sm';
  linkedMiddleware.setState('sm', (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
-  if (starmap.reader(data, state)) return false;
-  if (!state.readingComplete) return;
+  if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
+  if (!state.readingComplete) return 0b10;
   const oob = starmap.oob(state);
   oob.push(`token ${linkedMiddleware.device.token}`);
   if (!state.starships) {

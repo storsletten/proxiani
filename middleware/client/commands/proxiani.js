@@ -1,7 +1,7 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const utils = require('../../src/utils');
+const utils = require('../../../src/utils');
 
 const commands = {
  changelog: {
@@ -27,11 +27,13 @@ const commands = {
    data.respond.push(`[Type @abort to return to normal.]`);
    middleware.setState('proxianiEcho', (data, middleware) => {
     data.forward.pop();
-    data.stopProcessing = true;
-    if (data.input.toLowerCase() === '@abort') data.respond.push('Echo mode disabled.');
+    if (data.input.toLowerCase() === '@abort') {
+     data.respond.push('Echo mode disabled.');
+     return;
+    }
     else {
      data.respond.push(data.input);
-     return false;
+     return 0b01;
     }
    });
   },
@@ -143,10 +145,9 @@ const commands = {
 };
 
 const proxiani = (data, middleware, linkedMiddleware) => {
- data.stopProcessing = true;
  data.forward.pop();
- if (data.command.length <= 1) {
-  data.respond.push(`Available arguments for the Proxiani command:`);
+ if (data.command.length === 1) {
+  data.respond.push(`Available arguments for the ${data.command[0]} command:`);
   for (let command in commands) data.respond.push(`  ${commands[command].syntax || command}. ${commands[command].description}`);
  }
  else if (data.command[1] in commands) commands[data.command[1]].func(data, middleware, linkedMiddleware);
@@ -157,7 +158,7 @@ const proxiani = (data, middleware, linkedMiddleware) => {
     return;
    }
   }
-  data.respond.push(`Proxiani command not recognized.`);
+  data.respond.push(`${data.command[0]} command not recognized.`);
  }
 };
 

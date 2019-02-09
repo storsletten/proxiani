@@ -1,23 +1,29 @@
 const path = require('path');
 
-class Generic {
+class Middleware {
  constructor(options) {
   this.device = options.device;
   this.dir = options.dir || path.join(__dirname, '../middleware');
   this.defaultStateTimeout = options.defaultStateTimeout || 15000;
+  this.load();
  }
  load(file) {
   try {
-   const resolvedPath = require.resolve(file || path.join(this.dir, this.device.type));
+   const resolvedPath = require.resolve(file || path.join(this.dir, this.device.type, 'index.js'));
    const dir = path.dirname(resolvedPath);
-   if (resolvedPath in require.cache) {
+   if (this.states) {
     for (let mod in require.cache) {
      if (mod.slice(0, dir.length) === dir) delete require.cache[mod];
     }
    }
    const mod = require(resolvedPath);
    this.dir = dir;
-   if (this.states) this.device.proxy.console(`Device ${this.device.id} reloaded its middleware`);
+   if (this.states) {
+    this.device.proxy.console(`Device ${this.device.id} reloaded its middleware`);
+    delete this.commands;
+    delete this.funcs;
+    delete this.triggers;
+   }
    this.states = {};
    this.persistentStates = {};
    Object.assign(this, mod);
@@ -29,18 +35,14 @@ class Generic {
  }
  isOOB(input) { return input.indexOf(this.device.oob) === 0; }
  setState(name, func, data = {}) {
-  this.states[name] = {
+  const state = {
    created: new Date(),
    timeout: this.defaultStateTimeout,
    func,
    data,
   };
- }
- setPersistentState(name, data) {
-  this.persistentStates[name] = {
-   created: new Date(),
-   data: data,
-  };
+  this.states[name] = state;
+  return state;
  }
  process(input) {
   const data = {
@@ -55,76 +57,36 @@ class Generic {
     try {
      const state = this.states[name];
      const result = state.func(data, this, linkedMiddleware);
-     if (result !== false || (state.timeout && ((new Date()) - state.created) > state.timeout)) delete this.states[name];
+     const bits = typeof result === 'number' ? result : 0b11;
+     if (bits & 0b10 || (state.timeout > 0 && ((new Date()) - state.created) > state.timeout)) delete this.states[name];
+     if (bits & 0b01) return { data, state };
     }
     catch (error) {
      delete this.states[name];
-     this.device.proxy.console(`Middleware state "${name}" error:`, error);
+     const proxy = this.device.proxy;
+     proxy.console(`Middleware state "${name}" error in ${proxy.name} ${proxy.version}:`, error);
     }
-    if (data.stopProcessing) return data;
+   }
+   if (this.triggers && (data.input in this.triggers) && this.triggers[data.input](data, this, linkedMiddleware) !== false) return { data };
+   if (this.commands) {
+    const m = data.input.match(/[^ ]+/);
+    if (m && (m[0].toLowerCase() in this.commands)) {
+     data.command = data.input.trim().replace(/\s+/g, ' ').toLowerCase().split(' ');
+     if (this.commands[data.command[0]](data, this, linkedMiddleware) !== false) return { data };
+    }
+   }
+   if (this.funcs) {
+    for (let i=0; i<this.funcs.length; i++) {
+     const result = this.funcs[i](data, this, linkedMiddleware);
+     if (result !== false) return { data };
+    }
    }
   }
   catch (error) {
    this.device.proxy.console(`Middleware error:`, error);
   }
-  return data;
+  return { data };
  }
 }
 
-class Client extends Generic {
- constructor(options) {
-  super(options);
-  this.load();
- }
- load(file) {
-  return super.load(file);
- }
- process(input) {
-  const data = super.process(input);
-  if (data.stopProcessing) return data;
-  try {
-   const linkedMiddleware = this.device.link.middleware;
-   const command = data.input.trimStart().split(' ', 1)[0].toLowerCase();
-   if (command.length > 0 && (command in this.commands)) {
-    data.command = data.input.trim().toLowerCase().split(' ').filter(word => word.length > 0);
-    this.commands[command](data, this, linkedMiddleware);
-    if (data.stopProcessing) return data;
-   }
-  }
-  catch (error) {
-   this.device.proxy.console(`Client Middleware error:`, error);
-  }
-  return data;
- }
-}
-
-class Server extends Generic {
- constructor(options) {
-  super(options);
-  this.load();
- }
- load(file) {
-  return super.load(file);
- }
- process(input) {
-  const data = super.process(input);
-  if (data.stopProcessing) return data;
-  try {
-   const linkedMiddleware = this.device.link.middleware;
-   if (data.input in this.triggers) {
-    this.triggers[data.input](data, this, linkedMiddleware);
-    if (data.stopProcessing) return data;
-   }
-  }
-  catch (error) {
-   this.device.proxy.console(`Server Middleware error:`, error);
-  }
-  return data;
- }
-}
-
-module.exports = {
- Generic,
- Client,
- Server,
-};
+module.exports = Middleware;

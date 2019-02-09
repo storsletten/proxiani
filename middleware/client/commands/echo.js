@@ -6,23 +6,24 @@ const echo = (data, middleware) => {
   data.respond.push(`[Type lines of input; use \`.' to end.]`);
   middleware.setState('echo', (data, middleware) => {
    const maxLineCount = 1000;
-   if (middleware.isOOB(data.input)) return false;
+   if (middleware.isOOB(data.input)) return 0;
    data.forward.pop();
-   data.stopProcessing = true;
-   if (data.input === '.') data.respond = middleware.states.echo.data;
-   else if (data.input.toLowerCase() === '@abort') data.respond.push('>> Command Aborted <<');
-   else if (middleware.states.echo.data.length < maxLineCount) {
-    middleware.states.echo.data.push(data.input);
-    return false;
+   if (data.input === '.') {
+    data.respond = middleware.states.echo.data;
+    return;
    }
+   else if (data.input.toLowerCase() === '@abort') {
+    data.respond.push('>> Command Aborted <<');
+    return;
+   }
+   else if (middleware.states.echo.data.length < maxLineCount) middleware.states.echo.data.push(data.input);
    else if (middleware.states.echo.data.length === maxLineCount) {
     const msg = `*** Exceeded the maximum number of lines (${maxLineCount}) ***`;
     middleware.states.echo.data.push(msg);
     data.respond.push(msg);
     data.respond.push(`Please type a period (.) to have the buffered text echoed back to you, or type @abort to cancel and discard the buffered data.`);
-    return false;
    }
-   else return false;
+   return 0b01;
   }, []);
  }
 };

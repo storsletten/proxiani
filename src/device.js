@@ -4,7 +4,7 @@ const path = require('path');
 const net = require('net');
 const tls = require('tls');
 const EventEmitter = require('events');
-const middleware = require('./middleware');
+const Middleware = require('./middleware');
 const utils = require('./utils');
 
 class Device {
@@ -33,6 +33,7 @@ class Device {
   this.type = options.type || (('socket' in options) ? 'client' : 'server');
   this.initialLinkingDelay = options.initialLinkingDelay || 200; // Give VIP Mud enough time to load triggers before data starts pouring in.
   this.token = options.token || crypto.randomBytes(4).toString('hex');
+  this.middleware = new Middleware({ device: this });
 
   if (options.link) {
    this.events.once('connect', () => {
@@ -55,24 +56,11 @@ class Device {
    if (this.link) this.events.emit('ready');
   });
   this.events.on('link', () => this.connected && this.events.emit('ready'));
-  switch (this.type) {
-   case 'client': {
-    this.middleware = new middleware.Client({ device: this });
-    break;
-   }
-   case 'server': {
-    this.middleware = new middleware.Server({ device: this });
-    this.events.on('ready', () => this.forward(`#$#proxiani session version ${this.proxy.version} | token ${this.link.token}`));
-    break;
-   }
-   default: {
-    this.middleware = new middleware.Generic({ device: this });
-    break;
-   }
-  }
+  if (this.type === 'client') this.events.once('ready', () => this.respond(`#$#proxiani session version ${this.proxy.version} | token ${this.token}`));
   this.events.on('ready', () => this.socket.resume());
   this.events.on('line', line => {
-   const data = this.middleware.process(line);
+   const result = this.middleware.process(line);
+   const data = result.data;
    data.respond.forEach(line => this.respond(line));
    data.forward.forEach(line => this.forward(line));
    if (this.proxy.userData.config.logging && data.input.length > 0 && data.input.slice(0, 3) !== '#$#') {

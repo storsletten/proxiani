@@ -1,31 +1,31 @@
-const separatorRegexp = /^-{2,80}$/;
+const separatorRegexp = /^-{2,100}$/;
 
 const scan = (data, middleware, linkedMiddleware) => {
  linkedMiddleware.setState('scan', (data, middleware, linkedMiddleware) => {
-  if (data.input.length === 0) return false;
+  if (data.input.length === 0) return 0;
   const state = middleware.states.scan.data;
   if (!state.object) {
    if (data.input === 'Enter your selection.') middleware.states.scan.timeout = 0;
-   else if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'That is now out of scanning range.', 'That object was not found.', 'Your sensors are unable to scan those coordinates.'].includes(data.input)) return;
+   else if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'That is now out of scanning range.', 'That object was not found.', 'Your sensors are unable to scan those coordinates.'].includes(data.input)) return 0b10;
    else if (data.input.match(separatorRegexp)) state.object = {};
    else state.header = data.input;
-   return false;
+   return 0;
   }
   else {
    const object = state.object;
    const i = data.input.indexOf(': ');
-   if (i > 70) return;
+   if (i > 100) return 0b10;
    else if (i !== -1) {
     const label = data.input.slice(0, i).toLowerCase();
     const value = data.input.slice(i + 2);
     object[label] = value;
-    return false;
+    return 0b01;
    }
    else if (object.coordinates && object.distance && data.input.match(separatorRegexp)) {
     const distance = Number(object.distance);
-    if (isNaN(distance)) return;
+    if (isNaN(distance)) return 0b10;
     let m = object.coordinates.match(/^\(([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})\)$/);
-    if (!m) return;
+    if (!m) return 0b10;
     const [x, y, z] = m.slice(1, 4);
     object.distance = distance;
     object.coordinates = { x, y, z };

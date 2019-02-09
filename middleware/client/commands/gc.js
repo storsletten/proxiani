@@ -62,10 +62,10 @@ const gc = (data, middleware, linkedMiddleware) => {
   }
   if (gcTarget.length === 3) {
    linkedMiddleware.setState('gc', (data, middleware, linkedMiddleware) => {
-    if (data.input.length === 0) return false;
-    else if ([`I don't understand that.`, 'Invalid selection.'].includes(data.input)) return;
+    if (data.input.length === 0) return 0;
+    else if ([`I don't understand that.`, 'Invalid selection.'].includes(data.input)) return 0b10;
     const m = data.input.match(/^Current galactic coordinates\: (-?[0-9]{1,10}), (-?[0-9]{1,10}), (-?[0-9]{1,10})$/);
-    if (!m) return false;
+    if (!m) return 0;
     const gcTarget = middleware.states.gc.data.gcTarget;
     const sector = middleware.states.gc.data.sector;
     const gc = m.slice(1, 4).map(n => Number(n));

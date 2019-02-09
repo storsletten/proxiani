@@ -1,4 +1,4 @@
-const starmap = require('../helpers/starmap');
+const starmap = require('../../helpers/starmap');
 
 const sm = (data, middleware, linkedMiddleware) => {
  if (linkedMiddleware.states.sm && !linkedMiddleware.states.sm.readingStarmap) delete linkedMiddleware.states.sm;
@@ -11,8 +11,8 @@ const sm = (data, middleware, linkedMiddleware) => {
   }
   linkedMiddleware.setState('sm', (data, middleware, linkedMiddleware) => {
    const state = middleware.states.sm.data;
-   if (starmap.reader(data, state)) return false;
-   if (!state.readingComplete) return;
+   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
+   if (!state.readingComplete) return 0b10;
    const oob = starmap.oob(state);
    oob.push(`token ${linkedMiddleware.device.token}`);
    const maxNumberOfObjects = 10;
