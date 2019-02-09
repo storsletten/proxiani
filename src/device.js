@@ -82,7 +82,8 @@ class Device {
      this.logger.end();
      delete this.logger;
     }
-    if (!fs.existsSync(dir)) {
+    const logFileExists = fs.existsSync(logFile);
+    if (!logFileExists && !fs.existsSync(dir)) {
      let dir = this.proxy.userData.dir;
      for (let i=0; i<dirNames.length; i++) {
       dir = path.join(dir, dirNames[i]);
@@ -99,6 +100,7 @@ class Device {
     try {
      this.logger = fs.createWriteStream(logFile, { flags: 'a', autoClose: true });
      this.logFile = logFile;
+     if (!logFileExists) this.logger.write(`\tLog of ${utils.formatDateWordly(d)}.\r\n`);
     }
     catch (error) {
      this.logger = false;
