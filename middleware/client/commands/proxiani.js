@@ -19,6 +19,23 @@ const commands = {
   description: `Returns Proxiani's current local date and time.`,
   func: data => data.respond.push(String(new Date())),
  },
+ directories: {
+  syntax: 'directories',
+  description: `Shows paths to directories used by Proxiani.`,
+  func: (data, middleware, linkedMiddleware) => {
+   data.respond.push(`Proxiani: ${middleware.device.proxy.dir}`);
+   if (middleware.device.proxy.dir !== middleware.dir.slice(0, middleware.device.proxy.dir.length)) {
+    if (middleware.dir === linkedMiddleware.dir) {
+     data.respond.push(`Middleware: ${middleware.dir}`);
+    }
+    else {
+     data.respond.push(`Client middleware: ${middleware.dir}`);
+     data.respond.push(`Server middleware: ${linkedMiddleware.dir}`);
+    }
+   }
+   data.respond.push(`User data: ${middleware.device.proxy.userData.dir}`);
+  },
+ },
  echo: {
   syntax: 'echo',
   description: `Enables echo mode, which will send all your text back to you, including OOB messages.`,
@@ -90,23 +107,6 @@ const commands = {
     }).timeout = 0;
     linkedMiddleware.setState('pxPass', () => 0b01).timeout = 0;
    }
-  },
- },
- path: {
-  syntax: 'path',
-  description: `Shows the paths to certain directories used by Proxiani.`,
-  func: (data, middleware, linkedMiddleware) => {
-   data.respond.push(`Proxiani: ${middleware.device.proxy.dir}`);
-   if (middleware.device.proxy.dir !== middleware.dir.slice(0, middleware.device.proxy.dir.length)) {
-    if (middleware.dir === linkedMiddleware.dir) {
-     data.respond.push(`Middleware: ${middleware.dir}`);
-    }
-    else {
-     data.respond.push(`Client middleware: ${middleware.dir}`);
-     data.respond.push(`Server middleware: ${linkedMiddleware.dir}`);
-    }
-   }
-   data.respond.push(`User data: ${middleware.device.proxy.userData.dir}`);
   },
  },
  restart: {
