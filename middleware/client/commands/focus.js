@@ -7,7 +7,7 @@ const focus = (data, middleware, linkedMiddleware) => {
   }
   else if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'That object was not found.'].includes(data.input)) return 0b10;
   else if (['The focused ship is no longer in the sector.', 'Scanners report that that starship is no longer available.', 'There are no ships here.'].includes(data.input)) {
-   delete middleware.permanentStates.focus;
+   delete middleware.persistentStates.focus;
    return;
   }
   const m = data.input.match(/^([^[(:]{2,50})\: ([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})$/);

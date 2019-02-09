@@ -1,3 +1,10 @@
+Version 1.0.12, released 2019-02-09:
+* Removed the px reload command, and added a /m flag for the px restart command instead.
+* Fixed a bug that caused echo, px echo, and secho to timeout after 15 seconds.
+* Typing px pass will now enable bidirectional pass through mode, meaning everything sent between Miriani and the mud client will be sent as is, without being processed by Proxiani middleware.
+* Changed px path to px dir.
+* Fixed a bug that prevented Proxiani from restarting if you had more than 250 ms of network lag. Thanks to Anny Rain for reporting this!
+
 Version 1.0.11, released 2019-02-04:
 * Changed the message that indicates which log file you open with px log. It now uses an OOB message for say. And also changed some more OOB message stuff along the way.
 
