@@ -3,13 +3,13 @@ const path = require('path');
 class Middleware {
  constructor(options) {
   this.device = options.device;
-  this.dir = options.dir || path.join(__dirname, '../middleware');
+  this.dir = options.dir || path.join(__dirname, '..', 'middleware', this.device.type);
   this.defaultStateTimeout = options.defaultStateTimeout || 15000;
   this.load();
  }
  load(file) {
   try {
-   const resolvedPath = require.resolve(file || path.join(this.dir, this.device.type, 'index.js'));
+   const resolvedPath = require.resolve(file || path.join(this.dir, 'index.js'));
    const dir = path.dirname(resolvedPath);
    if (this.states) {
     for (let mod in require.cache) {

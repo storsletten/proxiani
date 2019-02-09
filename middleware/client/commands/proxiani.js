@@ -95,23 +95,24 @@ const commands = {
    data.respond.push(`User data: ${middleware.device.proxy.userData.dir}`);
   },
  },
- reload: {
-  syntax: 'reload',
-  description: `Reloads the Proxiani middleware.`,
-  func: (data, middleware, linkedMiddleware) => {
-   if (middleware.load() && linkedMiddleware.load()) data.respond.push(`Reloaded Proxiani middleware.`);
-   else data.respond.push(`Failed to reload Proxiani middleware.`);
-  },
- },
  restart: {
-  syntax: 'restart',
-  description: `Restarts Proxiani.`,
-  func: (data, middleware) => {
-   middleware.device.proxy.console(`Restart command from ${middleware.device.type} ${middleware.device.id}`);
-   middleware.device.respond(`Proxiani restarting... Goodbye!`);
-   middleware.device.respond(`*** Disconnected ***`);
-   middleware.device.proxy.restartRequested = true;
-   middleware.device.proxy.close();
+  syntax: 'restart [/m]',
+  description: `Restarts Proxiani. The optional m flag lets you restart middleware only.`,
+  func: (data, middleware, linkedMiddleware) => {
+   if (data.command.length > 2) {
+    if (data.command[2] === '/m') {
+     if (middleware.load() && linkedMiddleware.load()) data.respond.push(`Reloaded Proxiani middleware.`);
+     else data.respond.push(`Failed to reload Proxiani middleware.`);
+    }
+    else data.respond.push(`Invalid restart parameters.`);
+   }
+   else {
+    middleware.device.proxy.console(`Restart command from ${middleware.device.type} ${middleware.device.id}`);
+    middleware.device.respond(`Proxiani restarting... Goodbye!`);
+    middleware.device.respond(`*** Disconnected ***`);
+    middleware.device.proxy.restartRequested = true;
+    middleware.device.proxy.close();
+   }
   },
  },
  shutdown: {
