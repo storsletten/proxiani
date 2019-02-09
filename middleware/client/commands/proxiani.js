@@ -72,10 +72,24 @@ const commands = {
  },
  pass: {
   syntax: 'pass <message>',
-  description: `Sends <message> directly to Miriani, in case you need to bypass Proxiani.`,
-  func: data => {
-   const msg = data.input.trimStart().slice(data.command[0].length).trimStart().slice(data.command[1].length + 1);
-   data.forward.push(msg);
+  description: `Sends <message> directly to Miriani, in case you need to bypass Proxiani middleware.`,
+  func: (data, middleware, linkedMiddleware) => {
+   if (data.command.length > 2) data.forward.push(data.input.trimStart().slice(data.command[0].length).trimStart().slice(data.command[1].length + 1));
+   else {
+    data.respond.push(`Enabled bidirectional pass-through mode. Type ${data.command.join(' ')} again to disable it.`);
+    middleware.states = {};
+    linkedMiddleware.states = {};
+    middleware.setState('pxPass', (data, middleware, linkedMiddleware) => {
+     if (data.input.match(/^\s*(px|proxiani)\s+(p|pa|pas|pass)\s*$/i)) {
+      data.forward.pop();
+      data.respond.push(`Disabled pass-through mode.`);
+      linkedMiddleware.states = {};
+      return;
+     }
+     return 0b01;
+    }).timeout = 0;
+    linkedMiddleware.setState('pxPass', () => 0b01).timeout = 0;
+   }
   },
  },
  path: {
