@@ -60,7 +60,8 @@ const commands = {
   description: `Opens a log file in Notepad.`,
   func: (data, middleware) => {
    const userData = middleware.device.proxy.userData;
-   const d = new Date();
+   const today = new Date();
+   const d = new Date(today.getTime());
    if (data.command.length > 2) {
     if (data.command.length === 3 && isFinite(data.command[2])) d.setDate(d.getDate() - Number(data.command[2]));
     else {
@@ -76,7 +77,8 @@ const commands = {
    const dirName = path.join(userData.dir, userData.logDir, String(d.getFullYear()), String(d.getMonth() + 1));
    const logFile = path.join(dirName, fileName);
    if (fs.existsSync(logFile)) {
-    data.respond.push(`#$#proxiani say Log for ${utils.formatDateWordly(d)}.`);
+    const daysAgo = Math.floor((today - d) / 86400000);
+    data.respond.push(`#$#proxiani say Log ${daysAgo === 0 ? 'for today' : (daysAgo < 8 ? `from ${daysAgo === 1 ? '1 day' : `${daysAgo} days`} ago` : `for ${utils.formatDateWordly(d)}`)}.`);
     childProcess.exec(`cmd.exe /c start "" notepad.exe "${fileName}"`, { cwd: dirName });
    }
    else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);
