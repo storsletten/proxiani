@@ -43,6 +43,8 @@ xcopy "!devDir!src" "!pubDir!src" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!CHANGELOG.txt" "!pubDir!CHANGELOG.txt" /D /Q /V /M /Y>nul
 xcopy "!devDir!package.json" "!pubDir!package.json" /D /Q /V /M /Y>nul
 
+git add .
+git commit -m "Update CHANGELOG.txt"
 git push --follow-tags
 
 pause
