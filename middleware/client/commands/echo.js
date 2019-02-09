@@ -24,7 +24,7 @@ const echo = (data, middleware) => {
     data.respond.push(`Please type a period (.) to have the buffered text echoed back to you, or type @abort to cancel and discard the buffered data.`);
    }
    return 0b01;
-  }, []);
+  }, []).timeout = 0;
  }
 };
 

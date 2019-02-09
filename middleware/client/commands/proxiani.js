@@ -35,7 +35,7 @@ const commands = {
      data.respond.push(data.input);
      return 0b01;
     }
-   });
+   }).timeout = 0;
   },
  },
  log: {
