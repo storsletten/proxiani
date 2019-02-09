@@ -1,3 +1,6 @@
+Version 1.0.13, released 2019-02-09:
+* Fixed a tiny bug that resulted in an innocent traceback under certain conditions. Thanks to Josh Westen for reporting this issue.
+
 Version 1.0.12, released 2019-02-09:
 * Removed the px reload command, and added a /m flag for the px restart command instead.
 * Fixed a bug that caused echo, px echo, and secho to timeout after 15 seconds.
