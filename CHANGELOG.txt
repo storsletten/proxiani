@@ -1,3 +1,6 @@
+Version 1.0.15, released 2019-02-10:
+* Fixed a bug that prevented you from aborting the conf command using @abort.
+
 Version 1.0.14, released 2019-02-09:
 * Changed the message for px log if you open a log from no more than 7 days ago.
 * New log files will now start with a title at the top, indicating the date of the log file.
