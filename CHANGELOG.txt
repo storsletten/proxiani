@@ -1,3 +1,6 @@
+Version 1.0.17, released 2019-02-11:
+* Added the atsm command, which does the same as the atsm command in the Miriani Soundpack for VIP Mud. Just... much better.
+
 Version 1.0.16, released 2019-02-11:
 * Proxiani will now auto restart if there are no connections when a new version is available.
 * Added px uptime.
