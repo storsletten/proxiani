@@ -149,6 +149,21 @@ const commands = {
    data.respond.push(`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`);
   },
  },
+ uptime: {
+  syntax: 'uptime',
+  description: `Shows uptime information for Proxiani as well as your current connection.`,
+  func: (data, middleware, linkedMiddleware) => {
+   const proxy = middleware.device.proxy;
+   const now = new Date();
+   data.respond.push(`${proxy.name} has been up for ${utils.formatTimeDiff(now, proxy.startdate)}  (since ${utils.formatTime(proxy.startdate)}, ${utils.formatDateWordly(proxy.startdate)}).`);
+   data.respond.push(`You have been connected for ${utils.formatTimeDiff(now, middleware.device.connectedSince)}  (since ${utils.formatTime(middleware.device.connectedSince)}, ${utils.formatDateWordly(middleware.device.connectedSince)}).`);
+   if (linkedMiddleware.device.host) {
+    if (linkedMiddleware.device.connected) data.respond.push(`Connection to ${linkedMiddleware.device.host} has been up for ${utils.formatTimeDiff(now, linkedMiddleware.device.connectedSince)}  (since ${utils.formatTime(linkedMiddleware.device.connectedSince)}, ${utils.formatDateWordly(linkedMiddleware.device.connectedSince)}).`);
+    else if (linkedMiddleware.device.startdate !== linkedMiddleware.device.disconnectedSince) data.respond.push(`The connection to ${linkedMiddleware.device.host} has been down for ${utils.formatTimeDiff(now, linkedMiddleware.device.disconnectedSince)}  (since ${utils.formatTime(linkedMiddleware.device.disconnectedSince)}, ${utils.formatDateWordly(linkedMiddleware.device.disconnectedSince)}).`);
+    else data.respond.push(`${proxy.name} has been attempting to connect to ${linkedMiddleware.device.host} for ${utils.formatTimeDiff(now, linkedMiddleware.device.startdate)}  (since ${utils.formatTime(linkedMiddleware.device.startdate)}, ${utils.formatDateWordly(linkedMiddleware.device.startdate)}).`);
+   }
+  },
+ },
  version: {
   syntax: 'version',
   description: `Shows the version of Proxiani that is currently running.`,

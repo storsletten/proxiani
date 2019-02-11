@@ -8,6 +8,7 @@ const utils = require('./utils');
 
 class Proxy {
  constructor(options = {}) {
+  this.startdate = new Date();
   this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
   this.loadPackageInfo();
   this.idCount = 0;

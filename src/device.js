@@ -9,6 +9,7 @@ const utils = require('./utils');
 
 class Device {
  constructor(options) {
+  this.startdate = new Date();
   this.proxy = options.proxy;
   this.id = options.id || this.proxy.getNewID();
   this.proxy.devices[this.id] = this;
@@ -17,6 +18,7 @@ class Device {
   this.timers = {};
   this.events = new EventEmitter();
   this.connected = false;
+  this.disconnectedSince = this.startdate;
   this.connectionAttempts = options.connectionAttempts;
   this.lastConnectionAttempt = options.lastConnectionAttempt;
   this.lineLengthThreshold = 1024 * 1024 * 5;
@@ -53,6 +55,7 @@ class Device {
   }
   this.events.on('connect', () => {
    this.connected = true;
+   this.connectedSince = new Date();
    this.socket.setTimeout(0);
    if (this.link) this.events.emit('ready');
   });
@@ -180,7 +183,10 @@ class Device {
   this.socket.on('end', () => {
    this.autoReconnect = false;
    this.events.emit('disconnect');
-   this.connected = false;
+   if (this.connected) {
+    this.connected = false;
+    this.disconnectedSince = new Date();
+   }
   });
   this.socket.on('close', () => {
    if (this.buffer.length > 0) {
@@ -192,6 +198,7 @@ class Device {
     const wait = Math.max(0, this.autoReconnectInterval - ((new Date()) - this.lastConnectionAttempt));
     if (this.connected) {
      this.connected = false;
+     this.disconnectedSince = new Date();
      this.proxy.console(`Device ${this.id} disconnected, but will attempt to auto reconnect${wait > 0 ? ` in ${wait}ms...` : ''}`);
      if (this.type === 'server') {
       this.forward(`*** Auto reconnect in progress... ***`);
