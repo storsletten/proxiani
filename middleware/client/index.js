@@ -8,6 +8,7 @@ const commandAliases = {
 const clientMiddleware = {
  commands: {
   aim: require('./commands/aim'),
+  atsm: require('./commands/atsm'),
   echo: require('./commands/echo'),
   focus: require('./commands/focus'),
   gc: require('./commands/gc'),
