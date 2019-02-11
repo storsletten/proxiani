@@ -234,7 +234,10 @@ class Device {
     delete this.events;
     delete this.proxy.devices[this.id];
     this.proxy.devicesCount--;
-    if (this.proxy.socketsCount === 0 && this.proxy.devicesCount === 0) this.proxy.events.emit('close');
+    if (this.proxy.devicesCount === 0) {
+     if (this.proxy.socketsCount === 0) this.proxy.events.emit('close');
+     else if (this.proxy.outdated) this.proxy.close(true);
+    }
     delete this.proxy;
    }
   });

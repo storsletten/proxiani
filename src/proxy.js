@@ -52,10 +52,13 @@ class Proxy {
      this.loadPackageInfo();
      this.packageInfoFileWatcherTimeout = setTimeout(() => delete this.packageInfoFileWatcherTimeout, 2000);
      if (this.outdated) {
-      for (let id in this.devices) {
-       const device = this.devices[id];
-       if (device.type === 'client') device.respond(`*** New ${this.outdated} update for ${this.name}: ${this.latestVersion} ***`);
+      if (this.devicesCount > 0) {
+       for (let id in this.devices) {
+        const device = this.devices[id];
+        if (device.type === 'client') device.respond(`*** New ${this.outdated} update for ${this.name}: ${this.latestVersion} ***`);
+       }
       }
+      else this.close(true);
      }
     }
     catch (error) {
@@ -119,7 +122,8 @@ class Proxy {
    + (gotDate ? '' : `, at ${time}, on ${date}`)
   );
  }
- close() {
+ close(restart = this.restartRequested) {
+  this.restartRequested = restart;
   for (let id in this.sockets) this.sockets[id].close();
   const clients = [];
   for (let id in this.devices) {

@@ -126,8 +126,7 @@ const commands = {
     middleware.device.proxy.console(`Restart command from ${middleware.device.type} ${middleware.device.id}`);
     middleware.device.respond(`Proxiani restarting... Goodbye!`);
     middleware.device.respond(`*** Disconnected ***`);
-    middleware.device.proxy.restartRequested = true;
-    middleware.device.proxy.close();
+    middleware.device.proxy.close(true);
    }
   },
  },
