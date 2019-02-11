@@ -1,3 +1,7 @@
+Version 1.0.16, released 2019-02-11:
+* Proxiani will now auto restart if there are no connections when a new version is available.
+* Added px uptime.
+
 Version 1.0.15, released 2019-02-10:
 * Fixed a bug that prevented you from aborting the conf command using @abort.
 
