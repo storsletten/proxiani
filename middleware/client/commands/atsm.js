@@ -6,7 +6,7 @@ const findBestObject = (current, objects, depth, step = 0) => {
   objects.sort((a, b) => a.distance - b.distance);
   const scoopedObjects = [];
   while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push({...objects.shift()});
-  if (objects.length === 0 || depth < 0) return { ...scoopedObjects[0], ratio: scoopedObjects.length };
+  if (objects.length === 0 || depth <= 0) return { ...scoopedObjects[0], ratio: scoopedObjects.length };
  }
  depth--;
  step++;
