@@ -1,26 +1,37 @@
 const direction = require('../../helpers/direction');
 
-const findBestObject = (current, objects, depth, step = 0) => {
+const findBestObjects = (current, objects, goal, expandProbingDistance, step = 0) => {
  if (step > 0) {
   objects.forEach(object => object.distance = Math.max(Math.abs(current.x - object.x), Math.abs(current.y - object.y)));
   objects.sort((a, b) => a.distance - b.distance);
   const scoopedObjects = [];
   while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push({...objects.shift()});
-  if (objects.length === 0 || depth <= 0) return { ...scoopedObjects[0], ratio: scoopedObjects.length };
+  if (objects.length === 0 || goal <= 0) return { ...scoopedObjects[0], ratio: scoopedObjects.length };
  }
- depth--;
+ goal--;
  step++;
  let objectsToProbe = [];
- const maxProbingDistance = objects[0].distance + 2;
+ const maxProbingDistance = objects[0].distance + expandProbingDistance;
  for (let i=0; i<objects.length; i++) {
   if (objects[i].distance <= maxProbingDistance) objectsToProbe.push({...objects[i]});
   else break;
  }
- return objectsToProbe.map(object => {
-  object.next = findBestObject(object, [...objects], depth, step);
+ objectsToProbe = objectsToProbe.map(object => {
+  object.next = findBestObjects(object, [...objects], goal, expandProbingDistance, step);
   object.ratio = object.next.ratio / object.distance;
   return object;
- }).sort((a, b) => a.ratio - b.ratio).pop();
+ }).sort((a, b) => a.ratio !== b.ratio ? b.ratio - a.ratio : a.distance - b.distance);
+ return step === 1 ? objectsToProbe : objectsToProbe[0];
+};
+
+const getNextDistances = object => {
+ const distances = [];
+ let next = object.next;
+ while (next && next.distance) {
+  distances.push(next.distance);
+  next = next.next;
+ }
+ return distances;
 };
 
 const parseObjects = (text, currentCoordinates) => {
@@ -102,21 +113,21 @@ const atsm = (data, middleware, linkedMiddleware) => {
   const scoopedObjects = [];
   while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push(objects.shift());
   state.cargo += scoopedObjects.length;
+  state.cargoSpace = state.cargoCapacity - state.cargo;
   if (objects.length === 0) data.forward.push(scoopedObjects.length > 0 ? 'No more objects.' : 'No objects.');
   else {
-   const depth = Math.max(0, state.requestedDepth !== undefined ? state.requestedDepth : Math.min(3, state.cargoCapacity - state.cargo));
-   const bestObject = findBestObject(state.coordinates, objects, depth);
+   let bestObject;
+   if (state.goal !== undefined || (powerForScooping > objects[0].distance && state.cargo < state.cargoCapacity)) {
+    if (state.goal === undefined) state.extraProbingDistance = Math.min(state.extraProbingDistance, Math.max(0, state.maxPreferredDistance - objects[0].distance));
+    const goal = Math.max(1, state.goal !== undefined ? state.goal : (state.cargoSpace >= state.cargo && objects.length > 10 ? 4 : 3));
+    const bestObjects = findBestObjects(state.coordinates, objects, goal, state.extraProbingDistance);
+    bestObject = bestObjects[0];
+   }
+   else bestObject = objects[0];
    data.forward.push(`${direction.calculate2d(state.coordinates, bestObject).dir}.`);
-   const distances = [];
-   if (state.requestedDepth !== undefined || state.cargo < state.cargoCapacity) {
-    let next = bestObject.next;
-    while (next && next.distance) {
-     distances.push(next.distance);
-     next = next.next;
-    }
-    if (distances.length > 0) {
-     data.forward.push(`Next ${distances.length === 1 ? 'piece' : `${distances.length} pieces`}: ${distances.length > 2 ? `${distances.slice(0, -1).join(', ')}, and ${distances[distances.length - 1]}` : distances.join(' and ')}.`);
-    }
+   const distances = getNextDistances(bestObject);
+   if (distances.length > 0) {
+    data.forward.push(`Next ${distances.length === 1 ? 'piece' : `${distances.length} pieces`}: ${distances.length > 2 ? `${distances.slice(0, -1).join(', ')}, and ${distances[distances.length - 1]}` : distances.join(' and ')}.`);
    }
   }
   data.forward.push(`${powerForScooping}% power for scooping.`);
@@ -124,7 +135,9 @@ const atsm = (data, middleware, linkedMiddleware) => {
   data.forward.push(`Ship is ${state.distance} unit${state.distance !== 1 ? 's' : ''} distant.`);
   data.forward.push(`Total ${objects.length} object${objects.length !== 1 ? 's' : ''}.`);
  }, {
-  requestedDepth: data.command.length > 1 && isFinite(data.command[1]) ? Math.max(0, Math.floor(Number(data.command[1]))) : undefined,
+  goal: data.command.length > 1 && isFinite(data.command[1]) ? Math.max(0, Math.floor(Number(data.command[1]))) : undefined,
+  extraProbingDistance: 2,
+  maxPreferredDistance: 4,
  });
 };
 
