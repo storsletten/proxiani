@@ -1,3 +1,6 @@
+Version 1.0.21, released 2019-02-12:
+* Tweaked the atsm path finder algorithm. Hopefully it will handle tricky conditions a little bit better now.
+
 Version 1.0.20, released 2019-02-12:
 * Added developerMode as a config option.
 * Added px evaluate, which lets you run JS code arbitrarily in Proxiani. When developer mode is enabled, px ev allows you to access proxy, device, and other key parts of Proxiani.
