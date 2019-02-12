@@ -1,3 +1,6 @@
+Version 1.0.18, released 2019-02-12:
+* Improved the atsm command. It now lets you specify how many objects you want to scoop from the current grid, and atsm will then find the best path for achieving that goal. It defaults to 3 or how many units of cargo space you have left, whichever is the smallest number.
+
 Version 1.0.17, released 2019-02-11:
 * Added the atsm command, which does the same as the atsm command in the Miriani Soundpack for VIP Mud. Just... much better.
 
