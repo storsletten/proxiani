@@ -1,3 +1,7 @@
+Version 1.0.19, released 2019-02-12:
+* Fixed atsm not counting the first object as one of the pieces for the current goal. Basically, if you type atsm 3, it should show direction for one piece, and distance for the next 2 pieces, not the next 3 pieces.
+* Enhanced the path finder algorithm of atsm. Now it will consider a long list of factors before deciding on a path when you use the atsm command without arguments.
+
 Version 1.0.18, released 2019-02-12:
 * Improved the atsm command. It now lets you specify how many objects you want to scoop from the current grid, and atsm will then find the best path for achieving that goal. It defaults to 3 or how many units of cargo space you have left, whichever is the smallest number.
 
