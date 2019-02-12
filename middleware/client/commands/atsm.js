@@ -2,12 +2,13 @@ const direction = require('../../helpers/direction');
 
 const findBestObjects = (current, objects, goal, expandProbingDistance, step = 0) => {
  if (step > 0) {
-  objects.forEach(object => object.distance = Math.max(Math.abs(current.x - object.x), Math.abs(current.y - object.y)));
-  objects.sort((a, b) => a.distance - b.distance);
-  const scoopedObjects = [];
-  while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push({...objects.shift()});
-  if (objects.length === 0 || goal <= 0) return { ...scoopedObjects[0], ratio: scoopedObjects.length };
+  objects = objects.map(object => {
+   return { ...object, distance: Math.max(Math.abs(current.x - object.x), Math.abs(current.y - object.y)) };
+  }).sort((a, b) => a.distance - b.distance);
+  const scoopedObject = objects.shift();
+  if (objects.length === 0 || goal <= 0) return scoopedObject;
  }
+ else if (goal <= 1) return objects[0];
  goal--;
  step++;
  let objectsToProbe = [];
@@ -16,12 +17,13 @@ const findBestObjects = (current, objects, goal, expandProbingDistance, step = 0
   if (objects[i].distance <= maxProbingDistance) objectsToProbe.push({...objects[i]});
   else break;
  }
- objectsToProbe = objectsToProbe.map(object => {
-  object.next = findBestObjects(object, [...objects], goal, expandProbingDistance, step);
-  object.ratio = object.next.ratio / object.distance;
+ return objectsToProbe.map(object => {
+  object.next = findBestObjects(object, objects, goal, expandProbingDistance, step);
+  object.totalCount = object.count + (object.next.totalCount || object.next.count);
+  object.totalDistance = object.distance + (object.next.totalDistance || 0);
+  object.ratio = object.totalCount / object.totalDistance;
   return object;
- }).sort((a, b) => a.ratio !== b.ratio ? b.ratio - a.ratio : a.distance - b.distance);
- return step === 1 ? objectsToProbe : objectsToProbe[0];
+ }).sort((a, b) => a.ratio !== b.ratio ? b.ratio - a.ratio : a.distance - b.distance)[0];
 };
 
 const getNextDistances = object => {
@@ -36,10 +38,14 @@ const getNextDistances = object => {
 
 const parseObjects = (text, currentCoordinates) => {
  try {
-  return text.split(')').slice(0, -1).map((text, index) => {
+  const spots = {};
+  text.split(')').slice(0, -1).forEach((text, index) => {
    const [x, y] = text.split('(')[1].split(', ');
-   return { index, x: Number(x), y: Number(y) };
+   const spot = `${x}-${y}`;
+   if (spot in spots) spots[spot].count++;
+   else spots[spot] = { x: Number(x), y: Number(y), count: 1 };
   });
+  return Object.values(spots);
  }
  catch (error) {
   return [];
@@ -110,24 +116,34 @@ const atsm = (data, middleware, linkedMiddleware) => {
   const objects = state.objects;
   objects.forEach(object => object.distance = Math.max(Math.abs(state.coordinates.x - object.x), Math.abs(state.coordinates.y - object.y)));
   objects.sort((a, b) => a.distance - b.distance);
-  const scoopedObjects = [];
-  while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push(objects.shift());
-  state.cargo += scoopedObjects.length;
+  const scoopedObject = objects.length > 0 && objects[0].distance === 0 ? objects.shift() : undefined;
+  if (scoopedObject) state.cargo += scoopedObject.count;
   state.cargoSpace = state.cargoCapacity - state.cargo;
-  if (objects.length === 0) data.forward.push(scoopedObjects.length > 0 ? 'No more objects.' : 'No objects.');
+  if (objects.length === 0) data.forward.push(scoopedObject ? 'No more objects.' : 'No objects.');
   else {
    let bestObject;
    if (state.goal !== undefined || (powerForScooping > objects[0].distance && state.cargo < state.cargoCapacity)) {
-    if (state.goal === undefined) state.extraProbingDistance = Math.min(state.extraProbingDistance, Math.max(0, state.maxPreferredDistance - objects[0].distance));
-    const goal = Math.max(1, state.goal !== undefined ? state.goal : (state.cargoSpace >= state.cargo && objects.length > 10 ? 4 : 3));
-    const bestObjects = findBestObjects(state.coordinates, objects, goal, state.extraProbingDistance);
-    bestObject = bestObjects[0];
+    if (state.goal === undefined) {
+     let goal = Math.max(1, Math.min(4, state.cargoSpace));
+     state.extraProbingDistance = Math.min(state.extraProbingDistance, Math.max(0, state.maxPreferredDistance - objects[0].distance));
+     bestObject = findBestObjects(state.coordinates, objects, goal, state.extraProbingDistance);
+     if (bestObject.distance !== objects[0].distance && objects[0].distance <= state.maxPreferredDistance && state.cargoSpace > goal && goal > 1) {
+      const bestObjects = [bestObject];
+      while (bestObjects.length < 3 && goal > 1) {
+       goal--;
+       bestObjects.push(findBestObjects(state.coordinates, objects, goal, state.extraProbingDistance));
+      }
+      bestObjects.sort((a, b) => a.ratio !== b.ratio ? b.ratio - a.ratio : a.distance - b.distance);
+      bestObject = bestObjects[0];
+     }
+    }
+    else bestObject = findBestObjects(state.coordinates, objects, state.goal, state.extraProbingDistance);
    }
    else bestObject = objects[0];
    data.forward.push(`${direction.calculate2d(state.coordinates, bestObject).dir}.`);
    const distances = getNextDistances(bestObject);
    if (distances.length > 0) {
-    data.forward.push(`Next ${distances.length === 1 ? 'piece' : `${distances.length} pieces`}: ${distances.length > 2 ? `${distances.slice(0, -1).join(', ')}, and ${distances[distances.length - 1]}` : distances.join(' and ')}.`);
+    data.forward.push(`Next piece${distances.length !== 1 ? 's' : ''}: ${distances.length > 2 ? `${distances.slice(0, -1).join(', ')}, and ${distances[distances.length - 1]}` : distances.join(' and ')}.`);
    }
   }
   data.forward.push(`${powerForScooping}% power for scooping.`);
