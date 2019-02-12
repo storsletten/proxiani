@@ -2,6 +2,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const utils = require('../../../src/utils');
+const vm = require('vm');
 
 const commands = {
  changelog: {
@@ -44,7 +45,7 @@ const commands = {
    data.respond.push(`[Type @abort to return to normal.]`);
    middleware.setState('proxianiEcho', (data, middleware) => {
     data.forward.pop();
-    if (data.input.toLowerCase() === '@abort') {
+    if (data.input.trim().toLowerCase() === '@abort') {
      data.respond.push('Echo mode disabled.');
      return;
     }
@@ -53,6 +54,52 @@ const commands = {
      return 0b01;
     }
    }).timeout = 0;
+  },
+ },
+ evaluate: {
+  syntax: 'evaluate <expression>',
+  description: `Evaluates the expression in a separate Node.js context.`,
+  func: (data, middleware, linkedMiddleware) => {
+   const vmOptions = { timeout: 500 };
+   const vmVars = Object.create(null);
+   if (middleware.device.proxy.userData.config.developerMode) {
+    vmVars.proxy = middleware.device.proxy;
+    vmVars.device = middleware.device;
+    vmVars.linkedDevice = middleware.device.link;
+    vmVars.middleware = middleware;
+    vmVars.linkedMiddleware = linkedMiddleware;
+   }
+   if (data.command.length > 2) {
+    try {
+     data.respond.push(String(vm.runInNewContext(getRawCommandValue(data), vmVars, vmOptions)));
+    }
+    catch (error) {
+     data.respond = error.stack.split("\n");
+    }
+   }
+   else {
+    data.respond.push(`Enter JS code to run.`);
+    data.respond.push(`[Type lines of input; use \`.' to end, or @abort to cancel.]`);
+    middleware.setState('proxianiEval', (data, middleware) => {
+     const state = middleware.states.proxianiEval.data;
+     data.forward.pop();
+     if (data.input.trim().toLowerCase() === '@abort') data.respond.push('>> Command Aborted <<');
+     else if (data.input.trim() === '.') {
+      try {
+       data.respond.push(String(vm.runInNewContext(state.code.join("\r\n"), vmVars, vmOptions)));
+      }
+      catch (error) {
+       data.respond = error.stack.split("\n");
+      }
+     }
+     else {
+      state.code.push(data.input);
+      return 0b01;
+     }
+    }, {
+     code: [],
+    }).timeout = 0;
+   }
   },
  },
  log: {
@@ -93,7 +140,7 @@ const commands = {
   syntax: 'pass <message>',
   description: `Sends <message> directly to Miriani, in case you need to bypass Proxiani middleware.`,
   func: (data, middleware, linkedMiddleware) => {
-   if (data.command.length > 2) data.forward.push(data.input.trimStart().slice(data.command[0].length).trimStart().slice(data.command[1].length + 1));
+   if (data.command.length > 2) data.forward.push(getRawCommandValue(data));
    else {
     data.respond.push(`Enabled bidirectional pass-through mode. Type ${data.command.join(' ')} again to disable it.`);
     middleware.states = {};
@@ -174,6 +221,8 @@ const commands = {
   },
  },
 };
+
+const getRawCommandValue = data => data.command.length > 2 ? data.input.replace(/^\s*[^\s]+\s+[^\s]+\s/, '') : undefined;
 
 const proxiani = (data, middleware, linkedMiddleware) => {
  data.forward.pop();

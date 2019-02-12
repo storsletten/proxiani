@@ -107,21 +107,39 @@ class Proxy {
   else this.outdated = '';
  }
  console(...data) {
-  const d = new Date();
-  const date = utils.formatDate(d);
-  const time = utils.formatTime(d);
-  let gotDate = false;
-  const getDate = () => {
-   gotDate = true;
-   return date;
+  try {
+   const error = data.find(item => typeof item === 'object' && typeof item.stack === 'string');
+   const d = new Date();
+   const date = utils.formatDate(d);
+   const time = utils.formatTime(d);
+   let gotDate = false;
+   const getDate = () => {
+    gotDate = true;
+    return date;
+   };
+   console.log(date, time, ...data);
+   const msg = (
+    data.map(x => typeof x === 'object' && typeof x.stack === 'string' ? `${x.stack.split("\n").filter(line => line.length > 0).slice(0, 5).join("\r\n")}...\r\n    on ${getDate()}, at ${time}` : x)
+    .join(' ')
+    + (gotDate ? '' : `, at ${time}, on ${date}`)
+   );
+   if (this.consoleLog.length >= this.consoleLogMaxSize) this.consoleLog.shift();
+   this.consoleLog.push(msg);
+   if (error) {
+    for (let id in this.devices) {
+     const device = this.devices[id];
+     if (device.type === 'client') {
+      device.respond('#$#proxiani error');
+      if (this.userData.config.developerMode) device.respond(msg);
+      else device.respond(`${name} error!`);
+     }
+    }
+   }
   }
-  console.log(date, time, ...data);
-  if (this.consoleLog.length >= this.consoleLogMaxSize) this.consoleLog.shift();
-  this.consoleLog.push(
-   data.map(x => typeof x === 'object' && typeof x.stack === 'string' ? `${x.stack.split("\n").filter(line => line.length > 0).slice(0, 5).join("\r\n")}...\r\n    on ${getDate()}, at ${time}` : x)
-   .join(' ')
-   + (gotDate ? '' : `, at ${time}, on ${date}`)
-  );
+  catch (error) {
+   console.log(error);
+   process.exit();
+  }
  }
  close(restart = this.restartRequested) {
   this.restartRequested = restart;

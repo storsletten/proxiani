@@ -21,6 +21,7 @@ const defaultConfigJSON = JSON.stringify({
   autoReconnectInterval: 3000,
  },
  logging: true,
+ developerMode: false,
 });
 
 class UserData {
@@ -52,13 +53,17 @@ class UserData {
    try {
     const configJSON = fs.readFileSync(configFile);
     const config = JSON.parse(configJSON);
-    if (config && typeof config === 'object') Object.assign(this.config, config);
+    if (config && typeof config === 'object') {
+     for (let key in config) {
+      if (key in this.config) this.config[key] = config[key];
+     }
+    }
    }
    catch (error) {
     this.proxy.console(error);
    }
   }
-  else this.saveConfig();
+  this.saveConfig();
  }
  loadCustom() {
   const customFile = path.join(this.dir, this.customFile);
