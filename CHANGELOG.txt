@@ -1,3 +1,9 @@
+Version 1.0.20, released 2019-02-12:
+* Added developerMode as a config option.
+* Added px evaluate, which lets you run JS code arbitrarily in Proxiani. When developer mode is enabled, px ev allows you to access proxy, device, and other key parts of Proxiani.
+* Added an OOB message for indicating that an error occurred in Proxiani. If developer mode is enabled, the stack message will be sent to the connected clients as well. With developer mode disabled, you can still access these error messages using px console.
+* Fixed a few other bugs.
+
 Version 1.0.19, released 2019-02-12:
 * Fixed atsm not counting the first object as one of the pieces for the current goal. Basically, if you type atsm 3, it should show direction for one piece, and distance for the next 2 pieces, not the next 3 pieces.
 * Enhanced the path finder algorithm of atsm. Now it will consider a long list of factors before deciding on a path when you use the atsm command without arguments.
