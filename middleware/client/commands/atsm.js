@@ -1,23 +1,26 @@
 const direction = require('../../helpers/direction');
 
-const findBestObject = (current, objects, depth) => {
- objects.forEach(object => object.distance = Math.max(Math.abs(current.x - object.x), Math.abs(current.y - object.y)));
- objects.sort((a, b) => a.distance - b.distance);
- const scoopedObjects = [];
- while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push({...objects.shift()});
+const findBestObject = (current, objects, depth, step = 0) => {
+ if (step > 0) {
+  objects.forEach(object => object.distance = Math.max(Math.abs(current.x - object.x), Math.abs(current.y - object.y)));
+  objects.sort((a, b) => a.distance - b.distance);
+  const scoopedObjects = [];
+  while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push({...objects.shift()});
+  if (objects.length === 0 || depth < 0) return { ...scoopedObjects[0], ratio: scoopedObjects.length };
+ }
  depth--;
- if (objects.length === 0 || depth <= 0) return scoopedObjects.length > 0 ? { ...scoopedObjects[0], ratio: scoopedObjects.length, scoopedObjects } : { ratio: 0, scoopedObjects };
+ step++;
  let objectsToProbe = [];
- const maxProbingDistance = objects[0].distance + 1;
+ const maxProbingDistance = objects[0].distance + 2;
  for (let i=0; i<objects.length; i++) {
   if (objects[i].distance <= maxProbingDistance) objectsToProbe.push({...objects[i]});
   else break;
  }
- return {...objectsToProbe.map(object => {
-  object.next = findBestObject(object, [...objects], depth);
+ return objectsToProbe.map(object => {
+  object.next = findBestObject(object, [...objects], depth, step);
   object.ratio = object.next.ratio / object.distance;
   return object;
- }).sort((a, b) => a.ratio - b.ratio).pop(), scoopedObjects};
+ }).sort((a, b) => a.ratio - b.ratio).pop();
 };
 
 const parseObjects = (text, currentCoordinates) => {
@@ -94,21 +97,34 @@ const atsm = (data, middleware, linkedMiddleware) => {
   if (!state.readingComplete) return 0b10;
   const powerForScooping = state.power - ((state.distance * 3) + 2);
   const objects = state.objects;
-  if (objects.length === 0) data.forward.push('No objects.');
+  objects.forEach(object => object.distance = Math.max(Math.abs(state.coordinates.x - object.x), Math.abs(state.coordinates.y - object.y)));
+  objects.sort((a, b) => a.distance - b.distance);
+  const scoopedObjects = [];
+  while (objects.length > 0 && objects[0].distance === 0) scoopedObjects.push(objects.shift());
+  state.cargo += scoopedObjects.length;
+  if (objects.length === 0) data.forward.push(scoopedObjects.length > 0 ? 'No more objects.' : 'No objects.');
   else {
-   const depth = 5;
+   const depth = Math.max(0, state.requestedDepth !== undefined ? state.requestedDepth : Math.min(3, state.cargoCapacity - state.cargo));
    const bestObject = findBestObject(state.coordinates, objects, depth);
-   if (bestObject.next) {
-    const next = bestObject.next.distance;
-    const nextNext = bestObject.next.next && bestObject.next.next.distance;
-    data.forward.push(`${direction.calculate2d(state.coordinates, bestObject).dir}, and then ${next ? `${next} unit${next !== 1 ? 's' : ''} to next${nextNext ? `, and ${nextNext === 1 ? 'only ' : ''}${nextNext} unit${nextNext !== 1 ? 's' : ''} to next after that` : ''}` : 'no more'}.`);
+   data.forward.push(`${direction.calculate2d(state.coordinates, bestObject).dir}.`);
+   const distances = [];
+   if (state.requestedDepth !== undefined || state.cargo < state.cargoCapacity) {
+    let next = bestObject.next;
+    while (next && next.distance) {
+     distances.push(next.distance);
+     next = next.next;
+    }
+    if (distances.length > 0) {
+     data.forward.push(`Next ${distances.length === 1 ? 'piece' : `${distances.length} pieces`}: ${distances.length > 2 ? `${distances.slice(0, -1).join(', ')}, and ${distances[distances.length - 1]}` : distances.join(' and ')}.`);
+    }
    }
-   else data.forward.push('No more objects.');
-   state.cargo += bestObject.scoopedObjects.length;
   }
   data.forward.push(`${powerForScooping}% power for scooping.`);
   data.forward.push(`Cargo ${state.cargo} of ${state.cargoCapacity}.`);
   data.forward.push(`Ship is ${state.distance} unit${state.distance !== 1 ? 's' : ''} distant.`);
+  data.forward.push(`Total ${objects.length} object${objects.length !== 1 ? 's' : ''}.`);
+ }, {
+  requestedDepth: data.command.length > 1 && isFinite(data.command[1]) ? Math.max(0, Math.floor(Number(data.command[1]))) : undefined,
  });
 };
 
