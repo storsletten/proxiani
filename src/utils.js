@@ -42,6 +42,8 @@ const formatTimeDiff = (d1, d2) => {
  else return `no time`;
 };
 
+const formatAmount = (number, word) => `${number} ${number == 1 ? word : `${word}s`}`;
+
 module.exports = {
  englishOrdinalIndicator,
  englishMonths,
@@ -49,4 +51,5 @@ module.exports = {
  formatDateWordly,
  formatTime,
  formatTimeDiff,
+ formatAmount,
 };
