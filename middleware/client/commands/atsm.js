@@ -122,7 +122,7 @@ const atsm = (data, middleware, linkedMiddleware) => {
    let bestObject;
    if (state.goal !== undefined || (powerForScooping > objects[0].distance && state.cargo < state.cargoCapacity)) {
     if (state.goal === undefined) {
-     const goal = Math.max(1, Math.min(5, state.cargoSpace, objects.length));
+     const goal = Math.max(1, Math.min(6, state.cargoSpace, objects.length));
      state.extraProbingDistance = Math.min(state.extraProbingDistance, Math.max(0, state.maxPreferredDistance - objects[0].distance));
      bestObject = findBestObjects(state.coordinates, objects, goal, state.ratioBreaker, state.extraProbingDistance);
     }
@@ -134,7 +134,7 @@ const atsm = (data, middleware, linkedMiddleware) => {
    if (bestObject.ratio) {
     const count = bestObject.totalCount || bestObject.count;
     const distance = bestObject.totalDistance || bestObject.distance;
-    if (count > 1) data.forward.push(`${ratioAssessment(bestObject.ratio)}: ${utils.formatAmount(count, 'object')} in ${utils.formatAmount(distance, 'unit')}.`);
+    if (count > 1) data.forward.push(`${bestObject.distance < 3 ? 'Good' : ratioAssessment(bestObject.ratio)}: ${utils.formatAmount(count, 'object')} in ${utils.formatAmount(distance, 'unit')}.`);
     else data.forward.push(`${ratioAssessment(bestObject.ratio)}.`);
    }
   }
