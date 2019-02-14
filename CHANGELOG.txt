@@ -1,3 +1,6 @@
+Version 1.0.23, released 2019-02-14:
+* Fixed a tiny issue with atsm where it would say acceptable even if the best choice of objects was only 2 units away under certain conditions.
+
 Version 1.0.22, released 2019-02-14:
 * Greatly improved atsm. The pathfinder algorithm is now more intelligent than ever before, and it now also tells you whether or not the best possible path is good, acceptable, or bad.
 
