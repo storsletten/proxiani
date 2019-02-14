@@ -1,3 +1,6 @@
+Version 1.0.22, released 2019-02-14:
+* Greatly improved atsm. The pathfinder algorithm is now more intelligent than ever before, and it now also tells you whether or not the best possible path is good, acceptable, or bad.
+
 Version 1.0.21, released 2019-02-12:
 * Tweaked the atsm path finder algorithm. Hopefully it will handle tricky conditions a little bit better now.
 
