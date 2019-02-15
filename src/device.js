@@ -35,6 +35,7 @@ class Device {
   this.autoReconnectInterval = options.autoReconnectInterval || 3000;
   this.loggerID = options.loggerID;
   this.type = options.type || (('socket' in options) ? 'client' : 'server');
+  this.observers = options.observers || [];
   this.initialLinkingDelay = options.initialLinkingDelay || 200; // Give VIP Mud enough time to load triggers before data starts pouring in.
   this.token = options.token || crypto.randomBytes(4).toString('hex');
   this.middleware = new Middleware({ device: this });
@@ -249,6 +250,7 @@ class Device {
      delete this.logger;
     }
     delete this.events;
+    delete this.observers;
     delete this.proxy.devices[this.id];
     this.proxy.devicesCount--;
     if (this.proxy.devicesCount === 0) {
@@ -306,13 +308,21 @@ class Device {
   this.events.on(...args);
  }
  respond(data, addEoL = true) {
-  if (!this.connected) return;
-  if (typeof data === 'string') data = Buffer.from(data);
-  this.socket.write(addEoL ? Buffer.concat([data, this.eol]) : data);
+  if (typeof data !== 'object') data = Buffer.from(data);
+  if (this.connected) this.socket.write(addEoL ? Buffer.concat([data, this.eol]) : data);
+  if (this.observers.length > 0) {
+   this.observers = this.observers.filter(observer => {
+    if (!observer.proxy) return false;
+    if (observer.connected) observer.respond(data, addEoL);
+    return true;
+   });
+  }
  }
  forward(data, addEoL = true) {
-  if (typeof data === 'string') data = Buffer.from(data);
-  if (this.link && this.link.connected) this.link.socket.write(addEoL ? Buffer.concat([data, this.link.eol]) : data);
+  if (this.link && this.link.connected) {
+   if (typeof data !== 'object') data = Buffer.from(data);
+   this.link.socket.write(addEoL ? Buffer.concat([data, this.link.eol]) : data);
+  }
  }
 } 
 
