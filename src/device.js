@@ -60,7 +60,12 @@ class Device {
    if (this.link) this.events.emit('ready');
   });
   this.events.on('link', () => this.connected && this.events.emit('ready'));
-  if (this.type === 'client') this.events.once('ready', () => this.respond(`#$#proxiani session version ${this.proxy.version} | token ${this.token}`));
+  if (this.type === 'client') {
+   this.events.once('ready', () => this.respond(`#$#proxiani session version ${this.proxy.version} | token ${this.token}`));
+   this.events.on('ready', () => {
+    if (this.socket.authorized === false) this.respond(`*** TLS authorization failed. Please see px console for more information. ***`);
+   });
+  }
   this.events.on('ready', () => this.socket.resume());
   this.events.on('line', line => {
    const result = this.middleware.process(line);
@@ -154,6 +159,7 @@ class Device {
     }, () => {
      this.proxy.console(`Device ${this.id} established secure connection with ${this.host} on port ${this.port}`);
      this.events.emit('connect');
+     if (!this.socket.authorized) this.proxy.console(`TLS Authorization Error:`, this.socket.authorizationError);
     });
    }
    else {
@@ -200,7 +206,7 @@ class Device {
      this.connected = false;
      this.disconnectedSince = new Date();
      this.proxy.console(`Device ${this.id} disconnected, but will attempt to auto reconnect${wait > 0 ? ` in ${wait}ms...` : ''}`);
-     if (this.type === 'server') {
+     if (this.type === 'server' && ((new Date()) - this.connectedSince) < 2500) {
       this.forward(`*** Auto reconnect in progress... ***`);
      }
     }
