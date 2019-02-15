@@ -23,7 +23,8 @@ class Device {
   this.lastConnectionAttempt = options.lastConnectionAttempt;
   this.lineLengthThreshold = 1024 * 1024 * 5;
   this.ignoreBlankLines = options.ignoreBlankLines || false;
-  this.lastLine = '';
+  this.lastLines = [];
+  this.maxLastLines = 10;
   this.eol = options.eol || Buffer.from([13, 10]); // Telnet End of Line
   this.oob = options.oob || '#$#'; // MCP 2.1 Protocol prefix
   this.host = options.host;
@@ -75,7 +76,7 @@ class Device {
    data.respond.forEach(line => this.respond(line));
    data.forward.forEach(line => this.forward(line));
    if (data.input.length > 0) {
-    this.lastLine = data.input;
+    if (this.lastLines.push(data.input) > this.maxLastLines) this.lastLines.shift();
     if (this.proxy.userData.config.logging && data.input.slice(0, 3) !== '#$#') {
      if (this.loggerID) this.events.emit('log', data, this);
      else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
@@ -144,9 +145,8 @@ class Device {
   }
  }
  setSocket(socket) {
-  if (this.socket) {
-   this.socket.unref();
-  }
+  if (this.socket) this.socket.unref();
+  this.connectionEnded = false;
   if (socket) {
    this.socket = socket;
    if (!this.socket.connecting && !this.socket.destroyed) this.events.emit('connect');
@@ -191,20 +191,13 @@ class Device {
   this.socket.on('error', error => {
    this.proxy.console(`Device ${this.id} socket error: ${error}`);
   });
-  this.socket.on('end', () => {
-   if (typeof this.lastLine !== 'string' || this.lastLine.indexOf(`*** The server will be shut down by `) !== 0) this.autoReconnect = false;
-   this.events.emit('disconnect');
-   if (this.connected) {
-    this.connected = false;
-    this.disconnectedSince = new Date();
-   }
-  });
+  this.socket.on('end', () => this.connectionEnded = true);
   this.socket.on('close', () => {
    if (this.buffer.length > 0) {
     this.forward(this.buffer);
     this.buffer = Buffer.from('');
    }
-   if (this.autoReconnect) {
+   if (this.autoReconnect && (!this.connectionEnded || (this.lastLines.length > 1 && this.lastLines[this.lastLines.length - 2].startsWith('*** Server shutdown by ')))) {
     this.events.emit('autoReconnecting');
     const wait = Math.max(0, this.autoReconnectInterval - ((new Date()) - this.lastConnectionAttempt));
     if (this.connected) {
