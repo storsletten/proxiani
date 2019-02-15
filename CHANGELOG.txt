@@ -1,3 +1,7 @@
+Version 1.0.24, released 2019-02-15:
+* Added notification and console logging of TLS authorization errors.
+* Proxiani will now also attempt auto reconnect if Miriani is being gracefully shut down by a host. Plus, it shouldn't spam you down with auto reconnect messages every third second. These things remain to be tested to see if it will actually work flawlessly, though.
+
 Version 1.0.23, released 2019-02-14:
 * Fixed a tiny issue with atsm where it would say acceptable even if the best choice of objects was only 2 units away under certain conditions.
 
