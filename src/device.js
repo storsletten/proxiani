@@ -23,6 +23,7 @@ class Device {
   this.lastConnectionAttempt = options.lastConnectionAttempt;
   this.lineLengthThreshold = 1024 * 1024 * 5;
   this.ignoreBlankLines = options.ignoreBlankLines || false;
+  this.lastLine = '';
   this.eol = options.eol || Buffer.from([13, 10]); // Telnet End of Line
   this.oob = options.oob || '#$#'; // MCP 2.1 Protocol prefix
   this.host = options.host;
@@ -72,9 +73,12 @@ class Device {
    const data = result.data;
    data.respond.forEach(line => this.respond(line));
    data.forward.forEach(line => this.forward(line));
-   if (this.proxy.userData.config.logging && data.input.length > 0 && data.input.slice(0, 3) !== '#$#') {
-    if (this.loggerID) this.events.emit('log', data, this);
-    else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
+   if (data.input.length > 0) {
+    this.lastLine = data.input;
+    if (this.proxy.userData.config.logging && data.input.slice(0, 3) !== '#$#') {
+     if (this.loggerID) this.events.emit('log', data, this);
+     else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
+    }
    }
   });
   this.events.on('log', (data, device) => {
@@ -187,7 +191,7 @@ class Device {
    this.proxy.console(`Device ${this.id} socket error: ${error}`);
   });
   this.socket.on('end', () => {
-   this.autoReconnect = false;
+   if (typeof this.lastLine !== 'string' || this.lastLine.indexOf(`*** The server will be shut down by `) !== 0) this.autoReconnect = false;
    this.events.emit('disconnect');
    if (this.connected) {
     this.connected = false;
