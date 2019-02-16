@@ -1,3 +1,6 @@
+Version 1.0.27, released 2019-02-16:
+* Added a split command (since Miriani doesn't have that), for those times when you would like to split a reward with the rest of the crew. It's pretty much the same as the SHARE command, except split will include yourself, which makes it more useful for those times when you want to split a reward with the rest of your crew and keep your share of the reward as well. You can type split to see usage instructions. For technical reasons, it would be more convenient if the hosts in Miriani would add a split command there since then you wouldn't need to specify how many people you're splitting money with. But until that happens, this should do.
+
 Version 1.0.26, released 2019-02-16:
 * More atsm improvements. Better performance, better results, and better alerts.
 
