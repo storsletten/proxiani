@@ -17,6 +17,7 @@ const clientMiddleware = {
   secho: require('./commands/secho'),
   sm: require('./commands/sm'),
   smships: require('./commands/smships'),
+  split: require('./commands/split'),
  },
 };
 
