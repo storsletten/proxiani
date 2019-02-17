@@ -33,7 +33,6 @@ class Middleware {
    this.device.proxy.console(`Couldn't load middleware for device ${this.device.id}:`, error);
   }
  }
- isOOB(input) { return input.indexOf(this.device.oob) === 0; }
  setState(name, func, data = {}) {
   const state = {
    created: new Date(),

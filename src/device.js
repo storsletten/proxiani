@@ -26,7 +26,6 @@ class Device {
   this.lastLines = [];
   this.maxLastLines = 10;
   this.eol = options.eol || Buffer.from([13, 10]); // Telnet End of Line
-  this.oob = options.oob || '#$#'; // MCP 2.1 Protocol prefix
   this.host = options.host;
   this.port = options.port;
   this.tls = options.tls;
@@ -77,7 +76,7 @@ class Device {
    data.forward.forEach(line => this.forward(line));
    if (data.input.length > 0) {
     if (this.lastLines.push(data.input) > this.maxLastLines) this.lastLines.shift();
-    if (this.proxy.userData.config.logging && data.input.slice(0, 3) !== '#$#') {
+    if (this.proxy.userData.config.logging && !data.input.startsWith('#$#')) {
      if (this.loggerID) this.events.emit('log', data, this);
      else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
     }

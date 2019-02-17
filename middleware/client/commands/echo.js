@@ -6,7 +6,7 @@ const echo = (data, middleware) => {
   data.respond.push(`[Type lines of input; use \`.' to end.]`);
   middleware.setState('echo', (data, middleware) => {
    const maxLineCount = 1000;
-   if (middleware.isOOB(data.input)) return 0;
+   if (data.input.startsWith('#$#')) return 0;
    data.forward.pop();
    if (data.input === '.') {
     data.respond = middleware.states.echo.data;
