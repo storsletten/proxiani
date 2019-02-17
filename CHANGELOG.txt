@@ -1,3 +1,6 @@
+Version 1.0.29, released 2019-02-17:
+* Tweaked the atsm path finder to prevent lag that would sometimes occur if there were a lot of possibly good paths.
+
 Version 1.0.28, released 2019-02-17:
 * Fixed several rather critical bugs that could crash Proxiani entirely.
 * Added an FS watcher for Config.json. This means that whenever you save the Config.json file while Proxiani is running, then Proxiani will automatically reload the config.
