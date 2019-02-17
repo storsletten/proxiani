@@ -1,3 +1,6 @@
+Version 1.0.30, released 2019-02-17:
+* Added px conf, for quickly and conveniently opening Proxiani's Config.json file in Notepad.
+
 Version 1.0.29, released 2019-02-17:
 * Tweaked the atsm path finder to prevent lag that would sometimes occur if there were a lot of possibly good paths.
 
