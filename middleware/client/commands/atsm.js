@@ -11,7 +11,7 @@ const findBestObjects = (current, objects, goal, expandProbingDistance = 0, step
  }
  const nearest = objects[0];
  if (objects.length === 1 || goal < 1 || gettingWorse > 2 || (gettingWorse > 0 && current.totalDistance > 15)) return { ...nearest, totalCount: nearest.count, totalDistance: nearest.distance, ratio: nearest.count / nearest.distance };
- const maxProbingDistance = nearest.distance + expandProbingDistance;
+ const maxProbingDistance = step < 2 ? nearest.distance + expandProbingDistance : nearest.distance;
  const badObjectsIndex = objects.findIndex(object => object.distance > maxProbingDistance);
  const bestObject = (badObjectsIndex > 0 ? objects.slice(0, badObjectsIndex) : objects).map((object, index) => {
   let totalCount = current.totalCount + object.count;
