@@ -29,17 +29,11 @@ const commands = {
   syntax: 'directories',
   description: `Shows paths to directories used by Proxiani.`,
   func: (data, middleware, linkedMiddleware) => {
-   data.respond.push(`Proxiani: ${middleware.device.proxy.dir}`);
-   if (middleware.device.proxy.dir !== middleware.dir.slice(0, middleware.device.proxy.dir.length)) {
-    if (middleware.dir === linkedMiddleware.dir) {
-     data.respond.push(`Middleware: ${middleware.dir}`);
-    }
-    else {
-     data.respond.push(`Client middleware: ${middleware.dir}`);
-     data.respond.push(`Server middleware: ${linkedMiddleware.dir}`);
-    }
-   }
-   data.respond.push(`User data: ${middleware.device.proxy.userData.dir}`);
+   const pdir = middleware.device.proxy.dir;
+   data.respond.push(`Proxiani in ${getParentDirName(pdir)}: ${pdir}`);
+   if (pdir !== middleware.dir.slice(0, pdir.length)) data.respond.push(`Client middleware in ${getParentDirName(middleware.dir)}: ${middleware.dir}`);
+   if (linkedMiddleware && pdir !== linkedMiddleware.dir.slice(0, pdir.length)) data.respond.push(`Server middleware in ${getParentDirName(linkedMiddleware.dir)}: ${linkedMiddleware.dir}`);
+   data.respond.push(`User data in ${getParentDirName(middleware.device.proxy.userData.dir)}: ${middleware.device.proxy.userData.dir}`);
   },
  },
  echo: {
@@ -227,6 +221,7 @@ const commands = {
  },
 };
 
+const getParentDirName = dir => dir.split(path.sep).slice(-2, -1).join();
 const getRawCommandValue = data => data.command.length > 2 ? data.input.replace(/^\s*[^\s]+\s+[^\s]+\s/, '') : undefined;
 
 const proxiani = (data, middleware, linkedMiddleware) => {
