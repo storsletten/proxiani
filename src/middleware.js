@@ -1,4 +1,15 @@
+const fs = require('fs');
 const path = require('path');
+
+const requireModules = dir => {
+ if (fs.existsSync(dir)) {
+  const modules = {};
+  fs.readdirSync(dir).forEach(file => {
+   if (file.endsWith('.js')) modules[file.slice(0, -3)] = require(path.join(dir, file));
+  });
+  return modules;
+ }
+};
 
 class Middleware {
  constructor(options) {
@@ -8,25 +19,19 @@ class Middleware {
   this.load();
  }
  load(file) {
+  if (this.states && this.dir) {
+   for (let mod in require.cache) {
+    if (mod.slice(0, this.dir.length) === this.dir) delete require.cache[mod];
+   }
+  }
   try {
-   const resolvedPath = require.resolve(file || path.join(this.dir, 'index.js'));
-   const dir = path.dirname(resolvedPath);
-   if (this.states) {
-    for (let mod in require.cache) {
-     if (mod.slice(0, dir.length) === dir) delete require.cache[mod];
-    }
-   }
-   const mod = require(resolvedPath);
-   this.dir = dir;
-   if (this.states) {
-    this.device.proxy.console(`Device ${this.device.id} reloaded its middleware`);
-    delete this.commands;
-    delete this.funcs;
-    delete this.triggers;
-   }
-   this.states = {};
+   const extraFile = require.resolve(file || path.join(this.dir, 'extra.js'));
+   this.dir = path.dirname(extraFile);
+   ['commands', 'functions', 'triggers'].forEach(prop => this[prop] = requireModules(path.join(this.dir, prop)));
    this.persistentStates = {};
-   Object.assign(this, mod);
+   require(extraFile)(this);
+   if (this.states) this.device.proxy.console(`Device ${this.device.id} reloaded its middleware`);
+   this.states = {};
    return true;
   }
   catch (error) {
@@ -74,9 +79,9 @@ class Middleware {
      if (this.commands[data.command[0]](data, this, linkedMiddleware) !== false) return { data };
     }
    }
-   if (this.funcs) {
-    for (let i=0; i<this.funcs.length; i++) {
-     const result = this.funcs[i](data, this, linkedMiddleware);
+   if (this.functions) {
+    for (let i=0; i<this.functions.length; i++) {
+     const result = this.functions[i](data, this, linkedMiddleware);
      if (result !== false) return { data };
     }
    }
