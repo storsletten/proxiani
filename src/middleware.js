@@ -80,9 +80,8 @@ class Middleware {
     }
    }
    if (this.functions) {
-    for (let i=0; i<this.functions.length; i++) {
-     const result = this.functions[i](data, this, linkedMiddleware);
-     if (result !== false) return { data };
+    for (let name in this.functions) {
+     if (this.functions[name](data, this, linkedMiddleware) === true) return { data };
     }
    }
   }
