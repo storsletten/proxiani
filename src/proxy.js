@@ -9,6 +9,8 @@ const utils = require('./utils');
 class Proxy {
  constructor(options = {}) {
   this.startdate = new Date();
+  this.consoleLog = [];
+  this.consoleLogMaxSize = options.consoleLogMaxSize || 25;
   this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
   this.loadPackageInfo();
   this.idCount = 0;
@@ -19,11 +21,13 @@ class Proxy {
   this.dir = path.dirname(__dirname);
   this.events = new EventEmitter();
   this.userData = options.userData || (new UserData({ proxy: this }));
-  this.consoleLog = [];
-  this.consoleLogMaxSize = options.consoleLogMaxSize || 25;
   this.restartRequested = false;
   this.console(`Started ${this.name} ${this.version}`);
   this.events.on('close', () => {
+   if (this.userData.configFileWatcher) {
+    this.userData.configFileWatcher.close();
+    delete this.userData.configFileWatcher;
+   }
    if (this.packageInfoFileWatcher) {
     this.packageInfoFileWatcher.close();
     delete this.packageInfoFileWatcher;
@@ -131,7 +135,7 @@ class Proxy {
      if (device.type === 'client') {
       device.respond('#$#proxiani error');
       if (this.userData.config.developerMode) device.respond(msg);
-      else device.respond(`${name} error!`);
+      else device.respond(`${this.name} error!`);
      }
     }
    }

@@ -45,6 +45,13 @@ class UserData {
   });
   this.loadConfig();
   this.loadCustom();
+  this.configFileWatcher = fs.watch(path.join(this.dir, this.configFile), { persistent: false }, eventType => {
+   if (this.configFileWatcherTimeout) return;
+   this.configFileWatcherTimeout = setTimeout(() => {
+    delete this.configFileWatcherTimeout;
+    this.loadConfig();
+   }, 1000);
+  });
  }
  loadConfig() {
   const configFile = path.join(this.dir, this.configFile);
@@ -54,9 +61,17 @@ class UserData {
     const configJSON = fs.readFileSync(configFile);
     const config = JSON.parse(configJSON);
     if (config && typeof config === 'object') {
+     let updateConfigFile = false;
+     for (let key in this.config) {
+      if (!(key in config)) {
+       updateConfigFile = true;
+       break;
+      }
+     }
      for (let key in config) {
       if (key in this.config) this.config[key] = config[key];
      }
+     if (updateConfigFile) this.saveConfig();
     }
     else this.proxy.console(`Parsing the config.json file returned typeof ${typeof config}.`);
    }
@@ -64,7 +79,7 @@ class UserData {
     this.proxy.console(`Failed to load config.json:`, error);
    }
   }
-  this.saveConfig();
+  else this.saveConfig();
  }
  loadCustom() {
   const customFile = path.join(this.dir, this.customFile);
@@ -93,7 +108,15 @@ module.exports = custom;
   this.saveConfig();
  }
  saveConfig() {
-  fs.writeFileSync(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
+  if (this.configFileWatcher && !this.configFileWatcherTimeout) this.configFileWatcherTimeout = setTimeout(() => delete this.configFileWatcherTimeout, 1000);
+  try {
+   fs.writeFileSync(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
+  }
+  catch (error) {
+   this.proxy.console(`Failed to save Config.json:`, error);
+   return;
+  }
+  this.proxy.console(`Saved config.json`);
  }
 }
 
