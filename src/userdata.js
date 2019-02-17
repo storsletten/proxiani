@@ -58,9 +58,10 @@ class UserData {
       if (key in this.config) this.config[key] = config[key];
      }
     }
+    else this.proxy.console(`Parsing the config.json file returned typeof ${typeof config}.`);
    }
    catch (error) {
-    this.proxy.console(error);
+    this.proxy.console(`Failed to load config.json:`, error);
    }
   }
   this.saveConfig();

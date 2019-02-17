@@ -55,22 +55,22 @@ class Middleware {
    respond: [],
    time: new Date(),
   };
-  try {
-   const linkedMiddleware = this.device.link.middleware;
-   for (let name in this.states) {
-    try {
-     const state = this.states[name];
-     const result = state.func(data, this, linkedMiddleware);
-     const bits = typeof result === 'number' ? result : 0b11;
-     if (bits & 0b10 || (state.timeout > 0 && ((new Date()) - state.created) > state.timeout)) delete this.states[name];
-     if (bits & 0b01) return { data, state };
-    }
-    catch (error) {
-     delete this.states[name];
-     const proxy = this.device.proxy;
-     proxy.console(`Middleware state "${name}" error in ${proxy.name} ${proxy.version}:`, error);
-    }
+  const linkedMiddleware = this.device.link && this.device.link.middleware;
+  for (let name in this.states) {
+   try {
+    const state = this.states[name];
+    const result = state.func(data, this, linkedMiddleware);
+    const bits = typeof result === 'number' ? result : 0b11;
+    if (bits & 0b10 || (state.timeout > 0 && ((new Date()) - state.created) > state.timeout)) delete this.states[name];
+    if (bits & 0b01) return { data, state };
    }
+   catch (error) {
+    delete this.states[name];
+    const proxy = this.device.proxy;
+    proxy.console(`Middleware state "${name}" error in ${proxy.name} ${proxy.version}:`, error);
+   }
+  }
+  try {
    if (this.triggers && (data.input in this.triggers) && this.triggers[data.input](data, this, linkedMiddleware) !== false) return { data };
    if (this.commands) {
     const m = data.input.match(/[^ ]+/);

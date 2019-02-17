@@ -72,6 +72,10 @@ class Device {
   this.events.on('line', line => {
    const result = this.middleware.process(line);
    const data = result.data;
+   if (this.proxy.userData.config.developerMode) {
+    const time = (new Date()) - data.time;
+    if (time > 100) this.proxy.console(`Middleware for device ${this.id} took ${time}ms to execute:`, new Error(`Input(${data.input.length}): ${data.input}`));
+   }
    data.respond.forEach(line => this.respond(line));
    data.forward.forEach(line => this.forward(line));
    if (data.input.length > 0) {
