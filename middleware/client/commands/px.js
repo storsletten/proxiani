@@ -10,6 +10,11 @@ const commands = {
   description: `Opens the Proxiani changelog in Notepad.`,
   func: (data, middleware) => childProcess.exec(`cmd.exe /c start "" notepad.exe CHANGELOG.txt`, { cwd: middleware.device.proxy.dir }),
  },
+ configure: {
+  syntax: 'config',
+  description: `Opens Proxiani's config file in Notepad.`,
+  func: (data, middleware) => childProcess.exec(`cmd.exe /c start "" notepad.exe Config.json`, { cwd: middleware.device.proxy.userData.dir }),
+ },
  console: {
   syntax: 'console',
   description: `Shows Proxiani's last console messages.`,
