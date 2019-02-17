@@ -159,11 +159,11 @@ const commands = {
   },
  },
  restart: {
-  syntax: 'restart [/m]',
-  description: `Restarts Proxiani. The optional m flag lets you restart middleware only.`,
+  syntax: 'restart [middleware]',
+  description: `Restarts Proxiani. The optional middleware literal lets you restart middleware only if preferred.`,
   func: (data, middleware, linkedMiddleware) => {
    if (data.command.length > 2) {
-    if (data.command[2] === '/m') {
+    if ('middleware'.startsWith(data.command[2])) {
      if (middleware.load() && linkedMiddleware.load()) data.respond.push(`Reloaded Proxiani middleware.`);
      else data.respond.push(`Failed to reload Proxiani middleware.`);
     }
