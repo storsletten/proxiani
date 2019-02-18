@@ -78,12 +78,10 @@ class Device {
    }
    data.respond.forEach(line => this.respond(line));
    data.forward.forEach(line => this.forward(line));
-   if (data.input.length > 0) {
-    if (this.lastLines.push(data.input) > this.maxLastLines) this.lastLines.shift();
-    if (this.proxy.userData.config.logging && !data.input.startsWith('#$#')) {
-     if (this.loggerID) this.events.emit('log', data, this);
-     else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
-    }
+   if (data.input.length > 0 && this.lastLines.push(data.input) > this.maxLastLines) this.lastLines.shift();
+   if (this.proxy.userData.config.logging && !data.input.startsWith('#$#')) {
+    if (this.loggerID) this.events.emit('log', data, this);
+    else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
    }
   });
   this.events.on('log', (data, device) => {
