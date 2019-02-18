@@ -1,3 +1,7 @@
+Version 1.0.31, released 2019-02-18:
+* Tiny improvement for px directories.
+* px log files will now include blank lines for readability. Remember that you can turn blank lines on and off with gen-o 16 in Miriani. The option is called Ignore Blank Lines.
+
 Version 1.0.30, released 2019-02-17:
 * Added px conf, for quickly and conveniently opening Proxiani's Config.json file in Notepad.
 
