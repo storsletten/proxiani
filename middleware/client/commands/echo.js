@@ -1,6 +1,7 @@
 const echo = (data, middleware) => {
  data.forward.pop();
- if (data.command.length > 1) data.respond.push(data.input.trimStart().slice(data.command[0].length + 1));
+ const args = data.input.match(/^\s*\w+\s(.+)$/);
+ if (args) data.respond.push(args[1]);
  else {
   data.respond.push(`What text would you like repeated back to you?`);
   data.respond.push(`[Type lines of input; use \`.' to end.]`);

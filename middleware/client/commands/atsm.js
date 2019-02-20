@@ -139,6 +139,7 @@ const reader = (data, state) => {
 const atsm = (data, middleware, linkedMiddleware) => {
  if (linkedMiddleware.states.atsm && linkedMiddleware.states.atsm.reading) return;
  data.forward[0] = 'sm';
+ const args = data.input.match(/^\s*\w+\s+(\d+)/);
  linkedMiddleware.setState('atsm', (data, middleware, linkedMiddleware) => {
   const state = middleware.states.atsm.data;
   if (reader(data, state)) return state.reading ? 1 : 0;
@@ -183,7 +184,7 @@ const atsm = (data, middleware, linkedMiddleware) => {
   data.forward.push(`Ship is ${state.distance} unit${state.distance !== 1 ? 's' : ''} distant.`);
   data.forward.push(`Total ${objects.length} object${objects.length !== 1 ? 's' : ''}.`);
  }, {
-  goal: data.command.length > 1 && isFinite(data.command[1]) ? Math.max(0, Math.floor(Number(data.command[1]))) : undefined,
+  goal: args ? Number(args[1]) : undefined,
   extraProbingDistance: 2,
   maxPreferredDistance: 4,
  });

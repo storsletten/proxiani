@@ -129,7 +129,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    data.forward.push(...ships.map((ship, index) => modes[mode](ship, index, filter)));
   }
  }, {
-  command: data.command,
+  command: data.input.trim().toLowerCase().split(/\s+/),
  });
 };
 

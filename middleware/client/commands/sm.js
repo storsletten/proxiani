@@ -2,6 +2,7 @@ const starmap = require('../../helpers/starmap');
 
 const sm = (data, middleware, linkedMiddleware) => {
  if (linkedMiddleware.states.sm && !linkedMiddleware.states.sm.readingStarmap) delete linkedMiddleware.states.sm;
+ data.command = data.input.trim().toLowerCase().split(/\s+/);
  if (data.command.length > 1 && !(['basic', 'legend', 'map', 'coords'].includes(data.command[1]))) {
   const objectType = starmap.findType(data.command.slice(1).join(' '));
   if (!objectType) {

@@ -226,6 +226,7 @@ const getRawCommandValue = data => data.command.length > 2 ? data.input.replace(
 
 const proxiani = (data, middleware, linkedMiddleware) => {
  data.forward.pop();
+ data.command = data.input.trim().toLowerCase().split(/\s+/);
  if (data.command.length === 1) {
   data.respond.push(`Available arguments for the ${data.command[0]} command:`);
   for (let command in commands) data.respond.push(`  ${commands[command].syntax || command}. ${commands[command].description}`);

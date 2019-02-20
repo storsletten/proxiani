@@ -1,6 +1,7 @@
 const usage = `Usage: SPLIT <amount>/<people>, where <people> is the number of people who should receive the reward (including yourself).`;
 const split = data => {
  data.forward.pop();
+ data.command = data.input.trim().split(/\s+/);
  if (data.command.length === 1 || data.command[1].indexOf('/') < 1) data.respond.push(usage);
  else {
   const [amount, people] = data.command[1].replace(/[,\s]/g, '').split('/', 2).map(v => Number(v));

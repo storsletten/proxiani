@@ -74,9 +74,9 @@ class Middleware {
    if (this.triggers && (data.input in this.triggers) && this.triggers[data.input](data, this, linkedMiddleware) !== false) return { data };
    if (this.commands) {
     const m = data.input.match(/[^ ]+/);
-    if (m && (m[0].toLowerCase() in this.commands)) {
-     data.command = data.input.trim().replace(/\s+/g, ' ').toLowerCase().split(' ');
-     if (this.commands[data.command[0]](data, this, linkedMiddleware) !== false) return { data };
+    if (m) {
+     const func = this.commands[m[0].toLowerCase()];
+     if (func !== undefined && func(data, this, linkedMiddleware) !== false) return { data };
     }
    }
    if (this.functions) {
