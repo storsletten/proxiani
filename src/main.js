@@ -1,6 +1,5 @@
 const Device = require('./device');
 const Proxy = require('./proxy');
-const utils = require('./utils');
 
 const proxy = new Proxy();
 proxy.on('clientCreated', client => {
