@@ -1,3 +1,6 @@
+Version 1.0.32, released 2019-02-21:
+* Fixed look option alert firing when floating in space. Thanks Yara Yobi for reporting this!
+
 Version 1.0.31, released 2019-02-18:
 * Tiny improvement for px directories.
 * px log files will now include blank lines for readability. Remember that you can turn blank lines on and off with gen-o 16 in Miriani. The option is called Ignore Blank Lines.
