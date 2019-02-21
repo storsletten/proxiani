@@ -35,7 +35,7 @@ class Proxy {
    if (this.restartRequested) {
     this.console(`Restarting Proxiani...`);
     for (let mod in require.cache) delete require.cache[mod];
-    setTimeout(() => require('../server.js'), 50);
+    setTimeout(() => require(__filename), 50);
    }
    else this.console(`Shutting down Proxiani`);
    delete this.events;

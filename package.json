@@ -5,6 +5,9 @@
   "main": "server.js",
   "author": "Martin Storsletten",
   "license": "MIT",
+  "scripts": {
+    "start": "node ./src/main.js"
+  },
   "keywords": [
     "Miriani",
     "toastsoft.net",
