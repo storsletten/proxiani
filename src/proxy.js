@@ -182,7 +182,12 @@ class Proxy {
    });
   });
   socket.on('error', error => {
-   this.console(`${title} socket error: ${error}`);
+   this.console(`${title} socket error:`, error);
+   if (error.code === 'EADDRINUSE' && !this.startupError) {
+    this.startupError = `${this.name} seems to be running already.`;
+    utils.msgBox(this.startupError);
+    this.close();
+   }
   });
   socket.on('close', () => {
    this.console(`${title} stopped listening for incoming connections`);

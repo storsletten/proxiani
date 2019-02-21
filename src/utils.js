@@ -1,4 +1,5 @@
 const childProcess = require('child_process');
+const path = require('path');
 
 const englishOrdinalIndicator = n => {
  const s = String(n);
@@ -46,9 +47,18 @@ const formatTimeDiff = (d1, d2) => {
 
 const formatAmount = (number, word) => `${number} ${number == 1 ? word : `${word}s`}`;
 
+const msgBox = (msg, title = 'Proxiani') => {
+ childProcess.spawn('cscript.exe', [path.join(__dirname, 'msgBox.vbs'), msg, title], {
+  windowsHide: true,
+  detached: true,
+  stdio: 'ignore',
+ }).unref();
+};
+
 const run = (app, args = [], options = {}) => {
  childProcess.spawn('cmd.exe', ['/c', 'start', '""', app, ...(Array.isArray(args) ? args : [args])], {
   ...options,
+  windowsHide: true,
   detached: true,
   stdio: 'ignore',
  }).unref();
@@ -62,5 +72,6 @@ module.exports = {
  formatTime,
  formatTimeDiff,
  formatAmount,
+ msgBox,
  run,
 };
