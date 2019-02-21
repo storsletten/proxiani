@@ -32,9 +32,9 @@ class Proxy {
   this.userData = options.userData || (new UserData({ proxy: this }));
   this.events.on('close', () => {
    this.isClosing = true;
-   if (this.closeRemainingClientsTimeout !== undefined) {
-    clearTimeout(this.closeRemainingClientsTimeout);
-    delete this.closeRemainingClientsTimeout;
+   if (this.closeRemainingDevicesTimeout !== undefined) {
+    clearTimeout(this.closeRemainingDevicesTimeout);
+    delete this.closeRemainingDevicesTimeout;
    }
    if (this.userData.configFileWatcher !== undefined) {
     this.userData.configFileWatcher.close();
@@ -169,19 +169,9 @@ class Proxy {
    return;
   }
   for (let id in this.sockets) this.sockets[id].close();
-  const clients = [];
   for (let id in this.devices) {
    const device = this.devices[id];
-   if (device.type === 'client' && device.link && device.link.proxy && device.link.type !== 'client') clients.push(device.id);
-   else device.close();
-  }
-  if (clients.length > 0) {
-   this.closeRemainingClientsTimeout = setTimeout(() => {
-    for (let id in clients) {
-     const device = this.devices[id];
-     if (device) device.close();
-    }
-   }, 300);
+   if (!(device.type === 'client' && device.link && device.link.proxy && device.link.type !== 'client')) device.close();
   }
  }
  getNewID() {

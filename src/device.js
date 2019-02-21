@@ -140,8 +140,13 @@ class Device {
  }
  close() {
   this.autoReconnect = false;
+  if (this.isClosing) return;
+  this.isClosing = true;
   if (this.socket) {
-   if (this.connected) this.socket.end();
+   if (this.connected) {
+    this.timers.forceSocketDestruction = setTimeout(() => this.socket.destroy(), 300);
+    this.socket.end();
+   }
    else this.socket.destroy();
   }
  }
@@ -226,6 +231,7 @@ class Device {
     }
    }
    else {
+    this.isClosing = true;
     for (let handle in this.timers) clearTimeout(this.timers[handle]);
     delete this.timers;
     this.proxy.unlink(this);
