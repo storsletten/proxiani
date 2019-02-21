@@ -1,5 +1,13 @@
 const Device = require('./device');
 const Proxy = require('./proxy');
+const utils = require('./utils');
+process.setUncaughtExceptionCaptureCallback(error => {
+ try {
+  utils.msgBox(String(error));
+ }
+ catch (error) {}
+ process.exit(1);
+});
 
 const proxy = new Proxy();
 proxy.on('clientCreated', client => {
