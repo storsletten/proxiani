@@ -47,7 +47,7 @@ const formatTimeDiff = (d1, d2) => {
 const formatAmount = (number, word) => `${number} ${number == 1 ? word : `${word}s`}`;
 
 const run = (app, args = [], options = {}) => {
- childProcess.spawn('cmd.exe', ['/c', app, ...(Array.isArray(args) ? args : [args])], {
+ childProcess.spawn('cmd.exe', ['/c', 'start', '""', app, ...(Array.isArray(args) ? args : [args])], {
   ...options,
   detached: true,
   stdio: 'ignore',
