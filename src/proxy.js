@@ -11,48 +11,60 @@ class Proxy {
   this.startdate = new Date();
   this.consoleLog = [];
   this.consoleLogMaxSize = options.consoleLogMaxSize || 25;
-  this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
-  this.loadPackageInfo();
   this.idCount = 0;
   this.devices = {};
   this.devicesCount = 0;
   this.sockets = {};
   this.socketsCount = 0;
-  this.dir = path.dirname(__dirname);
+  this.listeners = [];
   this.events = new EventEmitter();
-  this.userData = options.userData || (new UserData({ proxy: this }));
   this.restartRequested = false;
-  this.console(`Started ${this.name} ${this.version}`);
+  process.on('beforeExit', () => this.close());
+  process.setUncaughtExceptionCaptureCallback(error => {
+   try { utils.msgBox(String(error)); }
+   catch (error) {}
+   process.exit(1);
+  });
+  this.dir = path.dirname(__dirname);
+  this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
+  this.loadPackageInfo();
+  this.console(`Starting ${this.name} ${this.version}`);
+  this.userData = options.userData || (new UserData({ proxy: this }));
   this.events.on('close', () => {
-   if (this.userData.configFileWatcher) {
+   this.isClosing = true;
+   if (this.closeRemainingClientsTimeout !== undefined) {
+    clearTimeout(this.closeRemainingClientsTimeout);
+    delete this.closeRemainingClientsTimeout;
+   }
+   if (this.userData.configFileWatcher !== undefined) {
     this.userData.configFileWatcher.close();
     delete this.userData.configFileWatcher;
    }
-   if (this.packageInfoFileWatcher) {
+   if (this.packageInfoFileWatcher !== undefined) {
     this.packageInfoFileWatcher.close();
     delete this.packageInfoFileWatcher;
    }
    if (this.restartRequested) {
-    this.console(`Restarting Proxiani...`);
+    this.console(`Restarting ${this.name}`);
     for (let mod in require.cache) delete require.cache[mod];
     setTimeout(() => {
+     if (process.listeners('beforeExit').length > 1) process.emit('beforeExit');
+     process.removeAllListeners('beforeExit');
      process.setUncaughtExceptionCaptureCallback(null);
      require('./main');
     }, 50);
    }
-   else this.console(`Shutting down Proxiani`);
+   else {
+    this.console(`Shutting down ${this.name}`);
+    if (this.listeners.length === 0) utils.msgBox(`${this.name} seems to be running already.`);
+   }
    delete this.events;
    delete this.devices;
    delete this.sockets;
    delete this.userData.proxy;
    delete this.userData;
   });
-  if (this.userData) {
-   try {
-    if (this.userData.config.proxyListen) this.userData.config.proxyListen.forEach(options => this.listen(options));
-   }
-   catch (error) {}
-  }
+  if (this.userData && Array.isArray(this.userData.config.proxyListen)) this.userData.config.proxyListen.forEach(options => this.listen(options));
   this.packageInfoFileWatcher = fs.watch(this.packageInfoFile, { persistent: false }, eventType => {
    if (this.packageInfoFileWatcherTimeout) return;
    this.packageInfoFileWatcherTimeout = setTimeout(() => {
@@ -150,18 +162,26 @@ class Proxy {
  }
  close(restart = this.restartRequested) {
   this.restartRequested = restart;
+  if (this.isClosing) return;
+  this.isClosing = true;
+  if (this.devicesCount === 0 && this.socketsCount === 0) {
+   this.events.emit('close');
+   return;
+  }
   for (let id in this.sockets) this.sockets[id].close();
   const clients = [];
   for (let id in this.devices) {
    const device = this.devices[id];
-   if (device.type === 'server') {
-    if (device.link && device.link.type === 'client') clients.push(device.link.id);
-    device.close();
-   }
+   if (device.type === 'client' && device.link && device.link.proxy && device.link.type !== 'client') clients.push(device.id);
+   else device.close();
   }
-  for (let id in this.devices) {
-   const device = this.devices[id];
-   if (device.type === 'client' && !clients.includes(id)) device.close();
+  if (clients.length > 0) {
+   this.closeRemainingClientsTimeout = setTimeout(() => {
+    for (let id in clients) {
+     const device = this.devices[id];
+     if (device) device.close();
+    }
+   }, 300);
   }
  }
  getNewID() {
@@ -186,14 +206,9 @@ class Proxy {
   });
   socket.on('error', error => {
    this.console(`${title} socket error:`, error);
-   if (error.code === 'EADDRINUSE' && !this.startupError) {
-    this.startupError = `${this.name} seems to be running already.`;
-    utils.msgBox(this.startupError);
-    this.close();
-   }
   });
   socket.on('close', () => {
-   this.console(`${title} stopped listening for incoming connections`);
+   if (this.listeners.includes(id)) this.console(`${title} stopped listening for incoming connections`);
    socket.unref();
    delete this.sockets[id];
    this.socketsCount--;
@@ -201,6 +216,7 @@ class Proxy {
   });
   socket.on('listening', () => {
    const { address, port, family } = socket.address();
+   this.listeners.push(id);
    this.console(`${title} started listening on port ${port} (${family} address ${address})`);
   });
   socket.listen({
