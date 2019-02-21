@@ -1,4 +1,3 @@
-const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const utils = require('../../../src/utils');
@@ -8,12 +7,12 @@ const commands = {
  changelog: {
   syntax: 'changelog',
   description: `Opens the Proxiani changelog in Notepad.`,
-  func: (data, middleware) => childProcess.exec(`cmd.exe /c start "" notepad.exe CHANGELOG.txt`, { cwd: middleware.device.proxy.dir }),
+  func: (data, middleware) => utils.run(middleware.device.proxy.userData.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir }),
  },
  configure: {
   syntax: 'config',
   description: `Opens Proxiani's config file in Notepad.`,
-  func: (data, middleware) => childProcess.exec(`cmd.exe /c start "" notepad.exe Config.json`, { cwd: middleware.device.proxy.userData.dir }),
+  func: (data, middleware) => utils.run(middleware.device.proxy.userData.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.userData.dir }),
  },
  console: {
   syntax: 'console',
@@ -125,7 +124,7 @@ const commands = {
    if (fs.existsSync(logFile)) {
     const daysAgo = Math.floor((today - d) / 86400000);
     data.respond.push(`#$#proxiani say Opening log ${daysAgo === 0 ? 'for today' : (daysAgo < 8 ? `from ${daysAgo === 1 ? '1 day' : `${daysAgo} days`} ago` : `of ${utils.formatDateWordly(d)}`)}.`);
-    childProcess.exec(`cmd.exe /c start "" notepad.exe "${fileName}"`, { cwd: dirName });
+    utils.run(middleware.device.proxy.userData.config.textEditor, fileName, { cwd: dirName });
    }
    else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);
   },

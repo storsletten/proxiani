@@ -1,3 +1,5 @@
+const childProcess = require('child_process');
+
 const englishOrdinalIndicator = n => {
  const s = String(n);
  const l = s[s.length - 1];
@@ -44,6 +46,14 @@ const formatTimeDiff = (d1, d2) => {
 
 const formatAmount = (number, word) => `${number} ${number == 1 ? word : `${word}s`}`;
 
+const run = (app, args = [], options = {}) => {
+ childProcess.spawn('cmd.exe', ['/c', app, ...(Array.isArray(args) ? args : [args])], {
+  ...options,
+  detached: true,
+  stdio: 'ignore',
+ }).unref();
+};
+
 module.exports = {
  englishOrdinalIndicator,
  englishMonths,
@@ -52,4 +62,5 @@ module.exports = {
  formatTime,
  formatTimeDiff,
  formatAmount,
+ run,
 };

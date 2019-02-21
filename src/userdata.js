@@ -20,6 +20,7 @@ const defaultConfigJSON = JSON.stringify({
   autoReconnect: true,
   autoReconnectInterval: 3000,
  },
+ textEditor: 'notepad.exe',
  logging: true,
  developerMode: false,
 });
