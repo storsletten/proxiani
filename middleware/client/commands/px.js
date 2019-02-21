@@ -234,12 +234,12 @@ const proxiani = (data, middleware, linkedMiddleware) => {
  else if (data.command[1] in commands) commands[data.command[1]].func(data, middleware, linkedMiddleware);
  else {
   for (let command in commands) {
-   if (command.indexOf(data.command[1]) === 0) {
+   if (command.startsWith(data.command[1])) {
     commands[command].func(data, middleware, linkedMiddleware);
     return;
    }
   }
-  data.respond.push(`${data.command[0]} command not recognized.`);
+  data.respond.push(`${data.command[0]} command "${data.command[1]}" not recognized.`);
  }
 };
 
