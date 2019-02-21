@@ -28,7 +28,7 @@ module.exports = (data, middleware, linkedMiddleware) => {
       if (room.output.length > 25 || data.input.startsWith('#$#')) {
        data.forward.push(`There seems to be something wrong with your look-options. Please make sure that exits are included in your look-options, and that they are last in the list.`);
        room.output = [];
-       return;
+       return 0b10;
       }
       room.output.push(data.input);
       if (data.input.length === 0) return 0;
@@ -36,7 +36,7 @@ module.exports = (data, middleware, linkedMiddleware) => {
       if (room.fullTitle === undefined && data.input[0] === '[') {
        let i = data.input.lastIndexOf(']');
        if (i > 0) {
-        room.meta = data.input.slice(i + 2);
+        if ((data.input.length - i) > 2) room.meta = data.input.slice(i + 2);
         room.fullTitle = data.input.slice(1, i);
         const zoneEnclosedInQuotes = room.zoneType === 'starship' && room.fullTitle[0] === '"';
         i = room.fullTitle.indexOf(zoneEnclosedInQuotes ? '" ' : '; ', 1);
@@ -44,7 +44,11 @@ module.exports = (data, middleware, linkedMiddleware) => {
          room.zone = room.fullTitle.slice(zoneEnclosedInQuotes ? 1 : 0, i);
          room.title = room.fullTitle.slice(i + 2);
         }
-        return 1;
+        if (room.zoneType === 'space') {
+         room.exits = [];
+         return 0b11;
+        }
+        else return 1;
        }
       }
       else if (room.exits === undefined) {
