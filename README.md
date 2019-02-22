@@ -54,3 +54,8 @@ $ npm start -- -q -d ../Proxiani Data
 ```
 
 When using relative paths with the -d flag, it will be relative to current working directory.
+
+All these parameters can also be passed to Start.vbs if you would like to run Proxiani without a console window. The only difference is that you use // (double slash) instead of -- (double hyphen). For example:
+```
+$ .\Start.vbs // -q -d ../Proxiani Data
+```
