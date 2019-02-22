@@ -29,7 +29,8 @@ class UserData {
  constructor(options = {}) {
   this.proxy = options.proxy;
   if (options.dir) this.dir = options.dir;
-  else if (process.argv.length > 2 && process.argv[2]) this.dir = path.isAbsolute(process.argv[2]) ? process.argv[2] : path.join(process.cwd(), process.argv[2]);
+  else if (typeof this.proxy.startupParameters.d === 'string') this.dir = path.isAbsolute(this.proxy.startupParameters.d) ? this.proxy.startupParameters.d : path.join(process.cwd(), this.proxy.startupParameters.d);
+  else if (typeof this.proxy.startupParameters[''] === 'string') this.dir = path.isAbsolute(this.proxy.startupParameters['']) ? this.proxy.startupParameters[''] : path.join(process.cwd(), this.proxy.startupParameters['']);
   else {
    const dir = path.join(os.homedir(), 'Documents');
    this.dir = path.join(dir, fs.existsSync(dir) ? '.' : '..', 'Proxiani');

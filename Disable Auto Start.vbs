@@ -7,7 +7,7 @@ ShortcutFile = ShellObj.SpecialFolders("Startup") & + "\Proxiani.lnk"
 
 If FileSysObj.FileExists(ShortcutFile) Then
  FileSysObj.DeleteFile ShortcutFile
- MsgBox "Auto start for Proxiani is now disabled.", 64, "Proxiani"
+ MsgBox "Disabled auto start for Proxiani.", 64, "Proxiani"
 Else
  MsgBox "Auto start for Proxiani is already disabled.", 64, "Proxiani"
 End If

@@ -9,6 +9,7 @@ const utils = require('./utils');
 class Proxy {
  constructor(options = {}) {
   this.startdate = new Date();
+  this.startupParameters = {};
   this.consoleLog = [];
   this.consoleLogMaxSize = options.consoleLogMaxSize || 25;
   this.idCount = 0;
@@ -25,6 +26,18 @@ class Proxy {
    catch (error) {}
    process.exit(1);
   });
+  if (process.argv.length > 2) {
+   let last = '';
+   for (let i=2; i<process.argv.length; i++) {
+    const arg = process.argv[i];
+    if (arg.length === 2 && arg[0] === '-') {
+     last = arg[1];
+     this.startupParameters[last] = true;
+    }
+    else if (typeof this.startupParameters[last] === 'string') this.startupParameters[last] += ' ' + arg;
+    else this.startupParameters[last] = arg;
+   }
+  }
   this.dir = path.dirname(__dirname);
   this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
   this.loadPackageInfo();
@@ -56,7 +69,7 @@ class Proxy {
    }
    else {
     this.console(`Shutting down ${this.name}`);
-    if (this.listeners.length === 0) utils.msgBox(`${this.name} seems to be running already.`);
+    if (this.listeners.length === 0 && !this.startupParameters.q) utils.msgBox(`${this.name} seems to be running already.`);
    }
    delete this.events;
    delete this.devices;
@@ -206,8 +219,8 @@ class Proxy {
   });
   socket.on('listening', () => {
    const { address, port, family } = socket.address();
-   this.listeners.push(id);
    this.console(`${title} started listening on port ${port} (${family} address ${address})`);
+   if (this.listeners.push(id) === 1 && !this.startupParameters.q) utils.msgBox(`Started ${this.name} ${this.version}.`);
   });
   socket.listen({
    host: options.host,

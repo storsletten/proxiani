@@ -8,6 +8,7 @@ ShortcutFile = ShellObj.SpecialFolders("Startup") & + "\Proxiani.lnk"
 Set Shortcut = ShellObj.CreateShortcut(ShortcutFile)
 Shortcut.WorkingDirectory = CurrentDirectory
 Shortcut.TargetPath = CurrentDirectory + "\Start.vbs"
+Shortcut.Arguments = "// -q"
 Shortcut.Save
 
-MsgBox "Enabled auto start for Proxiani.", 64, "Proxiani"
+MsgBox "Auto start enabled.", 64, "Proxiani"
