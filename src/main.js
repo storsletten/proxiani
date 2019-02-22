@@ -11,3 +11,5 @@ proxy.on('clientCreated', client => {
  client.on('close', () => server.close());
  server.on('close', () => client.close());
 });
+
+module.exports = proxy;

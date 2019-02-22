@@ -41,6 +41,7 @@ class Proxy {
   this.dir = path.dirname(__dirname);
   this.packageInfoFile = options.packageInfoFile || path.join(__dirname, '..', 'package.json');
   this.loadPackageInfo();
+  process.title = `${this.name} ${this.version}`;
   this.console(`Starting ${this.name} ${this.version}`);
   this.userData = options.userData || (new UserData({ proxy: this }));
   this.events.on('close', () => {
@@ -63,8 +64,12 @@ class Proxy {
     setTimeout(() => {
      if (process.listeners('beforeExit').length > 1) process.emit('beforeExit');
      process.removeAllListeners('beforeExit');
+     if (!process.argv.includes('-q')) process.argv.push('-q');
      process.setUncaughtExceptionCaptureCallback(null);
-     require('./main');
+     const proxy = require('./main');
+     if (Array.isArray(proxy.consoleLog) && proxy.consoleLog.unshift(...this.consoleLog) > proxy.consoleLogMaxSize) {
+      proxy.consoleLog.splice(0, proxy.consoleLog.length - proxy.consoleLogMaxSize);
+     }
     }, 50);
    }
    else {
