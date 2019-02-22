@@ -1,3 +1,7 @@
+Version 1.0.35, released 2019-02-22:
+* px console messages will now carry over to the new instance after px restart.
+* The message box indicating that Proxiani has started will no longer show when you do px restart.
+
 Version 1.0.34, released 2019-02-22:
 * Proxiani will now display a message box when it starts, indicating whether or not it started successfully, or if another instance is already running, or if there was a critical error that crashed Proxiani. The new version of auto start will suppress the message box that says Proxiani started, and you can set it up by running the script called Enable Auto Start.vbs.
 
