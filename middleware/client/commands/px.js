@@ -9,7 +9,7 @@ const commands = {
   syntax: 'changelog',
   description: `Opens the Proxiani changelog in Notepad.`,
   func: (data, middleware) => {
-   data.respond.push(`#$#proxiani say Opening`);
+   data.respond.push(`#$#proxiani say Opening the changelog`);
    utils.run(middleware.device.proxy.userData.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir })
   },
  },
@@ -17,7 +17,7 @@ const commands = {
   syntax: 'config',
   description: `Opens Proxiani's config file in Notepad.`,
   func: (data, middleware) => {
-   data.respond.push(`#$#proxiani say Opening`);
+   data.respond.push(`#$#proxiani say Opening configuration file`);
    utils.run(middleware.device.proxy.userData.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.userData.dir })
   },
  },
