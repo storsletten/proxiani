@@ -1,3 +1,6 @@
+Version 1.0.34, released 2019-02-22:
+* Proxiani will now display a message box when it starts, indicating whether or not it started successfully, or if another instance is already running, or if there was a critical error that crashed Proxiani. The new version of auto start will suppress the message box that says Proxiani started, and you can set it up by running the script called Enable Auto Start.vbs.
+
 Version 1.0.33, released 2019-02-21:
 * Added a textEditor option in Config.json, in case anyone would prefer to use a different text editor when opening logs and stuffs via Proxiani.
 * Added a message box that pops up if an uncaught exception occurs.
