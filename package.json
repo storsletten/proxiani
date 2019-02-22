@@ -1,6 +1,6 @@
 {
   "name": "proxiani",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "description": "Proxy server designed for optimizing communication between Miriani and VIP Mud",
   "main": "./src/main.js",
   "author": "Martin Storsletten",
