@@ -64,8 +64,8 @@ class Proxy {
     setTimeout(() => {
      if (process.listeners('beforeExit').length > 1) process.emit('beforeExit');
      process.removeAllListeners('beforeExit');
-     if (!process.argv.includes('-q')) process.argv.push('-q');
      process.setUncaughtExceptionCaptureCallback(null);
+     global.proxianiRestarted = true;
      const proxy = require('./main');
      if (Array.isArray(proxy.consoleLog) && proxy.consoleLog.unshift(...this.consoleLog) > proxy.consoleLogMaxSize) {
       proxy.consoleLog.splice(0, proxy.consoleLog.length - proxy.consoleLogMaxSize);
@@ -74,7 +74,7 @@ class Proxy {
    }
    else {
     this.console(`Shutting down ${this.name}`);
-    if (this.listeners.length === 0 && !this.startupParameters.q) utils.msgBox(`${this.name} seems to be running already.`);
+    if (this.listeners.length === 0 && (!this.startupParameters.q || global.proxianiRestarted)) utils.msgBox(`${this.name} seems to be running already.`);
    }
    delete this.events;
    delete this.devices;
@@ -225,7 +225,7 @@ class Proxy {
   socket.on('listening', () => {
    const { address, port, family } = socket.address();
    this.console(`${title} started listening on port ${port} (${family} address ${address})`);
-   if (this.listeners.push(id) === 1 && !this.startupParameters.q) utils.msgBox(`Started ${this.name} ${this.version}.`);
+   if (this.listeners.push(id) === 1 && !this.startupParameters.q && !global.proxianiRestarted) utils.msgBox(`Started ${this.name} ${this.version}.`);
   });
   socket.listen({
    host: options.host,
