@@ -1,3 +1,6 @@
+Version 1.0.36, released 2019-02-22:
+* Removed px memory, and added px usage instead, for viewing memory and data usage.
+
 Version 1.0.35, released 2019-02-22:
 * px console messages will now carry over to the new instance after px restart.
 * The message box indicating that Proxiani has started will no longer show when you do px restart.
