@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const utils = require('../../../src/utils');
 const vm = require('vm');
 
@@ -7,12 +8,18 @@ const commands = {
  changelog: {
   syntax: 'changelog',
   description: `Opens the Proxiani changelog in Notepad.`,
-  func: (data, middleware) => utils.run(middleware.device.proxy.userData.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir }),
+  func: (data, middleware) => {
+   data.respond.push(`#$#proxiani say Opening`);
+   utils.run(middleware.device.proxy.userData.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir })
+  },
  },
  configure: {
   syntax: 'config',
   description: `Opens Proxiani's config file in Notepad.`,
-  func: (data, middleware) => utils.run(middleware.device.proxy.userData.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.userData.dir }),
+  func: (data, middleware) => {
+   data.respond.push(`#$#proxiani say Opening`);
+   utils.run(middleware.device.proxy.userData.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.userData.dir })
+  },
  },
  console: {
   syntax: 'console',
@@ -129,11 +136,6 @@ const commands = {
    else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);
   },
  },
- memory: {
-  syntax: 'memory',
-  description: `Shows how much RAM is occupied by Proxiani.`,
-  func: data => data.respond.push(`${Math.max(1, Math.floor(process.memoryUsage().rss/(1024*1024)))} MB.`),
- },
  pass: {
   syntax: 'pass <message>',
   description: `Sends <message> directly to Miriani, in case you need to bypass Proxiani middleware.`,
@@ -206,6 +208,31 @@ const commands = {
     if (linkedMiddleware.device.connected) data.respond.push(`Connection to ${linkedMiddleware.device.host} has been up for ${utils.formatTimeDiff(now, linkedMiddleware.device.connectedSince)}  (since ${utils.formatTime(linkedMiddleware.device.connectedSince)}, ${utils.formatDateWordly(linkedMiddleware.device.connectedSince)}).`);
     else if (linkedMiddleware.device.startdate !== linkedMiddleware.device.disconnectedSince) data.respond.push(`The connection to ${linkedMiddleware.device.host} has been down for ${utils.formatTimeDiff(now, linkedMiddleware.device.disconnectedSince)}  (since ${utils.formatTime(linkedMiddleware.device.disconnectedSince)}, ${utils.formatDateWordly(linkedMiddleware.device.disconnectedSince)}).`);
     else data.respond.push(`${proxy.name} has been attempting to connect to ${linkedMiddleware.device.host} for ${utils.formatTimeDiff(now, linkedMiddleware.device.startdate)}  (since ${utils.formatTime(linkedMiddleware.device.startdate)}, ${utils.formatDateWordly(linkedMiddleware.device.startdate)}).`);
+   }
+  },
+ },
+ usage: {
+  syntax: 'usage',
+  description: `Shows resource usage.`,
+  func: (data, middleware, linkedMiddleware) => {
+   const formatBytes = n => {
+    if (n < 100000) return utils.formatAmount(n, 'Byte');
+    if (n < 100000000) return `${utils.formatThousands(Math.floor(n / 1024))} kB`;
+    if (n < 100000000000) return `${utils.formatThousands(Math.floor(n / 1048576))} mB`;
+    return `${utils.formatThousands(Math.floor(n / 1073741824))} gB`;
+   };
+   const device = middleware.device;
+   const proxy = device.proxy;
+   data.respond.push(`Memory usage:`);
+   data.respond.push(`  ${proxy.name}: ${formatBytes(process.memoryUsage().rss)}.`);
+   data.respond.push(`  The system has ${formatBytes(os.freemem())} of free memory.`);
+   const showServerDataUsage = Boolean(linkedMiddleware && linkedMiddleware.device.socket && linkedMiddleware.device.host);
+   data.respond.push(`Data usage:`);
+   data.respond.push(`  Client transferred ${formatBytes(device.socket.bytesRead)} to ${proxy.name}, and received ${formatBytes(device.socket.bytesWritten)} from ${proxy.name}.`);
+   if (showServerDataUsage) {
+    const device = linkedMiddleware.device;
+    const socket = device.socket;
+    data.respond.push(`  ${device.host} transferred ${formatBytes(socket.bytesRead)} to ${device.proxy.name}, and received ${formatBytes(socket.bytesWritten)} from ${device.proxy.name}.`);
    }
   },
  },

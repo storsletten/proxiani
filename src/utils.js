@@ -45,7 +45,8 @@ const formatTimeDiff = (d1, d2) => {
  else return `no time`;
 };
 
-const formatAmount = (number, word) => `${number} ${number == 1 ? word : `${word}s`}`;
+const formatAmount = (number, word, thousands = true) => `${thousands ? formatThousands(number) : number} ${number == 1 ? word : `${word}s`}`;
+const formatThousands = number => String(number).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 const msgBox = (msg, title = 'Proxiani') => {
  childProcess.spawn('cscript.exe', [path.join(__dirname, 'msgBox.vbs'), msg, title], {
@@ -72,6 +73,7 @@ module.exports = {
  formatTime,
  formatTimeDiff,
  formatAmount,
+ formatThousands,
  msgBox,
  run,
 };
