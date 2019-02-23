@@ -1,6 +1,9 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const util = require('util');
+
+const writeFile = util.promisify(fs.writeFile);
 
 const defaultConfigJSON = JSON.stringify({
  proxyListen: [
@@ -96,29 +99,36 @@ class UserData {
     this.proxy.console(error);
    }
   }
-  else {
-   fs.writeFileSync(customFile, `// Custom.js for Proxiani
+  else this.saveDefaultCustomFile();
+ }
+ async save() {
+  await this.saveConfig();
+ }
+ async saveConfig() {
+  if (this.configFileWatcher && !this.configFileWatcherTimeout) this.configFileWatcherTimeout = setTimeout(() => delete this.configFileWatcherTimeout, 1000);
+  try {
+   await writeFile(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
+   this.proxy.console(`Saved ${this.configFile}`);
+  }
+  catch (error) {
+   this.proxy.console(`Failed to save ${this.configFile}:`, error);
+  }
+ }
+ async saveDefaultCustomFile() {
+  const customFile = path.join(this.dir, this.customFile);
+  try {
+   await writeFile(customFile, `// Custom.js for Proxiani
 const custom = proxy => {
  return;
 };
 
 module.exports = custom;
 `);
-  }
- }
- save() {
-  this.saveConfig();
- }
- saveConfig() {
-  if (this.configFileWatcher && !this.configFileWatcherTimeout) this.configFileWatcherTimeout = setTimeout(() => delete this.configFileWatcherTimeout, 1000);
-  try {
-   fs.writeFileSync(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
+   this.proxy.console(`Saved default ${this.customFile} file`);
   }
   catch (error) {
-   this.proxy.console(`Failed to save Config.json:`, error);
-   return;
+   this.proxy.console(`Failed to save ${this.customFile}:`, error);
   }
-  this.proxy.console(`Saved config.json`);
  }
 }
 
