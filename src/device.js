@@ -63,6 +63,7 @@ class Device {
   });
   this.events.on('link', () => this.connected && this.events.emit('ready'));
   if (this.type === 'client') {
+   this.soundpack = {};
    this.events.once('ready', () => this.respond(`#$#proxiani session version ${this.proxy.version} | token ${this.token}`));
    this.events.on('ready', () => {
     if (this.socket.authorized === false) this.respond(`*** TLS authorization failed. Please see px console for more information. ***`);

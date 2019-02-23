@@ -74,9 +74,10 @@ const commands = {
     vmVars.middleware = middleware;
     vmVars.linkedMiddleware = linkedMiddleware;
    }
+   const vmParse = result => result && typeof result === 'object' ? JSON.stringify(result, null, 1) : String(result);
    if (data.command.length > 2) {
     try {
-     data.respond.push(String(vm.runInNewContext(getRawCommandValue(data), vmVars, vmOptions)));
+     data.respond.push(vmParse(vm.runInNewContext(getRawCommandValue(data), vmVars, vmOptions)));
     }
     catch (error) {
      data.respond = error.stack.split("\n");
@@ -91,7 +92,7 @@ const commands = {
      if (data.input.trim().toLowerCase() === '@abort') data.respond.push('>> Command Aborted <<');
      else if (data.input.trim() === '.') {
       try {
-       data.respond.push(String(vm.runInNewContext(state.code.join("\r\n"), vmVars, vmOptions)));
+       data.respond.push(vmParse(vm.runInNewContext(state.code.join("\r\n"), vmVars, vmOptions)));
       }
       catch (error) {
        data.respond = error.stack.split("\n");

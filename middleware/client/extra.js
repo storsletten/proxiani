@@ -1,6 +1,7 @@
 const commandAliases = {
  lock: 'aim',
  proxiani: 'px',
+ 'registered_soundpack': '#$#register_soundpack',
  sc: 'scan',
  sca: 'scan',
 };
