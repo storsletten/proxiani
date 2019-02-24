@@ -1,3 +1,6 @@
+Version 1.0.39, released 2019-02-24:
+* Fixed it so that Proxiani will permit look options where exits come before the title. Thanks Miriam Valleris for bringing this to my attention!
+
 Version 1.0.38, released 2019-02-24:
 * Added px find, or px f, for searching through all your Proxiani log files. Currently it works by launching a separate PowerShell window.
 
