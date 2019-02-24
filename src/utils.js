@@ -57,13 +57,14 @@ const msgBox = (msg, title = 'Proxiani') => {
 };
 
 const run = (app, args = [], options = {}) => {
- childProcess.spawn('cmd.exe', ['/c', 'start', '""', app, ...(Array.isArray(args) ? args : [args])], {
+ childProcess.spawn('cmd.exe', ['/C', 'start', '""', app, ...(Array.isArray(args) ? args : [args])], {
   ...options,
   windowsHide: true,
   detached: true,
   stdio: 'ignore',
  }).unref();
 };
+const powershell = (command, options = {}) => run('powershell', ['-version', '2.0', '-EncodedCommand', Buffer.from(command, 'utf16le').toString('base64')], options);
 
 module.exports = {
  englishOrdinalIndicator,
@@ -75,5 +76,6 @@ module.exports = {
  formatAmount,
  formatThousands,
  msgBox,
+ powershell,
  run,
 };
