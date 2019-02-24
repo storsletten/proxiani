@@ -1,3 +1,6 @@
+Version 1.0.37, released 2019-02-24:
+* smships assess, AKA the sma command, will now also show interdictors, proximity weapons, combat drones, and blockades.
+
 Version 1.0.36, released 2019-02-22:
 * Removed px memory, and added px usage instead, for viewing memory and data usage.
 
