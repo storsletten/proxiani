@@ -1,3 +1,6 @@
+Version 1.0.38, released 2019-02-24:
+* Added px find, or px f, for searching through all your Proxiani log files. Currently it works by launching a separate PowerShell window.
+
 Version 1.0.37, released 2019-02-24:
 * smships assess, AKA the sma command, will now also show interdictors, proximity weapons, combat drones, and blockades.
 
