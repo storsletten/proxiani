@@ -37,13 +37,12 @@ module.exports = (data, middleware, linkedMiddleware) => {
      default: props.forEach(prop => room[prop] = true);
     }
    }
-   if (prevRoom && (prevRoom.fullTitle === undefined || prevRoom.exits === undefined)) data.forward.push(`Your look-options must include title and exits for the soundpack to work properly, and exits must be last.`);
+   if (prevRoom && (prevRoom.fullTitle === undefined || prevRoom.exits === undefined)) data.forward.push(`Your look-options must include both title and exits for the soundpack to work properly.`);
    middleware.persistentStates.room = room;
    middleware.states = {};
    middleware.setState('room', (data, middleware) => {
     const room = middleware.persistentStates.room;
     if (room.output.length > 25 || data.input.startsWith('#$#')) {
-     data.forward.push(`There seems to be something wrong with your look-options. Please make sure that exits are included in your look-options, and that they are last in the list.`);
      room.output = [];
      return 0b10;
     }
@@ -65,19 +64,19 @@ module.exports = (data, middleware, linkedMiddleware) => {
        room.exits = [];
        return 0b11;
       }
-      else return 1;
+      else return room.exits ? 0b11 : 1;
      }
     }
     else if (room.exits === undefined) {
      if (['You see nowhere obvious to go.', 'You cannot navigate the vehicle here.'].includes(data.input)) {
       room.exits = [];
-      return;
+      return room.fullTitle ? 0b11 : 1;
      }
      const m = data.input.match(/^You can (go|navigate) ([a-z ,]+)\.$/);
      if (m) {
       room.exits = m[2].replace(/,/g, '').split(' ');
       if (room.exits.length > 1) room.exits.splice(-2, 1);
-      return;
+      return room.fullTitle ? 0b11 : 1;
      }
     }
     room.description.push(data.input);
