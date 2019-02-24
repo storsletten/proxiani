@@ -17,6 +17,8 @@ const modes = {
  name: (ship, index, filter) => filter ? `Ship ${ship.index + 1}, ${ship.dir || 'here'}, ${ship.match}` : `Ship ${ship.index + 1}, ${ship.dir || 'here'}, ${ship.name}`,
 };
 
+const additionalThreats = ['interdictors', 'proximity weapons', 'combat drones', 'blockades'];
+
 const smships = (data, middleware, linkedMiddleware) => {
  if (linkedMiddleware.states.sm && linkedMiddleware.states.sm.readingStarmap) {
   data.forward.pop();
@@ -27,16 +29,17 @@ const smships = (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
   if (!state.readingComplete) return 0b10;
+  if (state.command.length === 1 || isFinite(state.command[1])) state.command.splice(1, 0, 'name');
+  const mode = state.command[1] in modes ? state.command[1] : 'name';
   const oob = starmap.oob(state);
   oob.push(`token ${linkedMiddleware.device.token}`);
   if (!state.starships) {
    data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
+   if (mode === 'assess') additionalThreats.forEach(objectType => state[objectType] && data.forward.push(`${state[objectType].split('(').length - 1} ${objectType}`));
    data.forward.push(`No ships.`);
    return;
   }
   let ships = starmap.parseObjects('starships', state.starships, state.currentCoordinates);
-  if (state.command.length === 1 || isFinite(state.command[1])) state.command.splice(1, 0, 'name');
-  const mode = state.command[1] in modes ? state.command[1] : 'name';
   if (mode === 'count') {
    const filter = state.command.length > 2 ? state.command.slice(2).join(' ') : undefined;
    data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
@@ -68,6 +71,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (maxDistance && filteredShips) {
     data.forward.push(`${ships.length} of ${shipsTotal} ${shipsTotal === 1 ? 'ship' : 'ships'}:`);
    }
+   additionalThreats.forEach(objectType => state[objectType] && data.forward.push(`${state[objectType].split('(').length - 1} ${objectType}`));
    list.forEach(item => data.forward.push(modes[mode](item.label, item.count)));
   }
   else {

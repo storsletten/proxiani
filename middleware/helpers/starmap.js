@@ -48,13 +48,17 @@ const types = typeTitles.map(objectType => objectType.toLowerCase());
 const findType = text => {
  if (text.length === 0) return;
  text = text.toLowerCase();
- if (text === 'a') text = 'art';
- else if (text === 'm' || text === 'mo') text = 'moon';
- else if (text === 'p' || text === 'pr') text = 'prox';
- else if (text.length >= 2 && text === 'ships'.slice(0, text.length)) text = 'starship';
- else if (text.length >= 4 && text === 'stations'.slice(0, text.length)) text = 'space station';
+ if (text === 'a') return 'Artifacts';
+ else if (text.length > 1 && 'beacons'.startsWith(text)) return 'Control Beacons';
+ else if (text.length > 1 && 'docks'.startsWith(text)) return 'Dry Docks';
+ else if (text.length > 1 && 'drones'.startsWith(text)) return 'Combat Drones';
+ else if ('mo'.startsWith(text)) return 'Moons';
+ else if (text.length > 3 && 'platforms'.startsWith(text)) return 'Mobile Platforms';
+ else if ('pr'.startsWith(text) || (text.length > 1 && 'weapons'.startsWith(text))) return 'Proximity Weapons';
+ else if (text.length > 1 && 'ships'.startsWith(text)) return 'Starships';
+ else if (text.length > 3 && 'stations'.startsWith(text)) return 'Space Stations';
  for (let i=0; i<types.length; i++) {
-  if (types[i].indexOf(text) === 0) return typeTitles[i];
+  if (types[i].startsWith(text)) return typeTitles[i];
  }
 };
 
