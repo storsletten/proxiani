@@ -1,3 +1,6 @@
+Version 1.0.41, released 2019-02-26:
+* Added px encrypt and px decrypt, for encrypting and decrypting messages.
+
 Version 1.0.40, released 2019-02-26:
 * Changed px find so it now uses a native NodeJS process instead of PowerShell, since some users had issues with PowerShell.
 
