@@ -1,3 +1,6 @@
+Version 1.0.40, released 2019-02-26:
+* Changed px find so it now uses a native NodeJS process instead of PowerShell, since some users had issues with PowerShell.
+
 Version 1.0.39, released 2019-02-24:
 * Fixed it so that Proxiani will permit look options where exits come before the title. Thanks Miriam Valleris for bringing this to my attention!
 
