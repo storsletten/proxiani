@@ -237,11 +237,12 @@ class Proxy {
   this.closeWorker(name);
   const worker = childProcess.fork(path.join(__dirname, 'workers', `${name}.js`), args, options);
   this.workers[name] = worker;
-  worker.on('error', () => worker === this.workers[name] && this.closeWorker(name));
-  worker.on('exit', () => worker === this.workers[name] && this.closeWorker(name));
+  worker.on('message', message => message.error && worker.emit('error', message.error));
+  worker.on('error', error => worker === this.workers[name] && this.closeWorker(name, error));
+  worker.on('exit', code => worker === this.workers[name] && this.closeWorker(name, code && `Exit code ${code}`));
   return worker;
  }
- closeWorker(name) {
+ closeWorker(name, reason) {
   const worker = this.workers[name];
   if (!worker) return;
   delete this.workers[name];
@@ -250,6 +251,7 @@ class Proxy {
    worker.disconnect();
   }
   worker.unref();
+  if (reason) this.console(`Proxy worker ${name} closed because:`, reason);
  }
  on(...args) {
   this.events.on(...args);

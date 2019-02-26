@@ -1,3 +1,4 @@
+const childProcess = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -36,6 +37,7 @@ class Device {
   this.loggerID = options.loggerID;
   this.type = options.type || (('socket' in options) ? 'client' : 'server');
   this.observers = options.observers || [];
+  this.workers = {};
   this.initialLinkingDelay = options.initialLinkingDelay || 200; // Give VIP Mud enough time to load triggers before data starts pouring in.
   this.token = options.token || crypto.randomBytes(4).toString('hex');
   this.middleware = new Middleware({ device: this });
@@ -235,6 +237,7 @@ class Device {
     this.isClosing = true;
     for (let handle in this.timers) clearTimeout(this.timers[handle]);
     delete this.timers;
+    for (let name in this.workers) this.closeWorker(name);
     this.proxy.unlink(this);
     this.proxy.console(`Closed device ${this.id}`);
     this.events.emit('close');
@@ -304,6 +307,26 @@ class Device {
    }
    this.buffer = lineStart === 0 ? data : data.slice(lineStart);
   });
+ }
+ worker(name, args = [], options = {}) {
+  this.closeWorker(name);
+  const worker = childProcess.fork(path.join(__dirname, 'workers', `${name}.js`), args, options);
+  this.workers[name] = worker;
+  worker.on('message', message => message.error && worker.emit('error', message.error));
+  worker.on('error', error => worker === this.workers[name] && this.closeWorker(name, error));
+  worker.on('exit', code => worker === this.workers[name] && this.closeWorker(name, code && `Exit code ${code}`));
+  return worker;
+ }
+ closeWorker(name, reason) {
+  const worker = this.workers[name];
+  if (!worker) return;
+  delete this.workers[name];
+  if (worker.connected) {
+   worker.kill();
+   worker.disconnect();
+  }
+  worker.unref();
+  if (reason) this.proxy.console(`Device ${this.id} ${name} worker closed because:`, reason);
  }
  on(...args) {
   this.events.on(...args);

@@ -109,28 +109,32 @@ const commands = {
  },
  find: {
   syntax: 'find <search phrase>',
-  description: `Opens a PowerShell window that searches through your log files for the search phrase.`,
+  description: `Searches your log files and shows the first match from every day where there is a match.`,
   func: (data, middleware) => {
    if (data.command.length === 2) {
     data.respond.push(`Find what?`);
     return;
    }
-   const text = getRawCommandValue(data).replace(/["]/g, `\`$&`);
-   const proxy = middleware.device.proxy;
-   const logDir = path.join(proxy.userData.dir, proxy.userData.logDir);
-   const psWindow = `$host.ui.RawUI.WindowTitle = "Proxiani log search"`;
-   const psIntro = `Write-Host "Searching..."`;
-   const psSearchCmdlets = [
-    `Get-ChildItem -Recurse -Include "*, ${middleware.device.loggerID}.txt"`,
-    `Sort { [regex]::Replace($_, '\\d+', { $args[0].Value.PadLeft(20) }) } -Descending`,
-    `Select -Last 365`,
-    `Select-String -Pattern "${text}" -CaseSensitive -SimpleMatch -List`,
-    //`ForEach { [regex]::Match($_, '\\\\(\\d{4}\\\\\\d{1,2}\\\\\\d{1,2})[a-z]{2}, ${middleware.device.loggerID}\\.txt:').Groups[1].Value }`,
-    //`ForEach { [regex]::Replace($_, '\\\\', '-') }`,
-    `Out-Host -Paging`,
-   ];
-   const psPause = `Read-Host -Prompt "Press Enter to exit"`;
-   utils.powershell(`${psWindow}; ${psIntro}; (${psSearchCmdlets.join(' | ')}); ${psPause}`, { cwd: logDir });
+   const searchPhrase = getRawCommandValue(data);
+   const device = middleware.device;
+   const worker = device.worker('logFind');
+   device.respond(`Searching for ${searchPhrase}...`);
+   const today = new Date();
+   const year = today.getFullYear();
+   worker.on('message', msg => {
+    if (msg.line && msg.file) {
+     const m = msg.file.match(/^(\d+).(\d+).(\d+)/);
+     const d = new Date(`${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`);
+     const daysAgo = Math.floor((today - d) / 86400000);
+     device.respond(`  ${daysAgo === 0 ? 'Today' : `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`}${daysAgo > 30 ? `, on ${utils.formatDateWordly(d, d.getFullYear() !== year)}` : ''}: ${msg.line}`);
+    }
+   });
+   worker.on('exit', code => device.respond(code === 0 ? `Search complete.` : `Search failed with code ${code}.`));
+   worker.send({
+    logDir: path.join(device.proxy.userData.dir, device.proxy.userData.logDir),
+    loggerID: device.loggerID,
+    searchPhrase,
+   });
   },
  },
  log: {

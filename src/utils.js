@@ -14,7 +14,7 @@ const englishOrdinalIndicator = n => {
 const englishMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const formatDateWordly = d => `${englishMonths[d.getMonth()]} ${englishOrdinalIndicator(d.getDate())}, ${d.getFullYear()}`;
+const formatDateWordly = (d, includeYear = true) => `${englishMonths[d.getMonth()]} ${englishOrdinalIndicator(d.getDate())}${includeYear ? `, ${d.getFullYear()}` : ''}`;
 const formatTime = d => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 
 const week = 604800000;
