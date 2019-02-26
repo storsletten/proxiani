@@ -50,10 +50,10 @@ class UserData {
   });
   this.loadConfig();
   this.loadCustom();
-  this.configFileWatcher = fs.watch(path.join(this.dir, this.configFile), { persistent: false }, eventType => {
-   if (this.configFileWatcherTimeout) return;
-   this.configFileWatcherTimeout = setTimeout(() => {
-    delete this.configFileWatcherTimeout;
+  this.proxy.fileWatchers.config = fs.watch(path.join(this.dir, this.configFile), { persistent: false }, eventType => {
+   if (this.proxy.timers.configFileWatcher) return;
+   this.proxy.timers.configFileWatcher = setTimeout(() => {
+    delete this.proxy.timers.configFileWatcher;
     this.loadConfig();
    }, 1000);
   });
@@ -105,7 +105,7 @@ class UserData {
   await this.saveConfig();
  }
  async saveConfig() {
-  if (this.configFileWatcher && !this.configFileWatcherTimeout) this.configFileWatcherTimeout = setTimeout(() => delete this.configFileWatcherTimeout, 1000);
+  if (this.proxy.fileWatchers.config && !this.proxy.timers.configFileWatcher) this.proxy.timers.configFileWatcher = setTimeout(() => delete this.proxy.timers.configFileWatcher, 1000);
   try {
    await writeFile(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
    this.proxy.console(`Saved ${this.configFile}`);

@@ -1,10 +1,11 @@
+const childProcess = require('child_process');
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
-const Device = require('./device');
-const UserData = require('./userdata');
-const utils = require('./utils');
+const Device = require('./device.js');
+const UserData = require('./userdata.js');
+const utils = require('./utils.js');
 
 class Proxy {
  constructor(options = {}) {
@@ -18,6 +19,9 @@ class Proxy {
   this.sockets = {};
   this.socketsCount = 0;
   this.listeners = [];
+  this.workers = {};
+  this.fileWatchers = {};
+  this.timers = {};
   this.events = new EventEmitter();
   this.restartRequested = false;
   process.on('beforeExit', () => this.close());
@@ -46,18 +50,15 @@ class Proxy {
   this.userData = options.userData || (new UserData({ proxy: this }));
   this.events.on('close', () => {
    this.isClosing = true;
-   if (this.closeRemainingDevicesTimeout !== undefined) {
-    clearTimeout(this.closeRemainingDevicesTimeout);
-    delete this.closeRemainingDevicesTimeout;
+   for (let name in this.fileWatchers) {
+    this.fileWatchers[name].close();
+    delete this.fileWatchers[name];
    }
-   if (this.userData.configFileWatcher !== undefined) {
-    this.userData.configFileWatcher.close();
-    delete this.userData.configFileWatcher;
+   for (let name in this.timers) {
+    clearTimeout(this.timers[name]);
+    delete this.timers[name];
    }
-   if (this.packageInfoFileWatcher !== undefined) {
-    this.packageInfoFileWatcher.close();
-    delete this.packageInfoFileWatcher;
-   }
+   for (let name in this.workers) this.closeWorker(name);
    if (this.restartRequested) {
     this.console(`Restarting ${this.name}`);
     for (let mod in require.cache) delete require.cache[mod];
@@ -66,7 +67,7 @@ class Proxy {
      process.removeAllListeners('beforeExit');
      process.setUncaughtExceptionCaptureCallback(null);
      global.proxianiRestarted = true;
-     const proxy = require('./main');
+     const proxy = require('./main.js');
      if (Array.isArray(proxy.consoleLog) && proxy.consoleLog.unshift(...this.consoleLog) > proxy.consoleLogMaxSize) {
       proxy.consoleLog.splice(0, proxy.consoleLog.length - proxy.consoleLogMaxSize);
      }
@@ -83,12 +84,11 @@ class Proxy {
    delete this.userData;
   });
   if (this.userData && Array.isArray(this.userData.config.proxyListen)) this.userData.config.proxyListen.forEach(options => this.listen(options));
-  this.packageInfoFileWatcher = fs.watch(this.packageInfoFile, { persistent: false }, eventType => {
-   if (this.packageInfoFileWatcherTimeout) return;
-   this.packageInfoFileWatcherTimeout = setTimeout(() => {
+  this.fileWatchers.packageInfo = fs.watch(this.packageInfoFile, { persistent: false }, eventType => {
+   if (this.timers.packageInfoFileWatcher) return;
+   this.timers.packageInfoFileWatcher = setTimeout(() => {
     try {
      this.loadPackageInfo();
-     this.packageInfoFileWatcherTimeout = setTimeout(() => delete this.packageInfoFileWatcherTimeout, 2000);
      if (this.outdated) {
       if (this.devicesCount > 0) {
        for (let id in this.devices) {
@@ -101,9 +101,10 @@ class Proxy {
     }
     catch (error) {
      this.console(error);
-     this.packageInfoFileWatcher.close();
-     delete this.packageInfoFileWatcher;
+     this.fileWatchers.packageInfo.close();
+     delete this.fileWatchers.packageInfo;
     }
+    this.timers.packageInfoFileWatcher = setTimeout(() => delete this.timers.packageInfoFileWatcher, 2000);
    }, 1000);
   });
  }
@@ -231,6 +232,24 @@ class Proxy {
    host: options.host,
    port: options.port,
   });
+ }
+ worker(name, args = [], options = {}) {
+  this.closeWorker(name);
+  const worker = childProcess.fork(path.join(__dirname, 'workers', `${name}.js`), args, options);
+  this.workers[name] = worker;
+  worker.on('error', () => worker === this.workers[name] && this.closeWorker(name));
+  worker.on('exit', () => worker === this.workers[name] && this.closeWorker(name));
+  return worker;
+ }
+ closeWorker(name) {
+  const worker = this.workers[name];
+  if (!worker) return;
+  delete this.workers[name];
+  if (worker.connected) {
+   worker.kill();
+   worker.disconnect();
+  }
+  worker.unref();
  }
  on(...args) {
   this.events.on(...args);

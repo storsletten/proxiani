@@ -4,8 +4,8 @@ const path = require('path');
 const net = require('net');
 const tls = require('tls');
 const EventEmitter = require('events');
-const Middleware = require('./middleware');
-const utils = require('./utils');
+const Middleware = require('./middleware.js');
+const utils = require('./utils.js');
 
 class Device {
  constructor(options) {
@@ -309,7 +309,7 @@ class Device {
   this.events.on(...args);
  }
  respond(data, addEoL = true) {
-  if (typeof data !== 'object') data = Buffer.from(data);
+  if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data));
   if (this.connected) this.socket.write(addEoL ? Buffer.concat([data, this.eol]) : data);
   if (this.observers.length > 0) {
    this.observers = this.observers.filter(observer => {
@@ -321,7 +321,7 @@ class Device {
  }
  forward(data, addEoL = true) {
   if (this.link && this.link.connected) {
-   if (typeof data !== 'object') data = Buffer.from(data);
+   if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data));
    this.link.socket.write(addEoL ? Buffer.concat([data, this.link.eol]) : data);
   }
  }
