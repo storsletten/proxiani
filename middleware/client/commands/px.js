@@ -10,7 +10,7 @@ const commands = {
   description: `Opens the Proxiani changelog in Notepad.`,
   func: (data, middleware) => {
    data.respond.push(`#$#proxiani say Opening the changelog`);
-   utils.run(middleware.device.proxy.userData.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir })
+   utils.run(middleware.device.proxy.user.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir })
   },
  },
  configure: {
@@ -18,7 +18,7 @@ const commands = {
   description: `Opens Proxiani's config file in Notepad.`,
   func: (data, middleware) => {
    data.respond.push(`#$#proxiani say Opening configuration file`);
-   utils.run(middleware.device.proxy.userData.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.userData.dir })
+   utils.run(middleware.device.proxy.user.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.user.dir })
   },
  },
  console: {
@@ -39,7 +39,7 @@ const commands = {
    data.respond.push(`Proxiani in ${getParentDirName(pdir)}: ${pdir}`);
    if (pdir !== middleware.dir.slice(0, pdir.length)) data.respond.push(`Client middleware in ${getParentDirName(middleware.dir)}: ${middleware.dir}`);
    if (linkedMiddleware && pdir !== linkedMiddleware.dir.slice(0, pdir.length)) data.respond.push(`Server middleware in ${getParentDirName(linkedMiddleware.dir)}: ${linkedMiddleware.dir}`);
-   data.respond.push(`User data in ${getParentDirName(middleware.device.proxy.userData.dir)}: ${middleware.device.proxy.userData.dir}`);
+   data.respond.push(`User data in ${getParentDirName(middleware.device.proxy.user.dir)}: ${middleware.device.proxy.user.dir}`);
   },
  },
  echo: {
@@ -67,7 +67,7 @@ const commands = {
   func: (data, middleware, linkedMiddleware) => {
    const vmOptions = { timeout: 500 };
    const vmVars = Object.create(null);
-   if (middleware.device.proxy.userData.config.developerMode) {
+   if (middleware.device.proxy.user.config.developerMode) {
     vmVars.proxy = middleware.device.proxy;
     vmVars.device = middleware.device;
     vmVars.linkedDevice = middleware.device.link;
@@ -131,7 +131,7 @@ const commands = {
    });
    worker.on('exit', code => device.respond(code === 0 ? `Search complete.` : `Search failed with code ${code}.`));
    worker.send({
-    logDir: path.join(device.proxy.userData.dir, device.proxy.userData.logDir),
+    logDir: path.join(device.proxy.user.dir, device.proxy.user.logDir),
     loggerID: device.loggerID,
     searchPhrase,
    });
@@ -141,7 +141,7 @@ const commands = {
   syntax: 'log [<date> | <number of days ago>]',
   description: `Opens a log file in Notepad.`,
   func: (data, middleware) => {
-   const userData = middleware.device.proxy.userData;
+   const user = middleware.device.proxy.user;
    const today = new Date();
    const d = new Date(today.getTime());
    if (data.command.length > 2) {
@@ -156,12 +156,12 @@ const commands = {
     }
    }
    const fileName = `${utils.englishOrdinalIndicator(d.getDate())}, ${middleware.device.loggerID}.txt`;
-   const dirName = path.join(userData.dir, userData.logDir, String(d.getFullYear()), String(d.getMonth() + 1));
+   const dirName = path.join(user.dir, user.logDir, String(d.getFullYear()), String(d.getMonth() + 1));
    const logFile = path.join(dirName, fileName);
    if (fs.existsSync(logFile)) {
     const daysAgo = Math.floor((today - d) / 86400000);
     data.respond.push(`#$#proxiani say Opening log ${daysAgo === 0 ? 'for today' : (daysAgo < 8 ? `from ${daysAgo === 1 ? '1 day' : `${daysAgo} days`} ago` : `of ${utils.formatDateWordly(d)}`)}.`);
-    utils.run(middleware.device.proxy.userData.config.textEditor, fileName, { cwd: dirName });
+    utils.run(middleware.device.proxy.user.config.textEditor, fileName, { cwd: dirName });
    }
    else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);
   },

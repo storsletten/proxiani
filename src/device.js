@@ -75,14 +75,14 @@ class Device {
   this.events.on('line', line => {
    const result = this.middleware.process(line);
    const data = result.data;
-   if (this.proxy.userData.config.developerMode) {
+   if (this.proxy.user.config.developerMode) {
     const time = (new Date()) - data.time;
     if (time > 250) this.proxy.console(`Middleware for device ${this.id} took ${time}ms to execute:`, new Error(`Input(${data.input.length}): ${data.input}`));
    }
    data.respond.forEach(line => this.respond(line));
    data.forward.forEach(line => this.forward(line));
    if (data.input.length > 0 && this.lastLines.push(data.input) > this.maxLastLines) this.lastLines.shift();
-   if (this.proxy.userData.config.logging && !data.input.startsWith('#$#')) {
+   if (this.proxy.user.config.logging && !data.input.startsWith('#$#')) {
     if (this.loggerID) this.events.emit('log', data, this);
     else if (this.link && this.link.loggerID) this.link.events.emit('log', data, this);
    }
@@ -91,8 +91,8 @@ class Device {
    if (this.logger === false) return;
    if (this === device) return;
    const d = new Date();
-   const dirNames = [this.proxy.userData.logDir, String(d.getFullYear()), String(d.getMonth() + 1)];
-   const dir = path.join(this.proxy.userData.dir, ...dirNames);
+   const dirNames = [this.proxy.user.logDir, String(d.getFullYear()), String(d.getMonth() + 1)];
+   const dir = path.join(this.proxy.user.dir, ...dirNames);
    const fileName = `${utils.englishOrdinalIndicator(d.getDate())}, ${this.loggerID}.txt`;
    const logFile = path.join(dir, fileName);
    if (this.logFile !== logFile || !this.logger) {
@@ -102,7 +102,7 @@ class Device {
     }
     const logFileExists = fs.existsSync(logFile);
     if (!logFileExists && !fs.existsSync(dir)) {
-     let dir = this.proxy.userData.dir;
+     let dir = this.proxy.user.dir;
      for (let i=0; i<dirNames.length; i++) {
       dir = path.join(dir, dirNames[i]);
       try {
@@ -258,6 +258,7 @@ class Device {
     delete this.proxy.devices[this.id];
     this.proxy.devicesCount--;
     if (this.proxy.devicesCount === 0) {
+     this.proxy.user.save();
      if (this.proxy.socketsCount === 0) this.proxy.events.emit('close');
      else if (this.proxy.outdated) this.proxy.close(true);
     }

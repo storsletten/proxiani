@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
 const Device = require('./device.js');
-const UserData = require('./userdata.js');
+const user = require('./user.js');
 const utils = require('./utils.js');
 
 class Proxy {
@@ -47,7 +47,7 @@ class Proxy {
   this.loadPackageInfo();
   process.title = `${this.name} ${this.version}`;
   this.console(`Starting ${this.name} ${this.version}`);
-  this.userData = options.userData || (new UserData({ proxy: this }));
+  this.user = options.user || (new user({ proxy: this }));
   this.events.on('close', () => {
    this.isClosing = true;
    for (let name in this.fileWatchers) {
@@ -80,10 +80,10 @@ class Proxy {
    delete this.events;
    delete this.devices;
    delete this.sockets;
-   delete this.userData.proxy;
-   delete this.userData;
+   delete this.user.proxy;
+   delete this.user;
   });
-  if (this.userData && Array.isArray(this.userData.config.proxyListen)) this.userData.config.proxyListen.forEach(options => this.listen(options));
+  if (this.user && Array.isArray(this.user.config.proxyListen)) this.user.config.proxyListen.forEach(options => this.listen(options));
   this.fileWatchers.packageInfo = fs.watch(this.packageInfoFile, { persistent: false }, eventType => {
    if (this.timers.packageInfoFileWatcher) return;
    this.timers.packageInfoFileWatcher = setTimeout(() => {
@@ -168,7 +168,7 @@ class Proxy {
      const device = this.devices[id];
      if (device.type === 'client') {
       device.respond('#$#proxiani error');
-      if (this.userData.config.developerMode) device.respond(msg);
+      if (this.user.config.developerMode) device.respond(msg);
       else device.respond(`${this.name} error!`);
      }
     }

@@ -1,9 +1,6 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const util = require('util');
-
-const writeFile = util.promisify(fs.writeFile);
 
 const defaultConfigJSON = JSON.stringify({
  proxyListen: [
@@ -28,7 +25,7 @@ const defaultConfigJSON = JSON.stringify({
  developerMode: false,
 });
 
-class UserData {
+class user {
  constructor(options = {}) {
   this.proxy = options.proxy;
   if (options.dir) this.dir = options.dir;
@@ -38,6 +35,7 @@ class UserData {
    const dir = path.join(os.homedir(), 'Documents');
    this.dir = path.join(dir, fs.existsSync(dir) ? '.' : '..', 'Proxiani');
   }
+  this.dataFile = 'Data.json';
   this.configFile = 'Config.json';
   this.customFile = 'Custom.js';
   this.logDir = 'Logs';
@@ -49,6 +47,7 @@ class UserData {
    if (!fs.existsSync(dir) || !fs.lstatSync(dir).isDirectory()) fs.mkdirSync(dir);
   });
   this.loadConfig();
+  this.loadData();
   this.loadCustom();
   this.proxy.fileWatchers.config = fs.watch(path.join(this.dir, this.configFile), { persistent: false }, eventType => {
    if (this.proxy.timers.configFileWatcher) return;
@@ -57,6 +56,24 @@ class UserData {
     this.loadConfig();
    }, 1000);
   });
+ }
+ loadData() {
+  const dataFile = path.join(this.dir, this.dataFile);
+  if (fs.existsSync(dataFile)) {
+   try {
+    const data = JSON.parse(fs.readFileSync(dataFile));
+    if (data && typeof data === 'object') {
+     this.data = data;
+     return;
+    }
+    throw `Invalid data`;
+   }
+   catch (error) {
+    this.proxy.console(`Failed to load ${this.dataFile}:`, error);
+   }
+  }
+  this.data = {};
+  this.saveData();
  }
  loadConfig() {
   const configFile = path.join(this.dir, this.configFile);
@@ -101,23 +118,32 @@ class UserData {
   }
   else this.saveDefaultCustomFile();
  }
- async save() {
-  await this.saveConfig();
+ save() {
+  this.saveData();
+  this.saveConfig();
  }
- async saveConfig() {
+ saveData() {
+  try {
+   fs.writeFileSync(path.join(this.dir, this.dataFile), JSON.stringify(this.data));
+  }
+  catch (error) {
+   this.proxy.console(`Failed to save ${this.dataFile}:`, error);
+  }
+ }
+ saveConfig() {
   if (this.proxy.fileWatchers.config && !this.proxy.timers.configFileWatcher) this.proxy.timers.configFileWatcher = setTimeout(() => delete this.proxy.timers.configFileWatcher, 1000);
   try {
-   await writeFile(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
+   fs.writeFileSync(path.join(this.dir, this.configFile), JSON.stringify(this.config, null, 1));
    this.proxy.console(`Saved ${this.configFile}`);
   }
   catch (error) {
    this.proxy.console(`Failed to save ${this.configFile}:`, error);
   }
  }
- async saveDefaultCustomFile() {
+ saveDefaultCustomFile() {
   const customFile = path.join(this.dir, this.customFile);
   try {
-   await writeFile(customFile, `// Custom.js for Proxiani
+   fs.writeFileSync(customFile, `// Custom.js for Proxiani
 const custom = proxy => {
  return;
 };
@@ -132,4 +158,4 @@ module.exports = custom;
  }
 }
 
-module.exports = UserData;
+module.exports = user;

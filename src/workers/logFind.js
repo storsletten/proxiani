@@ -10,7 +10,7 @@ process.setUncaughtExceptionCaptureCallback(error => {
 process.once('message', options => {
  if (!options.searchPhrase || !options.logDir || !options.loggerID) throw `Missing options`;
  const searchPhrase = Buffer.isBuffer(options.searchPhrase) ? options.searchPhrase : Buffer.from(options.searchPhrase);
- const eol = options.eol || "\r\n";
+ const eol = options.eol || Buffer.from("\r\n");
  const startdate = new Date();
  const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
  const fromDateObject = options.fromDateObject || new Date(0);
