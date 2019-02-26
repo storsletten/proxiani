@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -31,6 +32,26 @@ const commands = {
   description: `Returns Proxiani's current local date and time.`,
   func: data => data.respond.push(String(new Date())),
  },
+ decrypt: {
+  syntax: 'decrypt <password> <encrypted message>',
+  description: `Decrypts <message> with <password>.`,
+  func: (data, middleware) => {
+   if (data.command.length === 2) {
+    data.respond.push(`Please specify password and message.`);
+    return;
+   }
+   const algorithm = 'aes-256-ctr';
+   const password = data.command[2];
+   const decipher = crypto.createDecipher(algorithm, password);
+   if (data.command.length === 3) {
+    data.respond.push(`Please specify a message as well.`);
+    return;
+   }
+   const encryptedText = data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, '');
+   const text = decipher.update(encryptedText, 'base64', 'utf8') + decipher.final('utf8');
+   data.respond.push(text.startsWith('>>') ? `Decrypted message: ${text.slice(2)}` : `Incorrect password.`);
+  },
+ },
  directories: {
   syntax: 'directories',
   description: `Shows paths to directories used by Proxiani.`,
@@ -59,6 +80,27 @@ const commands = {
      return 0b01;
     }
    }).timeout = 0;
+  },
+ },
+ encrypt: {
+  syntax: 'encrypt <password> <message>',
+  description: `Encrypts <message> with <password>, using AES-256 encryption.`,
+  func: (data, middleware) => {
+   if (data.command.length === 2) {
+    data.respond.push(`Please specify password and message.`);
+    return;
+   }
+   const algorithm = 'aes-256-ctr';
+   const password = data.command[2];
+   const cipher = crypto.createCipher(algorithm, password);
+   if (data.command.length === 3) {
+    data.respond.push(`Please specify a message as well.`);
+    return;
+   }
+   const text = '>>' + data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, '');
+   const encryptedText = cipher.update(text, 'utf8', 'base64') + cipher.final('base64');
+   data.respond.push(`Encrypted message with password ${password}:`);
+   data.respond.push(encryptedText);
   },
  },
  evaluate: {
