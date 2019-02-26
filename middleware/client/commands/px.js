@@ -48,7 +48,7 @@ const commands = {
     return;
    }
    const encryptedText = data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, '');
-   const text = decipher.update(encryptedText, 'base64', 'utf8') + decipher.final('utf8');
+   const text = decipher.update(encryptedText, 'base64', middleware.device.encoding) + decipher.final(middleware.device.encoding);
    data.respond.push(text.startsWith('>>') ? `Decrypted message: ${text.slice(2)}` : `Incorrect password.`);
   },
  },
@@ -98,7 +98,7 @@ const commands = {
     return;
    }
    const text = '>>' + data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, '');
-   const encryptedText = cipher.update(text, 'utf8', 'base64') + cipher.final('base64');
+   const encryptedText = cipher.update(text, middleware.device.encoding, 'base64') + cipher.final('base64');
    data.respond.push(`Encrypted message with password ${password}:`);
    data.respond.push(encryptedText);
   },

@@ -22,6 +22,7 @@ class Device {
   this.disconnectedSince = this.startdate;
   this.connectionAttempts = options.connectionAttempts;
   this.lastConnectionAttempt = options.lastConnectionAttempt;
+  this.encoding = options.encoding || 'binary';
   this.lineLengthThreshold = 1024 * 1024 * 5;
   this.ignoreBlankLines = options.ignoreBlankLines || false;
   this.lastLines = [];
@@ -268,7 +269,7 @@ class Device {
   this.socket.on('data', data => {
    let iac = data.indexOf(0xff);
    while (iac !== -1 && data.length >= (iac + 3)) {
-    this.respond(Buffer.from([255, data[iac+1] === 253 ? 252 : 254, data[iac+2]]), false);
+    this.respond(Buffer.from([255, data[iac+1] === 253 ? 252 : 254, data[iac+2]], this.encoding), false);
     data = iac === 0 ? data.slice(iac + 3) : Buffer.concat([data.slice(0, iac), data.slice(iac + 3)]);
     iac = data.indexOf(0xff);
    }
@@ -333,7 +334,7 @@ class Device {
   this.events.on(...args);
  }
  respond(data, addEoL = true) {
-  if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data));
+  if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data), this.encoding);
   if (this.connected) this.socket.write(addEoL ? Buffer.concat([data, this.eol]) : data);
   if (this.observers.length > 0) {
    this.observers = this.observers.filter(observer => {
@@ -345,7 +346,7 @@ class Device {
  }
  forward(data, addEoL = true) {
   if (this.link && this.link.connected) {
-   if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data));
+   if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data), this.encoding);
    this.link.socket.write(addEoL ? Buffer.concat([data, this.link.eol]) : data);
   }
  }
