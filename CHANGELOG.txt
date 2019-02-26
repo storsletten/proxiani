@@ -1,3 +1,6 @@
+Version 1.0.42, released 2019-02-26:
+* Changed character encoding from UTF-8 to binary. VIP Mud doesn't seem to support UTF-8 after all, so we might as well go with binary. This should give a slight performance boost.
+
 Version 1.0.41, released 2019-02-26:
 * Added px encrypt and px decrypt, for encrypting and decrypting messages.
 
