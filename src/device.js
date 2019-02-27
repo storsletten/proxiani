@@ -120,7 +120,7 @@ class Device {
      }
     }
     try {
-     this.logger = fs.createWriteStream(logFile, { flags: 'a', autoClose: true });
+     this.logger = fs.createWriteStream(logFile, { encoding: this.encoding, flags: 'a', autoClose: true });
      this.logFile = logFile;
      if (!logFileExists) this.logger.write(`\tLog of ${utils.formatDateWordly(d)}.\r\n`);
     }

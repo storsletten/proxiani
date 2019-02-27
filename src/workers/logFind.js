@@ -1,18 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-process.setUncaughtExceptionCaptureCallback(error => {
- try { process.send({ error }); }
- catch (error) {}
- process.exit(1);
-});
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
-process.once('message', options => {
- if (!options.searchPhrase || !options.logDir || !options.loggerID) throw `Missing options`;
- const searchPhrase = Buffer.isBuffer(options.searchPhrase) ? options.searchPhrase : Buffer.from(options.searchPhrase);
- const eol = options.eol || Buffer.from("\r\n");
+const beginSearch = options => {
+ const eol = options.eol || "\r\n";
  const startdate = new Date();
- const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
  const fromDateObject = options.fromDateObject || new Date(0);
  const toDateObject = options.toDateObject || new Date();
  const fromYear = fromDateObject.getFullYear();
@@ -27,7 +20,7 @@ process.once('message', options => {
   if (!(/^\d{4}$/.test(year))) return false;
   const nYear = Number(year);
   return nYear >= fromYear && nYear <= toYear;
- }).sort(collator.compare).forEach(year => {
+ }).sort(collator.compare).reverse().forEach(year => {
   const nYear = Number(year);
   fs.readdirSync(path.join(options.logDir, year)).filter(month => {
    if (!(/^\d{1,2}$/.test(month))) return false;
@@ -37,7 +30,7 @@ process.once('message', options => {
    else if (nYear === fromYear) return nMonth >= fromMonth;
    else if (nYear === toYear) return nMonth <= toMonth;
    else return true;
-  }).sort(collator.compare).forEach(month => {
+  }).sort(collator.compare).reverse().forEach(month => {
    const nMonth = Number(month);
    fs.readdirSync(path.join(options.logDir, year, month)).filter(fileName => {
     if (!fileName.endsWith(fileNameEnding)) return false;
@@ -51,24 +44,29 @@ process.once('message', options => {
     else if (bFrom) return nDate >= fromDate;
     else if (bTo) return nDate <= toDate;
     else return true;
-   }).sort(collator.compare).forEach(fileName => {
-    files.push(path.join(year, month, fileName));
+   }).sort(collator.compare).reverse().forEach(fileName => {
+    const content = fs.readFileSync(path.join(options.logDir, year, month, fileName), { encoding: 'binary' });
+    const match = content.indexOf(options.searchPhrase);
+    if (match !== -1) {
+     const [date] = fileName.match(/^\d+/);
+     const lineStart = content.lastIndexOf(eol, match);
+     const lineEnd = content.indexOf(eol, match);
+     const line = content.slice(lineStart !== -1 ? lineStart + eol.length : 0, lineEnd !== -1 ? lineEnd : content.length - 1);
+     process.send({ year, month, date, line });
+    }
    });
   });
  });
- process.send({ files });
- files.reverse().forEach(file => {
-  const content = fs.readFileSync(path.join(options.logDir, file));
-  const match = content.indexOf(searchPhrase);
-  if (match !== -1) {
-   const lineStart = content.lastIndexOf(eol, match);
-   const lineEnd = content.indexOf(eol, match);
-   const line = content.slice(lineStart !== -1 ? lineStart + eol.length : 0, lineEnd !== -1 ? lineEnd : content.length - 1);
-   process.send({
-    file,
-    line: String(line),
-   });
-  }
- });
- process.exit();
+};
+
+process.once('message', options => {
+ try {
+  if (!options.searchPhrase || !options.logDir || !options.loggerID) throw `Missing options`;
+  beginSearch(options);
+  process.exit();
+ }
+ catch (error) {
+  process.send({ error: error.message });
+  process.exit(1);
+ }
 });

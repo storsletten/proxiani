@@ -50,7 +50,7 @@ class Middleware {
  }
  process(input) {
   const data = {
-   input: input.toString(this.device.encoding),
+   input: input,
    forward: [input],
    respond: [],
    time: new Date(),

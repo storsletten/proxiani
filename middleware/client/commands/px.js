@@ -164,9 +164,8 @@ const commands = {
    const today = new Date();
    const year = today.getFullYear();
    worker.on('message', msg => {
-    if (msg.line && msg.file) {
-     const m = msg.file.match(/^(\d+).(\d+).(\d+)/);
-     const d = new Date(`${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`);
+    if (msg.year) {
+     const d = new Date(`${msg.year}-${msg.month.padStart(2, '0')}-${msg.date.padStart(2, '0')}`);
      const daysAgo = Math.floor((today - d) / 86400000);
      device.respond(`  ${daysAgo === 0 ? 'Today' : `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`}${daysAgo > 30 ? `, on ${utils.formatDateWordly(d, d.getFullYear() !== year)}` : ''}: ${msg.line}`);
     }
