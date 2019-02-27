@@ -27,7 +27,8 @@ class Device {
   this.ignoreBlankLines = options.ignoreBlankLines || false;
   this.lastLines = [];
   this.maxLastLines = 10;
-  this.eol = options.eol || Buffer.from([13, 10]); // Telnet End of Line
+  this.eol = options.eol || "\r\n";
+  this.eolTelnet = options.eolTelnet || Buffer.from([13, 10]);
   this.host = options.host;
   this.port = options.port;
   this.tls = options.tls;
@@ -41,6 +42,8 @@ class Device {
   this.workers = {};
   this.initialLinkingDelay = options.initialLinkingDelay || 200; // Give VIP Mud enough time to load triggers before data starts pouring in.
   this.token = options.token || crypto.randomBytes(4).toString('hex');
+  this.encode = this.type === 'client';
+  this.decode = this.type !== 'client';
   this.middleware = new Middleware({ device: this });
 
   if (options.link) {
@@ -74,7 +77,7 @@ class Device {
   }
   this.events.on('ready', () => this.socket.resume());
   this.events.on('line', line => {
-   const result = this.middleware.process(line);
+   const result = this.middleware.process(this.decode ? decode(line.toString(this.encoding)) : line.toString(this.encoding));
    const data = result.data;
    if (this.proxy.user.config.developerMode) {
     const time = (new Date()) - data.time;
@@ -280,7 +283,7 @@ class Device {
    let lineEnd = 0;
    if (this.buffer.length > 0) {
     data = Buffer.concat([this.buffer, data]);
-    lineEnd = data.indexOf(this.eol, Math.max(0, this.buffer.length - this.eol.length));
+    lineEnd = data.indexOf(this.eolTelnet, Math.max(0, this.buffer.length - this.eolTelnet.length));
     if (lineEnd === -1 && data.length > this.lineLengthThreshold) {
      this.buffer = Buffer.from('');
      this.forward(data, false);
@@ -288,22 +291,22 @@ class Device {
     }
    }
    else {
-    lineEnd = data.indexOf(this.eol);
+    lineEnd = data.indexOf(this.eolTelnet);
    }
    if (this.ignoreBlankLines) {
     while (lineStart === lineEnd) {
-     lineStart += this.eol.length;
-     lineEnd = data.indexOf(this.eol, lineStart);
+     lineStart += this.eolTelnet.length;
+     lineEnd = data.indexOf(this.eolTelnet, lineStart);
     }
    }
    while (lineEnd !== -1) {
     this.events.emit('line', data.slice(lineStart, lineEnd));
-    lineStart = lineEnd + this.eol.length;
-    lineEnd = data.indexOf(this.eol, lineStart);
+    lineStart = lineEnd + this.eolTelnet.length;
+    lineEnd = data.indexOf(this.eolTelnet, lineStart);
     if (this.ignoreBlankLines) {
      while (lineStart === lineEnd) {
-      lineStart += this.eol.length;
-      lineEnd = data.indexOf(this.eol, lineStart);
+      lineStart += this.eolTelnet.length;
+      lineEnd = data.indexOf(this.eolTelnet, lineStart);
      }
     }
    }
@@ -334,8 +337,8 @@ class Device {
   this.events.on(...args);
  }
  respond(data, addEoL = true) {
-  if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data), this.encoding);
-  if (this.connected) this.socket.write(addEoL ? Buffer.concat([data, this.eol]) : data);
+  if (typeof data !== 'string') data = Buffer.isBuffer(data) ? data.toString(this.encoding) : (data === undefined ? 'undefined' : JSON.stringify(data, null, 1));
+  if (this.connected) this.socket.write(addEoL ? data + this.eol : data, this.encoding);
   if (this.observers.length > 0) {
    this.observers = this.observers.filter(observer => {
     if (!observer.proxy) return false;
@@ -346,10 +349,17 @@ class Device {
  }
  forward(data, addEoL = true) {
   if (this.link && this.link.connected) {
-   if (!Buffer.isBuffer(data)) data = Buffer.from(typeof data === 'object' ? JSON.stringify(data, null, 1) : String(data), this.encoding);
-   this.link.socket.write(addEoL ? Buffer.concat([data, this.link.eol]) : data);
+   if (typeof data !== 'string') data = Buffer.isBuffer(data) ? data.toString(this.encoding) : (data === undefined ? 'undefined' : JSON.stringify(data, null, 1));
+   if (addEoL) data += this.link.eol;
+   this.link.socket.write(this.encode ? encode(data) : data, this.encoding);
   }
  }
 } 
+
+const encode = data => data.replace(/[\x7F-\xFE]/g, m => '%' + m.charCodeAt(0).toString(16));
+const decode = data => data.replace(/%[0-9a-f]{2}/g, m => {
+ const n = parseInt(m.slice(1), 16);
+ return n < 127 || n === 255 ? m : String.fromCharCode(n);
+});
 
 module.exports = Device;
