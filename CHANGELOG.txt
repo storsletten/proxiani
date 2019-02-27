@@ -1,3 +1,6 @@
+Version 1.0.45, released 2019-02-27:
+* Fixed px find so that it shows timestamps more consistently.
+
 Version 1.0.44, released 2019-02-27:
 * Improved performance of px find.
 * Fixed log file writing so that binary encoding is used instead of UTF-8.
