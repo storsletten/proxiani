@@ -167,7 +167,7 @@ const commands = {
     if (msg.year) {
      const d = new Date(`${msg.year}-${msg.month.padStart(2, '0')}-${msg.date.padStart(2, '0')}`);
      const daysAgo = Math.floor((today - d) / 86400000);
-     device.respond(`  ${daysAgo === 0 ? 'Today' : `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`}${daysAgo > 30 ? `, on ${utils.formatDateWordly(d, d.getFullYear() !== year)}` : ''}: ${msg.line}`);
+     device.respond(`  ${daysAgo === 0 ? 'Today' : `${daysAgo} day${daysAgo !== 1 ? 's' : ''} ago`}${daysAgo > 30 ? `, on ${utils.formatDateWordly(d, d.getFullYear() !== year)}` : ''}: ${msg.line}${msg.time ? ` [${msg.time}]` : ''}`);
     }
    });
    worker.on('exit', code => device.respond(code === 0 ? `Search complete.` : `Search failed with code ${code}.`));

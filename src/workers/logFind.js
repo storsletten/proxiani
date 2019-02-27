@@ -49,10 +49,25 @@ const beginSearch = options => {
     const match = content.indexOf(options.searchPhrase);
     if (match !== -1) {
      const [date] = fileName.match(/^\d+/);
-     const lineStart = content.lastIndexOf(eol, match);
-     const lineEnd = content.indexOf(eol, match);
-     const line = content.slice(lineStart !== -1 ? lineStart + eol.length : 0, lineEnd !== -1 ? lineEnd : content.length - 1);
-     process.send({ year, month, date, line });
+     let lineStart = content.lastIndexOf(eol, match);
+     lineStart = lineStart !== -1 ? lineStart + eol.length : 0;
+     let lineEnd = content.indexOf(eol, match);
+     if (lineEnd === -1) lineEnd = content.length;
+     let line = content.slice(lineStart, lineEnd);
+     const m = line.match(/\t\[(\d{2}:\d{2}:\d{2})\]$/);
+     let time;
+     if (m) {
+      line = line.slice(0, line.length - m[0].length);
+      time = m[1];
+     }
+     else {
+      const i = content.lastIndexOf("\t[", lineStart - 1);
+      if (i !== -1) {
+       const m = content.slice(i, lineStart).match(/^\t\[(\d{2}:\d{2}:\d{2})\]/);
+       if (m) time = m[1];
+      }
+     }
+     process.send({ year, month, date, time, line });
     }
    });
   });
