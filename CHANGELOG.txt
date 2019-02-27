@@ -1,3 +1,7 @@
+Version 1.0.44, released 2019-02-27:
+* Improved performance of px find.
+* Fixed log file writing so that binary encoding is used instead of UTF-8.
+
 Version 1.0.43, released 2019-02-27:
 * Added support for encoding and decoding ASCII characters in the range 127-254 so that they will survive in Miriani.
 
