@@ -217,7 +217,7 @@ class Device {
      this.connected = false;
      this.disconnectedSince = new Date();
      this.proxy.console(`Device ${this.id} disconnected, but will attempt to auto reconnect${wait > 0 ? ` in ${wait}ms...` : ''}`);
-     if (this.type === 'server' && ((new Date()) - this.connectedSince) < 2500) {
+     if (this.type === 'server' && ((new Date()) - this.connectedSince) > 2500) {
       this.forward(`*** Auto reconnect in progress... ***`);
      }
     }
