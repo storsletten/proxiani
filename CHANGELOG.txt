@@ -1,3 +1,6 @@
+Version 1.0.46, released 2019-02-28:
+* Fixed auto reconnect not working properly. Thanks to numerous people for reporting this!
+
 Version 1.0.45, released 2019-02-27:
 * Fixed px find so that it shows timestamps more consistently.
 
