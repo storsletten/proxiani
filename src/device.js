@@ -24,7 +24,8 @@ class Device {
   this.lastConnectionAttempt = options.lastConnectionAttempt;
   this.encoding = options.encoding || 'binary';
   this.lineLengthThreshold = 1024 * 1024 * 5;
-  this.ignoreBlankLines = options.ignoreBlankLines || false;
+  this.rejectIAC = options.rejectIAC || false;
+  this.filterBlankLines = options.filterBlankLines || false;
   this.lastLines = [];
   this.maxLastLines = 10;
   this.eol = options.eol || "\r\n";
@@ -270,47 +271,64 @@ class Device {
    }
   });
   this.socket.on('data', data => {
-   let iac = data.indexOf(0xff);
-   while (iac !== -1 && data.length >= (iac + 3)) {
-    this.respond(Buffer.from([255, data[iac+1] === 253 ? 252 : 254, data[iac+2]], this.encoding), false);
-    data = iac === 0 ? data.slice(iac + 3) : Buffer.concat([data.slice(0, iac), data.slice(iac + 3)]);
-    iac = data.indexOf(0xff);
+   let bufferEnd = this.buffer.length;
+   if (bufferEnd > 0) data = this.buffer = Buffer.concat([this.buffer, data]);
+   let iacStart;
+   if (this.iacStart !== undefined) {
+    iacStart = this.iacStart;
+    delete this.iacStart;
    }
-   if (data.length === 0) {
-    return;
+   else iacStart = data.indexOf(0xff, bufferEnd);
+   while (iacStart !== -1) {
+    let iacEnd = iacStart + 3;
+    if (iacEnd > data.length) {
+     this.iacStart = iacStart;
+     return;
+    }
+    else if (data[iacStart + 1] === 250) {
+     iacEnd = data.indexOf(Buffer.from([255, 240]), iacStart + 3);
+     if (iacEnd === -1) {
+      this.iacStart = iacStart;
+      return;
+     }
+     else iacEnd += 2;
+    }
+    const iac = Buffer.from(data.slice(iacStart, iacEnd));
+    if (this.rejectIAC) this.respond(Buffer.from([255, iac[1] === 253 ? 252 : 254, iac[2]]));
+    else this.forward(iac);
+    if (data.length === iac.length) {
+     this.buffer = Buffer.from('');
+     return;
+    }
+    if (iacStart === 0) this.buffer = data = data.slice(iacEnd);
+    else if (iacEnd === data.length) this.buffer = data = data.slice(0, iacStart);
+    else this.buffer = data = data.slice(0, iacStart + data.copy(data, iacStart, iacEnd));
+    bufferEnd = Math.max(0, bufferEnd - iac.length);
+    iacStart = data.indexOf(0xff, bufferEnd);
    }
    let lineStart = 0;
    let lineEnd = 0;
-   if (this.buffer.length > 0) {
-    data = Buffer.concat([this.buffer, data]);
-    lineEnd = data.indexOf(this.eolTelnet, Math.max(0, this.buffer.length - this.eolTelnet.length));
+   if (bufferEnd > 0) {
+    lineEnd = data.indexOf(this.eolTelnet, Math.max(0, bufferEnd - this.eolTelnet.length));
     if (lineEnd === -1 && data.length > this.lineLengthThreshold) {
      this.buffer = Buffer.from('');
-     this.forward(data, false);
+     this.forward(data);
      return;
     }
    }
-   else {
-    lineEnd = data.indexOf(this.eolTelnet);
-   }
-   if (this.ignoreBlankLines) {
-    while (lineStart === lineEnd) {
+   else lineEnd = data.indexOf(this.eolTelnet);
+   while (lineEnd !== -1) {
+    if (this.filterBlankLines && lineStart === lineEnd) {
      lineStart += this.eolTelnet.length;
      lineEnd = data.indexOf(this.eolTelnet, lineStart);
+     continue;
     }
-   }
-   while (lineEnd !== -1) {
-    this.events.emit('line', data.slice(lineStart, lineEnd));
+    const line = data.slice(lineStart, lineEnd);
+    this.events.emit('line', line);
     lineStart = lineEnd + this.eolTelnet.length;
     lineEnd = data.indexOf(this.eolTelnet, lineStart);
-    if (this.ignoreBlankLines) {
-     while (lineStart === lineEnd) {
-      lineStart += this.eolTelnet.length;
-      lineEnd = data.indexOf(this.eolTelnet, lineStart);
-     }
-    }
    }
-   this.buffer = lineStart === 0 ? data : data.slice(lineStart);
+   if (lineStart > 0) this.buffer = data.slice(lineStart);
   });
  }
  worker(name, args = [], options = {}) {
@@ -336,22 +354,32 @@ class Device {
  on(...args) {
   this.events.on(...args);
  }
- respond(data, addEoL = true) {
-  if (typeof data !== 'string') data = Buffer.isBuffer(data) ? data.toString(this.encoding) : (data === undefined ? 'undefined' : JSON.stringify(data, null, 1));
-  if (this.connected) this.socket.write(addEoL ? data + this.eol : data, this.encoding);
-  if (this.observers.length > 0) {
+ respond(data) {
+  const isBuffer = Buffer.isBuffer(data);
+  if (this.connected) {
+   if (isBuffer) this.socket.write(data);
+   else {
+    if (typeof data !== 'string') data = data === undefined ? 'undefined' : JSON.stringify(data, null, 1);
+    data += this.eol;
+    this.socket.write(data, this.encoding);
+   }
+  }
+  if (!isBuffer && this.observers.length > 0) {
    this.observers = this.observers.filter(observer => {
     if (!observer.proxy) return false;
-    if (observer.connected) observer.respond(data, addEoL);
+    if (observer.connected) observer.respond(data);
     return true;
    });
   }
  }
- forward(data, addEoL = true) {
+ forward(data) {
   if (this.link && this.link.connected) {
-   if (typeof data !== 'string') data = Buffer.isBuffer(data) ? data.toString(this.encoding) : (data === undefined ? 'undefined' : JSON.stringify(data, null, 1));
-   if (addEoL) data += this.link.eol;
-   this.link.socket.write(this.encode ? encode(data) : data, this.encoding);
+   if (Buffer.isBuffer(data)) this.link.socket.write(data);
+   else {
+    if (typeof data !== 'string') data = data === undefined ? 'undefined' : JSON.stringify(data, null, 1);
+    data += this.link.eol;
+    this.link.socket.write(this.encode ? encode(data) : data, this.encoding);
+   }
   }
  }
 } 
