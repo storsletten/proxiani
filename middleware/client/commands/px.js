@@ -36,20 +36,12 @@ const commands = {
   syntax: 'decrypt <password> <encrypted message>',
   description: `Decrypts <message> with <password>.`,
   func: (data, middleware) => {
-   if (data.command.length === 2) {
-    data.respond.push(`Please specify password and message.`);
-    return;
+   if (data.command.length === 2) data.respond.push(`Please specify password and message.`);
+   else if (data.command.length === 3) data.respond.push(`Please specify a message as well.`);
+   else {
+    const message = utils.decrypt(data.command[2], data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, ''), true);
+    data.respond.push(message === false ? `Incorrect password.` : `Decrypted message: ${message.replace(/[\x00-\x1F\xFF]/g, '')}`);
    }
-   const algorithm = 'aes-256-ctr';
-   const password = data.command[2];
-   const decipher = crypto.createDecipher(algorithm, password);
-   if (data.command.length === 3) {
-    data.respond.push(`Please specify a message as well.`);
-    return;
-   }
-   const encryptedText = data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, '');
-   const text = decipher.update(encryptedText, 'base64', middleware.device.encoding) + decipher.final(middleware.device.encoding);
-   data.respond.push(text.startsWith('>>') ? `Decrypted message: ${text.slice(2)}` : `Incorrect password.`);
   },
  },
  directories: {
@@ -86,21 +78,13 @@ const commands = {
   syntax: 'encrypt <password> <message>',
   description: `Encrypts <message> with <password>, using AES-256 encryption.`,
   func: (data, middleware) => {
-   if (data.command.length === 2) {
-    data.respond.push(`Please specify password and message.`);
-    return;
+   if (data.command.length === 2) data.respond.push(`Please specify password and message.`);
+   else if (data.command.length === 3) data.respond.push(`Please specify a message as well.`);
+   else {
+    const password = data.command[2];
+    data.respond.push(`Encrypted message with password ${password}:`);
+    data.respond.push(utils.encrypt(password, data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, ''), true));
    }
-   const algorithm = 'aes-256-ctr';
-   const password = data.command[2];
-   const cipher = crypto.createCipher(algorithm, password);
-   if (data.command.length === 3) {
-    data.respond.push(`Please specify a message as well.`);
-    return;
-   }
-   const text = '>>' + data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, '');
-   const encryptedText = cipher.update(text, middleware.device.encoding, 'base64') + cipher.final('base64');
-   data.respond.push(`Encrypted message with password ${password}:`);
-   data.respond.push(encryptedText);
   },
  },
  evaluate: {
