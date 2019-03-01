@@ -1,3 +1,6 @@
+Version 1.0.47, released 2019-03-01:
+* Telnet IAC commands will now be passed through instead of rejected. Hopefully that will make Proxiani more compatible with certain mud clients, such as MT.
+
 Version 1.0.46, released 2019-02-28:
 * Fixed auto reconnect not working properly. Thanks to numerous people for reporting this!
 
