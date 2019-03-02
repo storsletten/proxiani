@@ -2,8 +2,9 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const utils = require('../../../src/utils');
 const vm = require('vm');
+const dialog = require('../../helpers/dialog.js');
+const utils = require('../../../src/utils.js');
 
 const commands = {
  changelog: {
@@ -60,13 +61,13 @@ const commands = {
   description: `Enables echo mode, which will send all your text back to you, including OOB messages.`,
   func: (data, middleware) => {
    data.respond.push(`Echo mode enabled.`);
-   data.respond.push(`[Type @abort to return to normal.]`);
-   middleware.setState('proxianiEcho', {
+   data.respond.push(`[Type lines of input; use \`@abort' to end.]`);
+   middleware.setState('pxEcho', {
     timeout: 0,
    }, (data, middleware) => {
     data.forward.pop();
     if (data.input.trim().toLowerCase() === '@abort') {
-     data.respond.push('Echo mode disabled.');
+     data.respond.push('>> Command Aborted <<');
      return;
     }
     else {
@@ -112,27 +113,12 @@ const commands = {
    }
    else {
     data.respond.push(`Enter JS code to run.`);
-    data.respond.push(`[Type lines of input; use \`.' to end, or @abort to cancel.]`);
-    middleware.setState('proxianiEval', {
-     timeout: 0,
-     data: {
-      code: [],
-     },
-    }, (data, middleware) => {
-     const state = middleware.states.proxianiEval.data;
-     data.forward.pop();
-     if (data.input.trim().toLowerCase() === '@abort') data.respond.push('>> Command Aborted <<');
-     else if (data.input.trim() === '.') {
-      try {
-       data.respond.push(vm.runInNewContext(state.code.join("\r\n"), vmVars, vmOptions));
-      }
-      catch (error) {
-       data.respond = error.stack.split("\n");
-      }
+    dialog.promptMultiline(middleware).then(({ state }) => {
+     try {
+      middleware.device.respond(vm.runInNewContext(state.code.join("\r\n"), vmVars, vmOptions));
      }
-     else {
-      state.code.push(data.input);
-      return 0b01;
+     catch (error) {
+      middleware.device.respond(error.stack.replace(/\n/, "\r\n"));
      }
     });
    }
@@ -203,8 +189,8 @@ const commands = {
    if (data.command.length > 2) data.forward.push(getRawCommandValue(data));
    else {
     data.respond.push(`Enabled bidirectional pass-through mode. Type ${data.command.join(' ')} again to disable it.`);
-    middleware.states = {};
-    linkedMiddleware.states = {};
+    middleware.clearStates();
+    linkedMiddleware.clearStates();
     middleware.setState('pxPass', {
      timeout: 0,
     }, (data, middleware, linkedMiddleware) => {

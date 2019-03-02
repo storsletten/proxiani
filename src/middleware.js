@@ -46,7 +46,7 @@ class Middleware {
    func = options;
    options = {};
   }
-  this.states[name] && this.states[name].reject && this.states[name].reject({ reason: 'reset' });
+  this.states[name] && this.states[name].reject && this.states[name].reject({ state: this.states[name], reason: 'reset' });
   return this.states[name] = {
    created: new Date(),
    timeout: this.defaultStateTimeout,
@@ -55,8 +55,17 @@ class Middleware {
    ...options,
   };
  }
+ setPromisedState(name, options, func) {
+  if (typeof options === 'function') {
+   func = options;
+   options = {};
+  }
+  return new Promise((resolve, reject) => {
+   this.setState(name, { resolve, reject, ...options }, func);
+  });
+ }
  clearStates() {
-  for (let name in this.states) this.states[name].reject && this.states[name].reject({ reason: 'clear' });
+  for (let name in this.states) this.states[name].reject && this.states[name].reject({ state: this.states[name], reason: 'clear' });
   this.states = {};
  }
  process(input) {
@@ -74,19 +83,20 @@ class Middleware {
     const bits = typeof result === 'number' ? result : 0b11;
     if (bits & 0b10) {
      delete this.states[name];
-     state.resolve && state.resolve(data);
+     if (state.resolve && !(bits & 0b100)) state.resolve({ state, data });
+     else if (state.reject) state.reject({ state, data, reason: 'abort' });
     }
     else if (state.timeout && ((new Date()) - state.created) > state.timeout) {
      delete this.states[name];
-     state.reject && state.reject({ data, reason: 'timeout' });
+     state.reject && state.reject({ state, data, reason: 'timeout' });
     }
-    if (bits & 0b01) return { data, state };
+    if (bits & 0b01) return { state, data };
    }
    catch (error) {
     delete this.states[name];
     const proxy = this.device.proxy;
     proxy.console(`Middleware state "${name}" error in ${proxy.name} ${proxy.version}:`, error);
-    state.reject && state.reject({ data, reason: error });
+    state.reject && state.reject({ state, data, reason: error });
    }
   }
   try {
