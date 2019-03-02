@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const vm = require('vm');
+const conf = require('./conf.js');
 const dialog = require('../../helpers/dialog.js');
 const utils = require('../../../src/utils.js');
 
@@ -16,12 +17,9 @@ const commands = {
   },
  },
  configure: {
-  syntax: 'config',
-  description: `Opens Proxiani's config file in Notepad.`,
-  func: (data, middleware) => {
-   data.respond.push(`#$#proxiani say Opening configuration file`);
-   utils.run(middleware.device.proxy.user.config.textEditor, 'Config.json', { cwd: middleware.device.proxy.user.dir })
-  },
+  syntax: 'conf',
+  description: `Lets you change Proxiani configuration.`,
+  func: conf,
  },
  console: {
   syntax: 'console',
@@ -112,10 +110,9 @@ const commands = {
     }
    }
    else {
-    data.respond.push(`Enter JS code to run.`);
-    dialog.promptMultiline(middleware).then(({ state }) => {
+    dialog.promptMultiline({ middleware, title: `Enter JS code to run:` }).then(({ state }) => {
      try {
-      middleware.device.respond(vm.runInNewContext(state.code.join("\r\n"), vmVars, vmOptions));
+      middleware.device.respond(vm.runInNewContext(state.data.join("\r\n"), vmVars, vmOptions));
      }
      catch (error) {
       middleware.device.respond(error.stack.replace(/\n/, "\r\n"));
@@ -298,7 +295,7 @@ const commands = {
 const getParentDirName = dir => dir.split(path.sep).slice(-2, -1).join();
 const getRawCommandValue = data => data.command.length > 2 ? data.input.replace(/^\s*[^\s]+\s+[^\s]+\s/, '') : undefined;
 
-const proxiani = (data, middleware, linkedMiddleware) => {
+const px = (data, middleware, linkedMiddleware) => {
  data.forward.pop();
  data.command = data.input.trim().toLowerCase().split(/\s+/);
  if (data.command.length === 1) {
@@ -317,4 +314,4 @@ const proxiani = (data, middleware, linkedMiddleware) => {
  }
 };
 
-module.exports = proxiani;
+module.exports = px;
