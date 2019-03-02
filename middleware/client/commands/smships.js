@@ -25,7 +25,11 @@ const smships = (data, middleware, linkedMiddleware) => {
   return;
  }
  data.forward[0] = 'sm';
- linkedMiddleware.setState('sm', (data, middleware, linkedMiddleware) => {
+ linkedMiddleware.setState('sm', {
+  data: {
+   command: data.input.trim().toLowerCase().split(/\s+/),
+  },
+ }, (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
   if (!state.readingComplete) return 0b10;
@@ -132,8 +136,6 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (ships.length > maxNumberOfShips) ships = ships.slice(0, maxNumberOfShips);
    data.forward.push(...ships.map((ship, index) => modes[mode](ship, index, filter)));
   }
- }, {
-  command: data.input.trim().toLowerCase().split(/\s+/),
  });
 };
 

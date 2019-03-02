@@ -125,8 +125,8 @@ class Proxy {
   this.console(`Unlinked devices ${device.id} and ${device.link.id}`);
   device.events.emit('unlink');
   device.link.events.emit('unlink');
-  device.middleware.states = {};
-  device.link.middleware.states = {};
+  device.middleware.clearStates();
+  device.link.middleware.clearStates();
   device.middleware.persistentStates = {};
   device.link.middleware.persistentStates = {};
   delete device.link.link;

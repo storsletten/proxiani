@@ -61,7 +61,12 @@ const gc = (data, middleware, linkedMiddleware) => {
  }
  if (gcTarget.length !== 3) return;
  data.forward[0] = 'gc';
- linkedMiddleware.setState('gc', (data, middleware, linkedMiddleware) => {
+ linkedMiddleware.setState('gc', {
+  data: {
+   gcTarget,
+   sector,
+  },
+ }, (data, middleware, linkedMiddleware) => {
   if (data.input.length === 0) return 0;
   else if ([`I don't understand that.`, 'Invalid selection.'].includes(data.input)) return 0b10;
   const m = data.input.match(/^Current galactic coordinates\: (-?[0-9]{1,10}), (-?[0-9]{1,10}), (-?[0-9]{1,10})$/);
@@ -84,9 +89,6 @@ const gc = (data, middleware, linkedMiddleware) => {
    else if (dir.length === 2) data.forward[0] = `${text} ${dir[0]} and ${dir[1]}.`;
    else if (dir.length === 3) data.forward[0] = `${text} ${dir[0]}, ${dir[1]}, and ${dir[2]}.`;
   }
- }, {
-  gcTarget,
-  sector,
  });
 };
 

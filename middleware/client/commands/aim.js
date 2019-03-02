@@ -1,5 +1,7 @@
 const aim = (data, middleware, linkedMiddleware) => {
- linkedMiddleware.setState('aim', (data, middleware, linkedMiddleware) => {
+ linkedMiddleware.setState('aim', {
+  data: { detected: false },
+ }, (data, middleware, linkedMiddleware) => {
   const state = middleware.states.aim.data;
   if (!state.detected) {
    if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'Those coordinates are already locked.', 'Those coordinates are occupied by this ship.', 'Those coordinates are too far away to establish a lock.'].includes(data.input)) return 0b10;
@@ -15,8 +17,6 @@ const aim = (data, middleware, linkedMiddleware) => {
    middleware.persistentStates.aim.type = m[1];
    middleware.persistentStates.aim.name = m[3];
   }
- }, {
-  detected: false,
  });
 };
 

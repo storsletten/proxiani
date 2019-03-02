@@ -10,7 +10,11 @@ const sm = (data, middleware, linkedMiddleware) => {
    data.respond.push(`Invalid argument.`);
    return;
   }
-  linkedMiddleware.setState('sm', (data, middleware, linkedMiddleware) => {
+  linkedMiddleware.setState('sm', {
+   data: {
+    objectType,
+   },
+  }, (data, middleware, linkedMiddleware) => {
    const state = middleware.states.sm.data;
    if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
    if (!state.readingComplete) return 0b10;
@@ -40,8 +44,6 @@ const sm = (data, middleware, linkedMiddleware) => {
     const { x, y, z } = state.currentCoordinates;
     data.forward.push(`${objects.length > 0 ? 'Also, ' : ''}${objectsHere} ${objectsHere === 1 ? objectType.slice(0, -1) : objectType} at your coordinates: ${x} ${y} ${z}.`);
    }
-  }, {
-   objectType,
   });
  }
 };

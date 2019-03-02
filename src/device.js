@@ -243,6 +243,7 @@ class Device {
     for (let handle in this.timers) clearTimeout(this.timers[handle]);
     delete this.timers;
     for (let name in this.workers) this.closeWorker(name);
+    this.middleware.clearStates();
     this.proxy.unlink(this);
     this.proxy.console(`Closed device ${this.id}`);
     this.events.emit('close');

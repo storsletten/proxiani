@@ -6,7 +6,7 @@
   "author": "Martin Storsletten",
   "license": "MIT",
   "scripts": {
-    "start": "node ./src/main.js"
+    "start": "node ./src/main.js -q"
   },
   "keywords": [
     "Miriani",

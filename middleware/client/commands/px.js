@@ -61,7 +61,9 @@ const commands = {
   func: (data, middleware) => {
    data.respond.push(`Echo mode enabled.`);
    data.respond.push(`[Type @abort to return to normal.]`);
-   middleware.setState('proxianiEcho', (data, middleware) => {
+   middleware.setState('proxianiEcho', {
+    timeout: 0,
+   }, (data, middleware) => {
     data.forward.pop();
     if (data.input.trim().toLowerCase() === '@abort') {
      data.respond.push('Echo mode disabled.');
@@ -71,7 +73,7 @@ const commands = {
      data.respond.push(data.input);
      return 0b01;
     }
-   }).timeout = 0;
+   });
   },
  },
  encrypt: {
@@ -111,7 +113,12 @@ const commands = {
    else {
     data.respond.push(`Enter JS code to run.`);
     data.respond.push(`[Type lines of input; use \`.' to end, or @abort to cancel.]`);
-    middleware.setState('proxianiEval', (data, middleware) => {
+    middleware.setState('proxianiEval', {
+     timeout: 0,
+     data: {
+      code: [],
+     },
+    }, (data, middleware) => {
      const state = middleware.states.proxianiEval.data;
      data.forward.pop();
      if (data.input.trim().toLowerCase() === '@abort') data.respond.push('>> Command Aborted <<');
@@ -127,9 +134,7 @@ const commands = {
       state.code.push(data.input);
       return 0b01;
      }
-    }, {
-     code: [],
-    }).timeout = 0;
+    });
    }
   },
  },
@@ -200,7 +205,9 @@ const commands = {
     data.respond.push(`Enabled bidirectional pass-through mode. Type ${data.command.join(' ')} again to disable it.`);
     middleware.states = {};
     linkedMiddleware.states = {};
-    middleware.setState('pxPass', (data, middleware, linkedMiddleware) => {
+    middleware.setState('pxPass', {
+     timeout: 0,
+    }, (data, middleware, linkedMiddleware) => {
      if (data.input.match(/^\s*(px|proxiani)\s+(p|pa|pas|pass)\s*$/i)) {
       data.forward.pop();
       data.respond.push(`Disabled pass-through mode.`);
@@ -208,8 +215,8 @@ const commands = {
       return;
      }
      return 0b01;
-    }).timeout = 0;
-    linkedMiddleware.setState('pxPass', () => 0b01).timeout = 0;
+    });
+    linkedMiddleware.setState('pxPass', { timeout: 0 }, () => 0b01);
    }
   },
  },

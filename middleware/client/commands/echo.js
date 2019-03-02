@@ -5,7 +5,10 @@ const echo = (data, middleware) => {
  else {
   data.respond.push(`What text would you like repeated back to you?`);
   data.respond.push(`[Type lines of input; use \`.' to end.]`);
-  middleware.setState('echo', (data, middleware) => {
+  middleware.setState('echo', {
+   timeout: 0,
+   data: [],
+  }, (data, middleware) => {
    const maxLineCount = 1000;
    if (data.input.startsWith('#$#')) return 0;
    data.forward.pop();
@@ -25,7 +28,7 @@ const echo = (data, middleware) => {
     data.respond.push(`Please type a period (.) to have the buffered text echoed back to you, or type @abort to cancel and discard the buffered data.`);
    }
    return 0b01;
-  }, []).timeout = 0;
+  });
  }
 };
 

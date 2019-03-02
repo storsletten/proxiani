@@ -39,7 +39,6 @@ module.exports = (data, middleware, linkedMiddleware) => {
    }
    if (prevRoom && (prevRoom.fullTitle === undefined || prevRoom.exits === undefined)) data.forward.push(`Your look-options must include both title and exits for the soundpack to work properly.`);
    middleware.persistentStates.room = room;
-   middleware.states = {};
    middleware.setState('room', (data, middleware) => {
     const room = middleware.persistentStates.room;
     if (room.output.length > 25 || data.input.startsWith('#$#')) {

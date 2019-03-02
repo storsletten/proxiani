@@ -30,23 +30,34 @@ class Middleware {
    ['commands', 'functions', 'triggers'].forEach(prop => this[prop] = requireModules(path.join(this.dir, prop)));
    this.persistentStates = {};
    require(extraFile)(this);
-   if (this.states) this.device.proxy.console(`Device ${this.device.id} reloaded its middleware`);
-   this.states = {};
+   if (this.states) {
+    this.device.proxy.console(`Device ${this.device.id} reloaded its middleware`);
+    this.clearStates();
+   }
+   else this.states = {};
    return true;
   }
   catch (error) {
    this.device.proxy.console(`Couldn't load middleware for device ${this.device.id}:`, error);
   }
  }
- setState(name, func, data = {}) {
-  const state = {
+ setState(name, options, func) {
+  if (typeof options === 'function') {
+   func = options;
+   options = {};
+  }
+  this.states[name] && this.states[name].reject && this.states[name].reject({ reason: 'reset' });
+  return this.states[name] = {
    created: new Date(),
    timeout: this.defaultStateTimeout,
    func,
-   data,
+   data: {},
+   ...options,
   };
-  this.states[name] = state;
-  return state;
+ }
+ clearStates() {
+  for (let name in this.states) this.states[name].reject && this.states[name].reject({ reason: 'clear' });
+  this.states = {};
  }
  process(input) {
   const data = {
@@ -59,15 +70,23 @@ class Middleware {
   for (let name in this.states) {
    try {
     const state = this.states[name];
-    const result = state.func(data, this, linkedMiddleware);
+    const result = state.func && state.func(data, this, linkedMiddleware);
     const bits = typeof result === 'number' ? result : 0b11;
-    if (bits & 0b10 || (state.timeout > 0 && ((new Date()) - state.created) > state.timeout)) delete this.states[name];
+    if (bits & 0b10) {
+     delete this.states[name];
+     state.resolve && state.resolve(data);
+    }
+    else if (state.timeout && ((new Date()) - state.created) > state.timeout) {
+     delete this.states[name];
+     state.reject && state.reject({ data, reason: 'timeout' });
+    }
     if (bits & 0b01) return { data, state };
    }
    catch (error) {
     delete this.states[name];
     const proxy = this.device.proxy;
     proxy.console(`Middleware state "${name}" error in ${proxy.name} ${proxy.version}:`, error);
+    state.reject && state.reject({ data, reason: error });
    }
   }
   try {
