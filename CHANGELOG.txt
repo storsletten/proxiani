@@ -1,3 +1,7 @@
+Version 1.0.48, released 2019-03-03:
+* Added a proper configuration framework that you can access by typing px conf. There aren't many options yet, though.
+* Removed px encrypt and px decrypt, since the hosts in Miriani kindly asked me to take that feature out.
+
 Version 1.0.47, released 2019-03-01:
 * Telnet IAC commands will now be passed through instead of rejected. Hopefully that will make Proxiani more compatible with certain mud clients, such as MT.
 
