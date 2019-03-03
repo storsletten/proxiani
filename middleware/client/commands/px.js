@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -31,18 +30,6 @@ const commands = {
   description: `Returns Proxiani's current local date and time.`,
   func: data => data.respond.push(String(new Date())),
  },
- decrypt: {
-  syntax: 'decrypt <password> <encrypted message>',
-  description: `Decrypts <message> with <password>.`,
-  func: (data, middleware) => {
-   if (data.command.length === 2) data.respond.push(`Please specify password and message.`);
-   else if (data.command.length === 3) data.respond.push(`Please specify a message as well.`);
-   else {
-    const message = utils.decrypt(data.command[2], data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, ''), true);
-    data.respond.push(message === false ? `Incorrect password.` : `Decrypted message: ${message.replace(/[\x00-\x1F\xFF]/g, '')}`);
-   }
-  },
- },
  directories: {
   syntax: 'directories',
   description: `Shows paths to directories used by Proxiani.`,
@@ -73,19 +60,6 @@ const commands = {
      return 0b01;
     }
    });
-  },
- },
- encrypt: {
-  syntax: 'encrypt <password> <message>',
-  description: `Encrypts <message> with <password>, using AES-256 encryption.`,
-  func: (data, middleware) => {
-   if (data.command.length === 2) data.respond.push(`Please specify password and message.`);
-   else if (data.command.length === 3) data.respond.push(`Please specify a message as well.`);
-   else {
-    const password = data.command[2];
-    data.respond.push(`Encrypted message with password ${password}:`);
-    data.respond.push(utils.encrypt(password, data.input.replace(/^\s*[^\s]+\s+[^\s]+\s+[^\s]+\s/, ''), true));
-   }
   },
  },
  evaluate: {

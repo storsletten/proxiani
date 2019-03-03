@@ -18,7 +18,7 @@ const confirm = ({ middleware, title }) => {
 };
 
 const menu = ({ middleware, items, extraItems, title }) => {
- if (title) middleware.device.respond(title);
+ if (title) middleware.device.respond(`  ${title}`);
  if (!Array.isArray(items)) items = Object.keys(items);
  items.forEach((item, index) => middleware.device.respond(`[${index + 1}] ${item}`));
  const extraItemsMap = {};
