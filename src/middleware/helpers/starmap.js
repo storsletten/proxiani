@@ -54,9 +54,10 @@ const findType = text => {
  else if (text.length > 1 && 'drones'.startsWith(text)) return 'Combat Drones';
  else if ('mo'.startsWith(text)) return 'Moons';
  else if (text.length > 3 && 'platforms'.startsWith(text)) return 'Mobile Platforms';
- else if ('pr'.startsWith(text) || (text.length > 1 && 'weapons'.startsWith(text))) return 'Proximity Weapons';
+ else if ('prox'.startsWith(text) || (text.length > 1 && 'weapons'.startsWith(text))) return 'Proximity Weapons';
  else if (text.length > 1 && 'ships'.startsWith(text)) return 'Starships';
  else if (text.length > 3 && 'stations'.startsWith(text)) return 'Space Stations';
+ else if ('video probes'.startsWith(text) || 'probes'.startsWith(text)) return 'Satellites';
  for (let i=0; i<types.length; i++) {
   if (types[i].startsWith(text)) return typeTitles[i];
  }
