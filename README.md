@@ -3,6 +3,7 @@ Proxiani is a proxy server designed to optimize communication between Miriani an
 
 ## Installation
 Download and install the latest recommended version of Node.js from [nodejs.org](https://nodejs.org/).
+Node 10 or newer is required.
 
 ## Usage
 If you would like to run Proxiani with a console window (mostly just for developers), then use:

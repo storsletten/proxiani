@@ -36,7 +36,6 @@ const smships = (data, middleware, linkedMiddleware) => {
   if (state.command.length === 1 || isFinite(state.command[1])) state.command.splice(1, 0, 'name');
   const mode = state.command[1] in modes ? state.command[1] : 'name';
   const oob = starmap.oob(state);
-  oob.push(`token ${linkedMiddleware.device.token}`);
   if (!state.starships) {
    data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
    if (mode === 'assess') additionalThreats.forEach(objectType => state[objectType] && data.forward.push(`${state[objectType].split('(').length - 1} ${objectType}`));

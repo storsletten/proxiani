@@ -1,4 +1,4 @@
-const utils = require('../../../src/utils');
+const utils = require('../../../utils');
 const direction = require('../../helpers/direction');
 
 const findBestObjects = (current, objects, goal, expandProbingDistance = 0, step = 0, gettingWorse = 0) => {

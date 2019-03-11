@@ -1,43 +1,5 @@
 const childProcess = require('child_process');
-const crypto = require('crypto');
 const path = require('path');
-
-const algorithm = 'aes-256-ctr';
-const tokenSize = 1;
-const encrypt = (key, message, wordified) => {
- const cipher = crypto.createCipher(algorithm, key);
- const token = crypto.randomBytes(tokenSize).toString('binary');
- const encryptedMessage = cipher.update(token + message + token, 'binary', 'base64') + cipher.final('base64');
- return wordified ? wordify(encryptedMessage) : encryptedMessage;
-};
-const decrypt = (key, encryptedMessage, wordified) => {
- const decipher = crypto.createDecipher(algorithm, key);
- const message = decipher.update(wordified ? encryptedMessage.replace(/ /g, ' ') : encryptedMessage, 'base64', 'binary') + decipher.final('binary');
- return message.length >= (tokenSize * 2) && message.slice(0, tokenSize) === message.slice(-tokenSize) && message.slice(tokenSize, -tokenSize);
-};
-const wordify = text => {
- const minWordSize = 3;
- if (text.length <= minWordSize) return text;
- const maxWordSize = 9;
- const words = [];
- let i = 0;
- while (i < text.length) {
-  const n = randomInterval(minWordSize, maxWordSize);
-  const word = text.slice(i, i + n);
-  if (word.length < minWordSize) {
-   const lastWord = words[words.length - 1] + word;
-   if (lastWord.length > maxWordSize) {
-    words.push(lastWord.slice(minWordSize));
-    words[words.length - 2] = lastWord.slice(0, minWordSize);
-   }
-   else words[words.length - 1] = lastWord;
-   break;
-  }
-  words.push(word);
-  i += n;
- }
- return words.join(' ');
-};
 
 const englishOrdinalIndicator = n => {
  const s = String(n);
@@ -106,10 +68,38 @@ const powershell = (command, options = {}) => run('powershell', ['-version', '2.
 
 const randomInterval = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
+class Timers {
+ constructor() {
+  this.timers = {};
+ }
+ clear(name) {
+  if (name !== undefined) {
+   if (name in this.timers) {
+    clearTimeout(this.timers[name]);
+    delete this.timers[name];
+   }
+  }
+  else {
+   for (let name in this.timers) {
+    clearTimeout(this.timers[name]);
+    delete this.timers[name];
+   }
+  }
+ }
+ set(name, func, delay, ...params) {
+  if (name in this.timers) clearTimeout(this.timers[name]);
+  this.timers[name] = setTimeout(() => {
+   delete this.timers[name];
+   func(...params);
+  }, delay);
+ }
+ setInterval(name, ...args) {
+  if (name in this.timers) clearInterval(this.timers[name]);
+  this.timers[name] = setInterval(...args);
+ }
+}
+
 module.exports = {
- encrypt,
- decrypt,
- wordify,
  englishOrdinalIndicator,
  englishMonths,
  formatDate,
@@ -122,4 +112,5 @@ module.exports = {
  powershell,
  run,
  randomInterval,
+ Timers,
 };

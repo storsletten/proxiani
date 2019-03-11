@@ -14,7 +14,7 @@ const requireModules = dir => {
 class Middleware {
  constructor(options) {
   this.device = options.device;
-  this.dir = options.dir || path.join(__dirname, '..', 'middleware', this.device.type);
+  this.dir = options.dir || path.join(__dirname, this.device.type);
   this.defaultStateTimeout = options.defaultStateTimeout || 15000;
   this.load();
  }
@@ -70,7 +70,7 @@ class Middleware {
  }
  process(input) {
   const data = {
-   input: input,
+   input: input.toString(this.device.encoding),
    forward: [input],
    respond: [],
    time: new Date(),

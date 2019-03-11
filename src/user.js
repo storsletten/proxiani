@@ -25,7 +25,7 @@ const defaultConfigJSON = JSON.stringify({
  developerMode: false,
 });
 
-class user {
+class User {
  constructor(options = {}) {
   this.proxy = options.proxy;
   if (options.dir) this.dir = options.dir;
@@ -158,4 +158,4 @@ module.exports = custom;
  }
 }
 
-module.exports = user;
+module.exports = User;

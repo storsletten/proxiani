@@ -4,7 +4,7 @@ const os = require('os');
 const vm = require('vm');
 const conf = require('./conf.js');
 const dialog = require('../../helpers/dialog.js');
-const utils = require('../../../src/utils.js');
+const utils = require('../../../utils.js');
 
 const commands = {
  changelog: {
@@ -119,7 +119,7 @@ const commands = {
    worker.on('exit', code => device.respond(code === 0 ? `Search complete.` : `Search failed with code ${code}.`));
    worker.send({
     logDir: path.join(device.proxy.user.dir, device.proxy.user.logDir),
-    loggerID: device.loggerID,
+    loggerID: `on port ${device.socket.address().port}`,
     searchPhrase,
    });
   },
@@ -142,7 +142,7 @@ const commands = {
      else d.setTime(t);
     }
    }
-   const fileName = `${utils.englishOrdinalIndicator(d.getDate())}, ${middleware.device.loggerID}.txt`;
+   const fileName = `${utils.englishOrdinalIndicator(d.getDate())}, on port ${middleware.device.socket.address().port}.txt`;
    const dirName = path.join(user.dir, user.logDir, String(d.getFullYear()), String(d.getMonth() + 1));
    const logFile = path.join(dirName, fileName);
    if (fs.existsSync(logFile)) {

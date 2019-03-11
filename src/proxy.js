@@ -3,8 +3,8 @@ const net = require('net');
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events');
-const Device = require('./device.js');
-const user = require('./user.js');
+const Client = require('./devices/client.js');
+const User = require('./user.js');
 const utils = require('./utils.js');
 
 class Proxy {
@@ -16,6 +16,8 @@ class Proxy {
   this.idCount = 0;
   this.devices = {};
   this.devicesCount = 0;
+  this.loggers = {};
+  this.loggersCount = 0;
   this.sockets = {};
   this.socketsCount = 0;
   this.listeners = [];
@@ -26,6 +28,7 @@ class Proxy {
   this.restartRequested = false;
   process.on('beforeExit', () => this.close());
   process.setUncaughtExceptionCaptureCallback(error => {
+   console.log(error);
    try { utils.msgBox(String(error)); }
    catch (error) {}
    process.exit(1);
@@ -47,7 +50,7 @@ class Proxy {
   this.loadPackageInfo();
   process.title = `${this.name} ${this.version}`;
   this.console(`Starting ${this.name} ${this.version}`);
-  this.user = options.user || (new user({ proxy: this }));
+  this.user = options.user || (new User({ proxy: this }));
   this.events.on('close', () => {
    this.isClosing = true;
    for (let name in this.fileWatchers) {
@@ -59,6 +62,8 @@ class Proxy {
     delete this.timers[name];
    }
    for (let name in this.workers) this.closeWorker(name);
+   for (let id in this.loggers) this.loggers[id].close();
+   this.user.save();
    if (this.restartRequested) {
     this.console(`Restarting ${this.name}`);
     for (let mod in require.cache) delete require.cache[mod];
@@ -188,10 +193,7 @@ class Proxy {
    return;
   }
   for (let id in this.sockets) this.sockets[id].close();
-  for (let id in this.devices) {
-   const device = this.devices[id];
-   if (!(device.type === 'client' && device.link && device.link.proxy && device.link.type !== 'client')) device.close();
-  }
+  for (let id in this.devices) this.devices[id].close();
  }
  getNewID() {
   return String(++this.idCount);
@@ -202,15 +204,15 @@ class Proxy {
   const socket = net.createServer({ pauseOnConnect: true });
   this.sockets[id] = socket;
   this.socketsCount++;
-  socket.on('connection', deviceSocket => {
-   const { address, port, family } = deviceSocket.address();
-   const deviceID = this.getNewID();
-   this.console(`Device ${deviceID} connected to ${title} from ${address} on port ${port}`);
-   const device = new Device({
+  socket.on('connection', clientSocket => {
+   const { address, port, family } = clientSocket.address();
+   const clientID = this.getNewID();
+   this.console(`Client ${clientID} connected to ${title} from ${address} on port ${port}`);
+   const client = new Client({
     proxy: this,
-    id: deviceID,
-    socket: deviceSocket,
-    loggerID: `on port ${port}`,
+    id: clientID,
+    socket: clientSocket,
+    //loggerID: `on port ${port}`,
    });
   });
   socket.on('error', error => {
