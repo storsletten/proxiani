@@ -22,14 +22,14 @@ const sm = (data, middleware, linkedMiddleware) => {
    const maxNumberOfObjects = 10;
    const objectType = state.objectType.toLowerCase();
    if (!(objectType in state)) {
-    data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
+    data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
     data.forward.push(`No ${objectType}.`);
     return;
    }
    let objects = starmap.parseObjects(objectType, state[objectType], state.currentCoordinates);
    objects.sort((a, b) => a.distance - b.distance);
    data.forward.push(`${state.objectType}:`);
-   data.forward.push(`#$#proxiani starmap nearest ${objects[0].distance} | ${oob.join(' | ')}`);
+   data.forward.push(`#$#px starmap nearest ${objects[0].distance} | ${oob.join(' | ')}`);
    let objectsHere = 0;
    while (objects.length > 0 && objects[0].distance === 0) {
     objects.shift();

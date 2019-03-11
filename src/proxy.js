@@ -172,7 +172,7 @@ class Proxy {
     for (let id in this.devices) {
      const device = this.devices[id];
      if (device.type === 'client') {
-      device.respond('#$#proxiani error');
+      device.respond('#$#px error');
       if (this.user.config.developerMode) device.respond(msg);
       else device.respond(`${this.name} error!`);
      }

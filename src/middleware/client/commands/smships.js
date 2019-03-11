@@ -1,6 +1,14 @@
 const direction = require('../../helpers/direction');
 const starmap = require('../../helpers/starmap');
 
+const aliases = {
+ sma: 'assess',
+ smc: 'coords',
+ smd: 'dir',
+ smf: 'full',
+ sms: 'name',
+ smt: 'count',
+};
 const modes = {
  assess: (label, count) => `${count} ${label}`,
  coords: (ship, index, filter) => filter ? `${ship.x} ${ship.y} ${ship.z}, ${ship.match}` : `${ship.x} ${ship.y} ${ship.z}, ship ${ship.index + 1}, ${ship.name}`,
@@ -33,11 +41,12 @@ const smships = (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
   if (!state.readingComplete) return 0b10;
+  if (state.command[0] !== 'smships') state.command.splice(1, 0, aliases[state.command[0]] || 'name');
   if (state.command.length === 1 || isFinite(state.command[1])) state.command.splice(1, 0, 'name');
   const mode = state.command[1] in modes ? state.command[1] : 'name';
   const oob = starmap.oob(state);
   if (!state.starships) {
-   data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
+   data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    if (mode === 'assess') additionalThreats.forEach(objectType => state[objectType] && data.forward.push(`${state[objectType].split('(').length - 1} ${objectType}`));
    data.forward.push(`No ships.`);
    return;
@@ -45,7 +54,7 @@ const smships = (data, middleware, linkedMiddleware) => {
   let ships = starmap.parseObjects('starships', state.starships, state.currentCoordinates);
   if (mode === 'count') {
    const filter = state.command.length > 2 ? state.command.slice(2).join(' ') : undefined;
-   data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
+   data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    data.forward.push(modes[mode](filter ? ships.filter(ship => ship.name.toLowerCase().indexOf(filter) !== -1).length : ships.length, ships.length, filter));
   }
   else if (mode === 'assess') {
@@ -56,7 +65,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (maxDistance) {
     ships = ships.filter(ship => ship.distance <= maxDistance);
     if (ships.length === 0) {
-     data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
+     data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
      data.forward.push(`No ships ${maxDistance === 1 ? 'one unit away' : `${maxDistance} units or less away`}.`);
      return;
     }
@@ -70,7 +79,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    const list = [];
    for (let label in prioShips) list.push(prioShips[label]);
    list.sort((a, b) => a.priority - b.priority);
-   data.forward.push(`#$#proxiani starmap ${oob.join(' | ')}`);
+   data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    if (maxDistance && filteredShips) {
     data.forward.push(`${ships.length} of ${shipsTotal} ${shipsTotal === 1 ? 'ship' : 'ships'}:`);
    }
@@ -84,7 +93,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (filter) {
     ships = ships.filter(ship => ship.name.toLowerCase().indexOf(filter) !== -1);
     if (ships.length === 0) {
-     data.forward.push('#$#proxiani starmap');
+     data.forward.push('#$#px starmap');
      data.forward.push(`No ships matching ${filter}.`);
      return;
     }
@@ -131,7 +140,7 @@ const smships = (data, middleware, linkedMiddleware) => {
      ships.splice(indexForInsertingCuddledShips, 0, ...cuddledShips);
     }
    }
-   data.forward.push(`#$#proxiani starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
+   data.forward.push(`#$#px starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
    if (ships.length > maxNumberOfShips) ships = ships.slice(0, maxNumberOfShips);
    data.forward.push(...ships.map((ship, index) => modes[mode](ship, index, filter)));
   }

@@ -11,7 +11,7 @@ const commands = {
   syntax: 'changelog',
   description: `Opens the Proxiani changelog in Notepad.`,
   func: (data, middleware) => {
-   data.respond.push(`#$#proxiani say Opening the changelog`);
+   data.respond.push(`#$#px say Opening the changelog`);
    utils.run(middleware.device.proxy.user.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir })
   },
  },
@@ -147,7 +147,7 @@ const commands = {
    const logFile = path.join(dirName, fileName);
    if (fs.existsSync(logFile)) {
     const daysAgo = Math.floor((today - d) / 86400000);
-    data.respond.push(`#$#proxiani say Opening log ${daysAgo === 0 ? 'for today' : (daysAgo < 8 ? `from ${daysAgo === 1 ? '1 day' : `${daysAgo} days`} ago` : `of ${utils.formatDateWordly(d)}`)}.`);
+    data.respond.push(`#$#px say Opening log ${daysAgo === 0 ? 'for today' : (daysAgo < 8 ? `from ${daysAgo === 1 ? '1 day' : `${daysAgo} days`} ago` : `of ${utils.formatDateWordly(d)}`)}.`);
     utils.run(middleware.device.proxy.user.config.textEditor, fileName, { cwd: dirName });
    }
    else data.respond.push(`Couldn't find a log file for ${utils.formatDate(d)}.`);
