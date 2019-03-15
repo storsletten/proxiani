@@ -5,8 +5,7 @@ const protocols = require('../protocols.js');
 const GenericDevice = require('./generic.js');
 
 class ChatClient extends GenericDevice {
- constructor(options) {
-  super(options);
+ create(options) {
   this.host = options.host;
   this.port = options.port;
   this.connectionAttempts = 0;
@@ -18,7 +17,7 @@ class ChatClient extends GenericDevice {
   this.inputProtocols.push(this.datapacker);
   this.outputProtocols.push(this.datapacker);
   this.events.on('connect', () => this.socket.setTimeout(0));
-  if (ChatClient.name === this.constructor.name) this.proxy.events.emit(`${this.type}Created`, this);
+  super.create(options);
   this.connect();
  }
  close(reconnect) {

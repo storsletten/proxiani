@@ -34,7 +34,10 @@ class GenericDevice {
   });
   this.events.on('link', () => this.connected && this.events.emit('ready'));
   this.events.on('ready', () => this.socket.resume());
-  if (GenericDevice.name === this.constructor.name) this.proxy.events.emit(`${this.type}Created`, this);
+  this.create(options);
+ }
+ create(options) {
+  this.proxy.events.emit(`${this.type}Created`, this);
  }
  close() {
   if (this.closed) return;

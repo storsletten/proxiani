@@ -5,8 +5,7 @@ const TelnetDevice = require('./telnet.js');
 const Logger = require('../logger.js');
 
 class Server extends TelnetDevice {
- constructor(options) {
-  super(options);
+ create(options) {
   this.host = options.host;
   this.port = options.port;
   this.tls = options.tls;
@@ -28,7 +27,7 @@ class Server extends TelnetDevice {
    else this.proxy.link(options.link, this);
   }
   this.events.on('connect', () => this.socket.setTimeout(0));
-  if (Server.name === this.constructor.name) this.proxy.events.emit(`${this.type}Created`, this);
+  super.create(options);
   this.connect();
  }
  close(reconnect) {

@@ -4,8 +4,7 @@ const Middleware = require('../middleware/index.js');
 const Logger = require('../logger.js');
 
 class TelnetDevice extends GenericDevice {
- constructor(options) {
-  super(options);
+ create(options) {
   this.maxLastLines = options.maxLastLines || 10;
   this.lastLines = [];
   if (options.loggerID) this.logger = this.proxy.loggers[options.loggerID] || (new Logger(options));
@@ -14,7 +13,7 @@ class TelnetDevice extends GenericDevice {
   this.inputProtocols.push(telnetProtocol, lineProtocol);
   this.outputProtocols.push(lineProtocol);
   this.middleware = new Middleware({ device: this });
-  if (TelnetDevice.name === this.constructor.name) this.proxy.events.emit(`${this.type}Created`, this);
+  super.create(options);
  }
  unref() {
   super.unref();
