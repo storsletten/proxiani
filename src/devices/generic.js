@@ -48,7 +48,11 @@ class GenericDevice {
   this.proxy.unlink(this);
   this.proxy.console(`${this.title} closed`);
   this.events.emit('close');
-  ['events', 'responsePipes', 'forwardPipes', 'inputProtocols', 'outputProtocols'].forEach(prop => delete this[prop]);
+  ['inputProtocols', 'outputProtocols'].forEach(proto => {
+   delete this[proto].device;
+   delete this[proto];
+  });
+  ['events', 'responsePipes', 'forwardPipes'].forEach(prop => delete this[prop]);
   delete this.proxy.devices[this.id];
   this.proxy.devicesCount--;
   if (this.proxy.devicesCount === 0) {
@@ -70,23 +74,35 @@ class GenericDevice {
    else this.close(true);
   });
   this.socket.on('data', data => {
-   this.inputProtocols.reduce((chunks, protocol) => chunks.reduce((chunks, chunk) => {
-    if (chunk.forward) this.link && this.link.output(chunk);
-    else if (chunk.respond) this.output(chunk);
-    else if (chunk.passThrough || !protocol.incoming) chunks.push(chunk);
-    else return chunks.concat(protocol.incoming(chunk));
-    return chunks;
-   }, []), [{ data }]).forEach(chunk => this.input(chunk));
+   try {
+    this.inputProtocols.reduce((chunks, protocol) => chunks.reduce((chunks, chunk) => {
+     if (chunk.forward) this.link && this.link.output(chunk);
+     else if (chunk.respond) this.output(chunk);
+     else if (chunk.passThrough || !protocol.incoming) chunks.push(chunk);
+     else return chunks.concat(protocol.incoming(chunk));
+     return chunks;
+    }, []), [{ data }]).forEach(chunk => this.input(chunk));
+   }
+   catch (error) {
+    this.proxy.console(`${this.title} input error:`, error);
+    this.socket.destroy();
+   }
   });
  }
  input(chunk) { this.forward(chunk.data); }
  output(chunk) {
   if (!this.socket) return;
-  this.outputProtocols.reduce((chunks, protocol) => chunks.reduce((chunks, chunk) => {
-   if (chunk.passThrough || !protocol.outgoing) chunks.push(chunk);
-   else return chunks.concat(protocol.outgoing(chunk));
-   return chunks;
-  }, []), [chunk]).forEach(chunk => this.socket.write(chunk.data));
+  try {
+   this.outputProtocols.reduce((chunks, protocol) => chunks.reduce((chunks, chunk) => {
+    if (chunk.passThrough || !protocol.outgoing) chunks.push(chunk);
+    else return chunks.concat(protocol.outgoing(chunk));
+    return chunks;
+   }, []), [chunk]).forEach(chunk => this.socket.write(chunk.data));
+  }
+  catch (error) {
+   this.proxy.console(`${this.title} output error:`, error);
+   this.socket && this.socket.destroy();
+  }
  }
  respond(data) {
   if (this.connected) {

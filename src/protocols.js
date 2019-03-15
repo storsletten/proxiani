@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const datapacker = require('./datapacker.js');
 
 const iacSE = Buffer.from([255, 240]);
@@ -5,8 +6,35 @@ const eol = Buffer.from([13, 10]);
 
 class Datapacker {
  constructor(options) {
-  this.key = options.key;
+  this.device = options.device;
   this.buffer = Buffer.allocUnsafe(0);
+ }
+ auth(options) {
+  const encoding = options.encoding || this.device.encoding;
+  const saltSize = 8;
+  const pepperSize = 8;
+  const serverPassword = Buffer.from(options.serverPassword, encoding);
+  const password = Buffer.from(options.password, encoding);
+  const username = Buffer.from(options.username, encoding);
+  const key = datapacker.createKey(serverPassword);
+  const salt = crypto.randomBytes(saltSize);
+  if (this.buffer.length > 0) this.buffer = Buffer.allocUnsafe(0);
+  this.key = datapacker.createKey(Buffer.concat([salt, password]));
+  this.incoming = (chunk => {
+   const chunks = Object.getPrototypeOf(this).incoming.bind(this)(chunk);
+   if (chunks.length === 0) {
+    if (this.buffer.length >= datapacker.minDataLength && this.buffer.readUIntBE(0, datapacker.dataLengthUIntSize) > 500) throw new Error(`Input exceeding expected length for datapacker auth`);
+    return chunks;
+   }
+   else if (this.buffer.length > 0 || chunks.length > 1) throw new Error(`Received more data than expected for datapacker auth`);
+   const pepper = chunks[0].data;
+   if (pepper.length !== pepperSize) throw new Error(`Invalid pepper length`);
+   delete this.incoming;
+   this.key = datapacker.createKey(Buffer.concat([salt, pepper]));
+   this.device.output({ data: datapacker.pack(options.nickname ? Buffer.from(options.nickname, encoding) : username, this.key), passThrough: true });
+  }).bind(this);
+  this.device.socket.resume();
+  this.device.output({ data: datapacker.pack(Buffer.concat([salt, username]), key), passThrough: true });
  }
  incoming({ data, ...rest }) {
   const chunks = [];
