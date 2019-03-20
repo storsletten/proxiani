@@ -67,7 +67,7 @@ class GenericDevice {
  applySocketOptions() {
   if (this.keepAlive) this.socket.setKeepAlive(true, this.keepAlive);
   else this.socket.setKeepAlive(false);
-  this.socket.once('error', error => this.proxy.console(`${this.title} socket error:`, error));
+  this.socket.on('error', error => this.proxy.console(`${this.title} socket error:`, error));
   this.socket.once('end', () => this.connectionEnded = true);
   this.socket.once('close', () => {
    this.socket.unref();

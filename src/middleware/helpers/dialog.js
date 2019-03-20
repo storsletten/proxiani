@@ -3,7 +3,8 @@ const confirm = ({ middleware, title }) => {
  middleware.device.respond(`[Enter "yes" or "no"]`);
  return middleware.setPromisedState('dialog', { timeout: 0 }, data => {
   if (data.input.startsWith('#$#')) return 0;
-  const input = data.forward.pop().trim().toLowerCase();
+  data.forward.pop();
+  const input = data.input.trim().toLowerCase();
   if (input === '@abort') return 0b111;
   else if ('yes'.startsWith(input)) data.confirmed = true;
   else if ('no'.startsWith(input)) data.confirmed = false;
@@ -30,7 +31,8 @@ const menu = ({ middleware, items, extraItems, title }) => {
  middleware.device.respond(`[Type a line of input or \`@abort' to abort the command.]`);
  return middleware.setPromisedState('dialog', { timeout: 0 }, data => {
   if (data.input.startsWith('#$#')) return 0;
-  const input = data.forward.pop().trim().toLowerCase();
+  data.forward.pop();
+  const input = data.input.trim().toLowerCase();
   if (input === '@abort') return 0b111;
   else if (input.length === 0) data.indexMatch = -1;
   else {
@@ -61,7 +63,8 @@ const prompt = ({ middleware, title, re, hint }) => {
  middleware.device.respond(`[Type a line of input or \`@abort' to abort the command.]`);
  return middleware.setPromisedState('dialog', { timeout: 0 }, data => {
   if (data.input.startsWith('#$#')) return 0;
-  const input = data.forward.pop().trim().toLowerCase();
+  data.forward.pop();
+  const input = data.input.trim().toLowerCase();
   if (input === '@abort') return 0b111;
   if (re && !re.test(input)) {
    if (input.length > 0) {
@@ -88,7 +91,8 @@ const promptMultiline = ({ middleware, title }) => {
   data: lines,
  }, data => {
   if (data.input.startsWith('#$#')) return 0;
-  const input = data.forward.pop().trim().toLowerCase();
+  data.forward.pop();
+  const input = data.input.trim().toLowerCase();
   if (input === '@abort') return 0b111;
   else if (input !== '.') {
    if (lines.push(data.input) > maxLines) {
