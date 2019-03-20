@@ -1,3 +1,8 @@
+Version 2.0.0, released 2019-03-20:
+* Changed Proxiani OOB messages from proxiani to px. This might break compatibility with soundpacks that rely on Proxiani OOB messages, so please make sure you have the latest version of your soundpack.
+* Added commands sma, smc, smd, smf, sms, and smt. This means that the soundpack no longer needs to map those commands to the smships command, so these things will be less dependent on a soundpack.
+* Majorly refactored the Proxiani core. This means two things. One, there might still be some new unexpected bugs. And two, it makes it much easier to add special transport protocols, such as the datapacker protocol for the upcoming Proxiani Chat Server.
+
 Version 1.0.48, released 2019-03-03:
 * Added a proper configuration framework that you can access by typing px conf. There aren't many options yet, though.
 * Removed px encrypt and px decrypt, since the hosts in Miriani kindly asked me to take that feature out.
