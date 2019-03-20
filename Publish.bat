@@ -38,7 +38,6 @@ type "%ChangelogFile%" >>"%ChangelogFile%.tmp"
 move /y "%ChangelogFile%.tmp" "%ChangelogFile%" >nul
 del /q "%NewCommitsFile%" >nul
 
-xcopy "!devDir!middleware" "!pubDir!middleware" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!src" "!pubDir!src" /D /E /Q /V /M /Y>nul
 xcopy "!devDir!CHANGELOG.txt" "!pubDir!CHANGELOG.txt" /D /Q /V /M /Y>nul
 xcopy "!devDir!package.json" "!pubDir!package.json" /D /Q /V /M /Y>nul
