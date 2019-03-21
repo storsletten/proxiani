@@ -1,5 +1,7 @@
 const packages = {
  'mcp-negotiate': 'min-version: 1.0 max-version: 2.0',
+ 'dns-com-awns-status': 'min-version: 1.0 max-version: 1.0',
+ 'dns-com-awns-ping': 'min-version: 1.0 max-version: 1.0',
  'dns-com-vmoo-client': 'min-version: 1.0 max-version: 1.0',
 };
 
