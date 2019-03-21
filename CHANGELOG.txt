@@ -1,3 +1,6 @@
+Version 2.0.2, released 2019-03-21:
+* Added MCP support. This might be pretty technical but, currently the only package implemented is dns-com-vmoo-client. The plan is to add more packages later, which might result in some new cool features!
+
 Version 2.0.1, released 2019-03-21:
 * Fixed obnoxious error messages being displayed during auto reconnect. Thanks Patric Avery for reporting!
 
