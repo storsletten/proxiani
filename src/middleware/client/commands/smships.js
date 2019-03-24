@@ -32,12 +32,14 @@ const smships = (data, middleware, linkedMiddleware) => {
   data.forward.pop();
   return;
  }
- data.forward[0] = 'sm';
- linkedMiddleware.setState('sm', {
-  data: {
-   command: data.input.trim().toLowerCase().split(/\s+/),
-  },
- }, (data, middleware, linkedMiddleware) => {
+ const command = data.input.trim().toLowerCase().split(/\s+/);
+ const gm = command[0][0] === '@';
+ if (gm) {
+  command[0] = command[0].slice(1);
+  data.forward[0] = `@map ${command.splice(1, command.length - 1).join(' ')}`.trimEnd();
+ }
+ else data.forward[0] = 'sm';
+ linkedMiddleware.setState('sm', { data: { command } }, (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
   if (!state.readingComplete) return 0b10;

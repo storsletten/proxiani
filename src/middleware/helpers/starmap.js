@@ -4,6 +4,7 @@ const alliances = {
  'A': 'AIE',
  'B': 'Blue',
  'C': 'C',
+ 'CW': 'Commonwealth',
  'G': 'Green',
  'H': 'Hale',
  'HG': 'HG',

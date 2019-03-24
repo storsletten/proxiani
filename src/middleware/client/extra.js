@@ -10,6 +10,13 @@ const commandAliases = {
  smf: 'smships',
  sms: 'smships',
  smt: 'smships',
+ '@sm': 'sm',
+ '@sma': 'smships',
+ '@smc': 'smships',
+ '@smd': 'smships',
+ '@smf': 'smships',
+ '@sms': 'smships',
+ '@smt': 'smships',
 };
 
 module.exports = middleware => {
