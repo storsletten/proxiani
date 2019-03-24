@@ -1,3 +1,6 @@
+Version 2.0.3, released 2019-03-24:
+* Fixed an issue with sma that categorized Commonwealth ships in the Other category.
+
 Version 2.0.2, released 2019-03-21:
 * Added MCP support. This might be pretty technical but, currently the only package implemented is dns-com-vmoo-client. The plan is to add more packages later, which might result in some new cool features!
 
