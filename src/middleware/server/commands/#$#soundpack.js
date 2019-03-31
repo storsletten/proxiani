@@ -67,7 +67,7 @@ module.exports = (data, middleware, linkedMiddleware) => {
      }
     }
     else if (room.exits === undefined) {
-     if (['You see nowhere obvious to go.', 'You cannot navigate the vehicle here.'].includes(data.input)) {
+     if (['You see nowhere obvious to go.', 'You cannot navigate the vehicle here.', `It's too dark to see!`].includes(data.input)) {
       room.exits = [];
       return room.fullTitle ? 0b11 : 1;
      }
