@@ -1,3 +1,6 @@
+Version 2.0.4, released 2019-03-31:
+* Fixed the room reader so that dark rooms don't trigger the message telling you to fix your look options.
+
 Version 2.0.3, released 2019-03-24:
 * Fixed an issue with sma that categorized Commonwealth ships in the Other category.
 
