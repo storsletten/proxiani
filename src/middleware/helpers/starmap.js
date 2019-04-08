@@ -17,10 +17,12 @@ const alliances = {
 };
 
 const shipPriorities = [
+ 'Ortamu',
  'Mugatra',
  'Bezation',
  'Frnalk',
  'Frnazalk',
+ 'Ur-Potate',
  'Potate',
  'Muzano',
  'Ohaxx',
@@ -29,6 +31,7 @@ const shipPriorities = [
  'Resa-Onati',
  'Resati',
  'Ozarti',
+ 'Ozasati',
  'Onati',
  'Onno',
  'Bzzr',
@@ -40,6 +43,7 @@ const shipPriorities = [
  'Ontanka',
  'Bzano',
  'Bzani',
+ 'Trajrrk',
  'Friziti',
  'Potateoton',
 ];
