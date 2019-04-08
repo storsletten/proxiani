@@ -1,3 +1,6 @@
+Version 2.0.5, released 2019-04-08:
+* Added Ortamu and other praelor ship classes to the sma command.
+
 Version 2.0.4, released 2019-03-31:
 * Fixed the room reader so that dark rooms don't trigger the message telling you to fix your look options.
 
