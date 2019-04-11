@@ -4,6 +4,13 @@ const datapacker = require('./datapacker.js');
 const iacSE = Buffer.from([255, 240]);
 const eol = Buffer.from([13, 10]);
 
+const indexOfNewline = (buf, start = 0) => {
+ for (let i = start; i < buf.length; i++) {
+  if (buf[i] === 13 || buf[i] === 10) return i;
+ }
+ return -1;
+};
+
 class Datapacker {
  constructor(options) {
   this.device = options.device;
@@ -65,11 +72,11 @@ class Line {
   if (i > 0) {
    data = Buffer.concat([this.buffer, data]);
    if (data.length > this.maxBufferLength) throw `Exceeded maxBufferLength`;
-   i = Math.max(0, i - this.eol.length + 1);
   }
-  while ((i = data.indexOf(this.eol, i)) !== -1) {
+  while ((i = indexOfNewline(data, i)) !== -1) {
    if (i > 0 || !this.filterBlankLines) lines.push({ ...rest, data: data.slice(0, i) });
-   data = data.slice(i + this.eol.length);
+   i++;
+   data = data.slice(i < data.length && (data[i] === 13 || data[i] === 10) && data[i] !== data[i - 1] ? i + 1 : i);
    i = 0;
   }
   this.buffer = data;
