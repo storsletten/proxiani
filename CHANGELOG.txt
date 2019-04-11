@@ -1,3 +1,6 @@
+Version 2.0.6, released 2019-04-11:
+* Added compatibility with clients and servers that use non standard line terminators.
+
 Version 2.0.5, released 2019-04-08:
 * Added Ortamu and other praelor ship classes to the sma command.
 
