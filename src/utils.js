@@ -1,6 +1,26 @@
 const childProcess = require('child_process');
 const path = require('path');
 
+const parseArgstr = str => {
+ const args = [];
+ if (!str) return args;
+ let quoted = false;
+ let lastChar;
+ str.split(/(?<!\\)"/).forEach(arg => {
+  if (quoted) {
+   if (lastChar && lastChar !== ' ') args[args.length - 1] += `"${arg}"`;
+   else args.push(arg);
+  }
+  else if (arg) {
+   lastChar = arg[arg.length - 1];
+   arg = arg.trim();
+   if (arg) args.push(...arg.split(/\s+/));
+  }
+  quoted = !quoted;
+ });
+ return args;
+};
+
 const englishOrdinalIndicator = n => {
  const s = String(n);
  const l = s[s.length - 1];
@@ -109,6 +129,7 @@ module.exports = {
  formatAmount,
  formatThousands,
  msgBox,
+ parseArgstr,
  powershell,
  run,
  randomInterval,

@@ -12,7 +12,7 @@ const commands = {
   description: `Opens the Proxiani changelog in Notepad.`,
   func: (data, middleware) => {
    data.respond.push(`#$#px say Opening the changelog`);
-   utils.run(middleware.device.proxy.user.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir })
+   utils.run(middleware.device.proxy.user.config.textEditor, 'CHANGELOG.txt', { cwd: middleware.device.proxy.dir });
   },
  },
  configure: {

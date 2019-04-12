@@ -39,6 +39,7 @@ class User {
   this.configFile = 'Config.json';
   this.customFile = 'Custom.js';
   this.logDir = 'Logs';
+  this.tmpDir = 'Temporary files';
   this.load();
   if (options.config) Object.assign(this.config, options.config);
  }
