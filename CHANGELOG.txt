@@ -1,3 +1,6 @@
+Version 2.1.0, released 2019-04-12:
+* Added support for MCP edit.
+
 Version 2.0.6, released 2019-04-11:
 * Added compatibility with clients and servers that use non standard line terminators.
 
