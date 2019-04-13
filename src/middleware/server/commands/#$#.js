@@ -1,15 +1,9 @@
-// Partial support for the extremely ghetto local edit for lambda.
-// It has not been tested.
-// Only thing not added is a way of fetching multiline data from the MOO.
-// That would be easy to add though, using middleware.setState, and just fetch incoming data until a single period is detected.
-// Motivation for continuing to develop this or even just to use this is lacking because this protocol is so wonky and unsafe.
-
 const fs = require('fs');
 const path = require('path');
 const utils = require('../../../utils.js');
 
 const exists = (path, mode = fs.constants.F_OK) => fs.promises.access(path, mode).then(() => true).catch(() => false);
-const openEditor = async (middleware, upload) => {
+const openEditor = async (middleware, lines, upload) => {
  const proxy = middleware.device.proxy;
  const user = proxy.user;
  const tmpDir = path.join(user.dir, user.tmpDir);
@@ -23,7 +17,7 @@ const openEditor = async (middleware, upload) => {
   delete proxy.fileWatchers[filepath];
  }
  try {
-  await fs.promises.writeFile(filepath, '', {
+  await fs.promises.writeFile(filepath, lines.join("\r\n"), {
    encoding: 'binary',
    flag: 'w',
   });
@@ -54,9 +48,28 @@ module.exports = (data, middleware) => {
  if (data.input.startsWith(`#$# edit name: `)) {
   const i = data.input.lastIndexOf(' upload:');
   if (i !== -1) {
+   const name = data.input.slice(15, i);
    const upload = data.input.slice(i + 9);
-   data.forward[0] = `Local editing ${data.input.slice(15, i)}`;
-   openEditor(middleware, upload);
+   middleware.setState('localEdit', {
+    data: [],
+   }, (data, middleware) => {
+    const lines = middleware.states.localEdit.data;
+    if (data.input === '.') {
+     data.forward = [
+      `#$#px interrupt`,
+      `Local editing ${name}`,
+     ];
+     openEditor(middleware, lines, upload);
+    }
+    else if (lines.length > 100) {
+     middleware.device.proxy.console(new error(`Exceeded max number of lines for localEdit`));
+     return 0b10;
+    }
+    else {
+     lines.push(data.input);
+     return 0;
+    }
+   });
   }
  }
 };
