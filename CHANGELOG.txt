@@ -1,3 +1,6 @@
+Version 2.1.1, released 2019-04-15:
+* Hopefully fixed starmap commands so they work in colony sectors, and other special sectors as well. Somebody let me know if it still doesn't work.
+
 Version 2.1.0, released 2019-04-12:
 * Added support for MCP edit.
 
