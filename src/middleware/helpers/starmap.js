@@ -85,12 +85,13 @@ const getHeader = text => {
    ...extra(m[4]),
   };
  }
- m = text.match(/^(Charted Space|Midway Point|Praelor Space|Uncharted Space)\: (.+)/);
+ m = text.match(/^([^:]+)\: ([^(]+) \(([^)]+)\)(.*)/);
  if (m) {
   return {
-   type: 'other',
-   name: m[1],
-   ...extra(m[2]),
+   type: m[1],
+   name: m[2],
+   alliance: m[3],
+   ...extra(m[4]),
   };
  }
  m = text.match(/^([Aa][^.,:(]*? starship simulator) \(Unclaimed\)(.*)/);
