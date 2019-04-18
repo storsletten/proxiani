@@ -1,3 +1,6 @@
+Version 2.1.2, released 2019-04-18:
+* By default, px find is now case insensitive. It also shows up to three hits per file now.
+
 Version 2.1.1, released 2019-04-15:
 * Hopefully fixed starmap commands so they work in colony sectors, and other special sectors as well. Somebody let me know if it still doesn't work.
 
