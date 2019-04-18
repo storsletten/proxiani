@@ -118,6 +118,8 @@ const commands = {
    });
    worker.on('exit', code => device.respond(code === 0 ? `Search complete.` : `Search failed with code ${code}.`));
    worker.send({
+    caseSensitive: false,
+    maxHitsPerFile: 3,
     logDir: path.join(device.proxy.user.dir, device.proxy.user.logDir),
     loggerID: `on port ${device.socket.address().port}`,
     searchPhrase,

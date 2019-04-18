@@ -4,6 +4,9 @@ const path = require('path');
 const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
 const beginSearch = options => {
+ const caseSensitive = options.caseSensitive !== false;
+ const searchPhrase = caseSensitive ? options.searchPhrase : options.searchPhrase.toLowerCase();
+ const maxHitsPerFile = options.maxHitsPerFile || 1;
  const eol = options.eol || "\r\n";
  const startdate = new Date();
  const fromDateObject = options.fromDateObject || new Date(0);
@@ -46,28 +49,34 @@ const beginSearch = options => {
     else return true;
    }).sort(collator.compare).reverse().forEach(fileName => {
     const content = fs.readFileSync(path.join(options.logDir, year, month, fileName), { encoding: 'binary' });
-    const match = content.indexOf(options.searchPhrase);
-    if (match !== -1) {
-     const [date] = fileName.match(/^\d+/);
-     let lineStart = content.lastIndexOf(eol, match);
-     lineStart = lineStart !== -1 ? lineStart + eol.length : 0;
-     let lineEnd = content.indexOf(eol, match);
-     if (lineEnd === -1) lineEnd = content.length;
-     let line = content.slice(lineStart, lineEnd);
-     const m = line.match(/\t\[(\d{2}:\d{2}:\d{2})\]$/);
-     let time;
-     if (m) {
-      line = line.slice(0, line.length - m[0].length);
-      time = m[1];
-     }
-     else {
-      const i = content.lastIndexOf("\t[", lineStart - 1);
-      if (i !== -1) {
-       const m = content.slice(i, lineStart).match(/^\t\[(\d{2}:\d{2}:\d{2})\]/);
-       if (m) time = m[1];
+    const contentLowercase = caseSensitive ? null : content.toLowerCase();
+    let pos = 0;
+    for (let fileHit=0; fileHit<maxHitsPerFile; fileHit++) {
+     const match = caseSensitive ? content.indexOf(searchPhrase, pos) : contentLowercase.indexOf(searchPhrase, pos);
+     if (match !== -1) {
+      const [date] = fileName.match(/^\d+/);
+      let lineStart = content.lastIndexOf(eol, match);
+      lineStart = lineStart !== -1 ? lineStart + eol.length : 0;
+      let lineEnd = content.indexOf(eol, match);
+      if (lineEnd === -1) lineEnd = content.length;
+      let line = content.slice(lineStart, lineEnd);
+      const m = line.match(/\t\[(\d{2}:\d{2}:\d{2})\]$/);
+      let time;
+      if (m) {
+       line = line.slice(0, line.length - m[0].length);
+       time = m[1];
       }
+      else {
+       const i = content.lastIndexOf("\t[", lineStart - 1);
+       if (i !== -1) {
+        const m = content.slice(i, lineStart).match(/^\t\[(\d{2}:\d{2}:\d{2})\]/);
+        if (m) time = m[1];
+       }
+      }
+      process.send({ year, month, date, time, line });
+      pos = lineEnd + eol.length;
      }
-     process.send({ year, month, date, time, line });
+     else break;
     }
    });
   });
