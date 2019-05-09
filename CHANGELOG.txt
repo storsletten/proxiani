@@ -1,3 +1,6 @@
+Version 2.1.3, released 2019-05-09:
+* Made it possible to disregard TLS authorization errors.
+
 Version 2.1.2, released 2019-04-18:
 * By default, px find is now case insensitive. It also shows up to three hits per file now.
 
