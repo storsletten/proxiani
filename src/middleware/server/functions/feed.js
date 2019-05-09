@@ -18,7 +18,9 @@ module.exports = (data, middleware, linkedMiddleware) => {
    }
   }
   if (feeds.length > 0) {
-   if (feeds.length > 1 || feeds[0] !== 'From Outside') data.forward[0] = `(${feeds.join(' | ')}) ${str}`;
+   const hideLabels = middleware.persistentStates.immersiveFeeds;
+   if (hideLabels && (hideLabels === true || feeds.includes(hideLabels))) data.forward[0] = str;
+   else if (feeds.length > 1 || feeds[0] !== 'From Outside') data.forward[0] = `(${feeds.join(' | ')}) ${str}`;
    return true;
   }
  }

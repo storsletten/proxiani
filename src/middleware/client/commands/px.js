@@ -41,6 +41,22 @@ const commands = {
    data.respond.push(`User data in ${getParentDirName(middleware.device.proxy.user.dir)}: ${middleware.device.proxy.user.dir}`);
   },
  },
+ disregard: {
+  syntax: 'disregard',
+  description: `This command is used to disregard warnings, such as unauthorized TLS certificate.`,
+  func: (data, middleware, linkedMiddleware) => {
+   const linkedDevice = linkedMiddleware.device;
+   const proxy = middleware.device.proxy;
+   if (linkedDevice.socket && linkedDevice.socket.destroyed === false && linkedDevice.socket.authorized === false && linkedDevice.connected === false) {
+    proxy.console(`TLS manually authorized by user.`);
+    middleware.device.respond(`OK, disregarding TLS error...`);
+    linkedDevice.events.emit('connect');
+   }
+   else {
+    data.respond.push(`Nothing happened.`);
+   }
+  },
+ },
  echo: {
   syntax: 'echo',
   description: `Enables echo mode, which will send all your text back to you, including OOB messages.`,

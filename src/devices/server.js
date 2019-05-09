@@ -46,17 +46,29 @@ class Server extends TelnetDevice {
   this.connectionAttempts++;
   this.lastConnectionAttempt = new Date();
   const connectionArgs = [
-   { host: this.host, port: this.port },
+   { host: this.host, port: this.port, rejectUnauthorized: false },
    () => {
     const { address, port } = this.socket.address();
-    this.proxy.console(`${this.title} established ${this.socket.authorized === true ? 'secure ' : ''}connection with ${address} using port ${port}`);
-    if (this.socket.authorized === false) this.proxy.console(`TLS authorization error:`, this.socket.authorizationError);
-    this.events.emit('connect');
+    if (this.socket.authorized === false) {
+     this.proxy.console(`TLS authorization error:`, this.socket.authorizationError);
+     if (this.link) {
+      this.link.respond(`TLS authorization error: ${this.socket.authorizationError}`);
+      this.link.respond(`If you want to ignore this and connect to ${this.host} anyway, then type: px disregard`);
+      this.socket.setTimeout(0);
+     }
+     else {
+      this.socket.close();
+     }
+    }
+    else {
+     this.proxy.console(`${this.title} established ${this.socket.authorized === true ? 'secure ' : ''}connection with ${address} using port ${port}`);
+     this.events.emit('connect');
+    }
    },
   ];
   this.proxy.console(`${this.title} connecting to ${this.host} on port ${this.port}`);
   this.socket = this.tls ? tls.connect(...connectionArgs) : net.createConnection(...connectionArgs);
-  if (!this.link) this.socket.pause();
+  this.socket.pause();
   if (this.connectTimeout) {
    this.socket.setTimeout(this.connectTimeout);
    this.socket.once('timeout', () => {
