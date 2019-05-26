@@ -5,6 +5,7 @@ const alliances = {
  'B': 'Blue',
  'C': 'C',
  'CW': 'Commonwealth',
+ 'F': 'Frnalk',
  'G': 'Green',
  'H': 'Hale',
  'HG': 'HG',
@@ -17,6 +18,7 @@ const alliances = {
 };
 
 const shipPriorities = [
+ 'Elganamu',
  'Ortamu',
  'Mugatra',
  'Bezation',
@@ -40,6 +42,7 @@ const shipPriorities = [
  'Orta',
  'Otono',
  'Otona',
+ 'Muzatini',
  'Ontanka',
  'Bzano',
  'Bzani',
@@ -226,7 +229,7 @@ const reader = (data, state) => {
 const calculateShipPriority = ship => {
  let label;
  let priority;
- if (ship.alliance === 'P' && ship.name.indexOf('Praelor ') !== -1) {
+ if ('FP'.includes(ship.alliance) && ship.name.indexOf('Praelor ') !== -1) {
   label = ship.name.split(' ', 2)[1];
   priority = shipPriorities.indexOf(label);
   if (priority === -1) {
