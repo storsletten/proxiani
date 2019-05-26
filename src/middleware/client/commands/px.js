@@ -201,6 +201,10 @@ const commands = {
   func: (data, middleware, linkedMiddleware) => {
    if (data.command.length > 2) {
     if ('middleware'.startsWith(data.command[2])) {
+     let helpersDir = path.join(path.dirname(middleware.dir), 'helpers');
+     for (let mod in require.cache) {
+      if (mod.slice(0, helpersDir.length) === helpersDir) delete require.cache[mod];
+     }
      if (middleware.load() && linkedMiddleware.load()) data.respond.push(`Reloaded Proxiani middleware.`);
      else data.respond.push(`Failed to reload Proxiani middleware.`);
     }

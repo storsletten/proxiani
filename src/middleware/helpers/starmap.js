@@ -48,7 +48,7 @@ const shipPriorities = [
  'Potateoton',
 ];
 
-const typeTitles = ['Accelerators', 'Artifacts', 'Asteroids', 'Blockades', 'Combat Drones', 'Control Beacons', 'Debris', 'Dry Docks', 'Interdictors', 'Jumpgates', 'Missiles', 'Mobile Platforms', 'Moons', 'Pellets', 'Planets', 'Private Space Stations', 'Proximity Weapons', 'Relics', 'Satellites', 'Space Stations', 'Stars', 'Starships', 'Unknown', 'Wormholes'];
+const typeTitles = ['Accelerators', 'Artifacts', 'Asteroids', 'Blockades', 'Combat Drones', 'Control Beacons', 'Debris', 'Dry Docks', 'Interdictors', 'Jumpgates', 'Missiles', 'Mobile Platforms', 'Moons', 'Pellets', 'Planets', 'Private Moons', 'Private Planets', 'Private Space Stations', 'Proximity Weapons', 'Relics', 'Satellites', 'Space Stations', 'Stars', 'Starships', 'Unknown', 'Wormholes'];
 const types = typeTitles.map(objectType => objectType.toLowerCase());
 const findType = text => {
  if (text.length === 0) return;
@@ -191,6 +191,11 @@ const reader = (data, state) => {
    state.foundTypes.push(objectType);
    return true;
   }
+  else if (data.input === 'Current Coordinates: (unknown)') {
+   state.currentCoordinates = { x: 0, y: 0, z: 0 };
+   state.readingComplete = true;
+   return;
+  }
   else {
    const m = data.input.match(/^Current Coordinates\: \(([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})\)$/);
    if (m) {
@@ -201,7 +206,21 @@ const reader = (data, state) => {
    }
   }
  }
- data.forward = state.bufferedInput;
+ if (state.readingStarmapObjects || state.sensorInterference || state.nebula || state.galacticCoordinates) data.forward = state.bufferedInput;
+ else {
+  const header = getHeader(data.input);
+  if (!header) {
+   data.forward = state.bufferedInput;
+   state.bufferedInput = [];
+   state.readingStarmap = false;
+   return true;
+  }
+  state.header = header;
+  state.readingStarmap = true;
+  state.foundTypes = [];
+  state.bufferedInput = [data.forward.pop()];
+  return true;
+ }
 };
 
 const calculateShipPriority = ship => {
