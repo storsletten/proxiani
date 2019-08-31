@@ -12,7 +12,7 @@ const openEditor = async (middleware, edit) => {
  if (!(await exists(tmpDir)) && !(await fs.promises.mkdir(tmpDir).then(() => true).catch(() => false))) {
   return;
  }
- const file = `${encodeURIComponent(edit.reference)}.txt`;
+ const file = `${edit.reference.replace(/[\\/:*?"<>|]/g, '_')}.txt`;
  const filepath = path.join(tmpDir, file);
  if (filepath in proxy.fileWatchers) {
   proxy.fileWatchers[filepath].close();
