@@ -1,3 +1,6 @@
+Version 2.1.7, released 2019-08-31:
+* Made MCP simpleedit filenames pretty again. Yes, now they're both safe and pretty at the same time!
+
 Version 2.1.6, released 2019-08-31:
 * MCP simpleedit now supports references that contain colons and other symbols that are normally not accepted in file paths.
 
