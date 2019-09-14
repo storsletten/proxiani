@@ -195,6 +195,13 @@ const commands = {
    }
   },
  },
+ quit: {
+  syntax: 'quit',
+  description: `Kills the connection.`,
+  func: (data, middleware) => {
+   middleware.device.close();
+  },
+ },
  restart: {
   syntax: 'restart [middleware]',
   description: `Restarts Proxiani. The optional middleware literal lets you restart middleware only if preferred.`,
