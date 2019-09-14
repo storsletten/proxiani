@@ -1,3 +1,6 @@
+Version 2.1.8, released 2019-09-15:
+* Added px quit, for closing the current connection to Proxiani.
+
 Version 2.1.7, released 2019-08-31:
 * Made MCP simpleedit filenames pretty again. Yes, now they're both safe and pretty at the same time!
 
