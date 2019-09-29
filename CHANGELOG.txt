@@ -1,3 +1,6 @@
+Version 2.1.9, released 2019-09-29:
+* Added configuration options for special encoding of extended ASCII.
+
 Version 2.1.8, released 2019-09-15:
 * Added px quit, for closing the current connection to Proxiani.
 
