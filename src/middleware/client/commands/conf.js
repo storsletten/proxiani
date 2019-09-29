@@ -6,6 +6,9 @@ const objects = {
   { title: 'Logging', type: 'boolean', key: 'logging' },
   { title: 'Developer mode', type: 'boolean', key: 'developerMode' },
   { title: 'Text editor', type: 'string', key: 'textEditor' },
+  { title: 'Encode Extended ASCII', type: 'boolean', key: 'asciiEncodeHigh' },
+  { title: 'Decode Extended ASCII', type: 'boolean', key: 'asciiDecodeHigh' },
+  { title: 'Translate special CP-1252 symbols', type: 'boolean', key: 'mapSpecialCP1252' },
  ],
 };
 

@@ -23,6 +23,9 @@ const defaultConfigJSON = JSON.stringify({
  textEditor: 'notepad.exe',
  logging: true,
  developerMode: false,
+ asciiEncodeHigh: true,
+ asciiDecodeHigh: true,
+ mapSpecialCP1252: true,
 });
 
 class User {

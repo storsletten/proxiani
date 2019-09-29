@@ -79,11 +79,13 @@ class Server extends TelnetDevice {
   this.applySocketOptions();
  }
  input(chunk) {
-  if (!chunk.passThrough) chunk.data = filters.decode(chunk.data);
+  if (this.proxy.user.config.asciiDecodeHigh && !chunk.passThrough) chunk.data = filters.decode(chunk.data);
   super.input(chunk);
  }
  output(chunk) {
-  if (!chunk.passThrough) chunk.data = filters.encode(chunk.data);
+  if (!chunk.passThrough && (this.proxy.user.config.asciiEncodeHigh || this.proxy.user.config.mapSpecialCP1252)) {
+   chunk.data = filters.encode(chunk.data, { lowFilter: 0, highFilter: Number(this.proxy.user.config.asciiEncodeHigh), mapSpecial: this.proxy.user.config.mapSpecialCP1252 });
+  }
   super.output(chunk);
  }
 } 
