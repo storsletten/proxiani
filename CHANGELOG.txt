@@ -1,3 +1,6 @@
+Version 2.1.10, released 2019-10-26:
+* Extended ASCII and certain CP-1252 characters will no longer be encoded/decoded for out-of-band messages.
+
 Version 2.1.9, released 2019-09-29:
 * Added configuration options for special encoding of extended ASCII.
 
