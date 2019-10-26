@@ -24,11 +24,12 @@ const special = {
  215: '*', // Multiplication sign
  247: '/', // Division sign
 };
+const oobPrefix = Buffer.from('#$#');
 
 // lowFilter is ASCII below 32. highFilter is ASCII above 127.
 // lowFilter and highFilter can be either 0 for none, 1 for translation, and 2 for removing.
 const encode = (data, { lowFilter = 0, highFilter = 1, mapSpecial = 1 } = {}) => {
- if (data.length === 0) return data;
+ if (data.length === 0 || (data.length >= oobPrefix.length && oobPrefix.compare(data, 0, 3) === 0)) return data;
  const buffers = [];
  let mode;
  let start = 0;
@@ -56,7 +57,7 @@ const encode = (data, { lowFilter = 0, highFilter = 1, mapSpecial = 1 } = {}) =>
  return buffers.length === 1 ? buffers[0] : Buffer.concat(buffers);
 };
 const decode = (data, { lowFilter = 2, highFilter = 1 } = {}) => {
- if (data.length === 0) return data;
+ if (data.length === 0 || (data.length >= oobPrefix.length && oobPrefix.compare(data, 0, 3) === 0)) return data;
  const buffers = [];
  let mode;
  let start = 0;
