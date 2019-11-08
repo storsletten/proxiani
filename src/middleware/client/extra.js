@@ -15,6 +15,7 @@ const commandAliases = {
  '@smc': 'smships',
  '@smd': 'smships',
  '@smf': 'smships',
+ '@smm': 'smm',
  '@sms': 'smships',
  '@smt': 'smships',
 };

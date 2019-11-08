@@ -74,8 +74,11 @@ const findType = text => {
 const getHeader = text => {
  const extra = text => {
   return {
+   isExplored: text.indexOf('[Explored]') !== -1,
    isUnexplored: text.indexOf('[Unexplored]') !== -1,
+   isUnclaimed: text.indexOf('(Unclaimed)') !== -1,
    isOutsideCommsRange: text.indexOf('[Outside Communications Range]') !== -1,
+   isOutsideLocalSpace: text.indexOf('[Outside Local Space]') !== -1,
   };
  };
  let m = text.match(/^Sector ([0-9]{1,3})\: ([^(]+?) \(([^)]+?)\)(.*)/);
