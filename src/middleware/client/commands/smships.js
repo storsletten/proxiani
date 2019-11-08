@@ -48,7 +48,7 @@ const smships = (data, middleware, linkedMiddleware) => {
   const mode = state.command[1] in modes ? state.command[1] : 'name';
   const oob = starmap.oob(state);
   if (!state.starships) {
-   data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
+   if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    if (mode === 'assess') additionalThreats.forEach(objectType => state[objectType] && data.forward.push(`${state[objectType].split('(').length - 1} ${objectType}`));
    data.forward.push(`No ships.`);
    return;
@@ -56,7 +56,7 @@ const smships = (data, middleware, linkedMiddleware) => {
   let ships = starmap.parseObjects('starships', state.starships, state.currentCoordinates);
   if (mode === 'count') {
    const filter = state.command.length > 2 ? state.command.slice(2).join(' ') : undefined;
-   data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
+   if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    data.forward.push(modes[mode](filter ? ships.filter(ship => ship.name.toLowerCase().indexOf(filter) !== -1).length : ships.length, ships.length, filter));
   }
   else if (mode === 'assess') {
@@ -67,7 +67,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (maxDistance) {
     ships = ships.filter(ship => ship.distance <= maxDistance);
     if (ships.length === 0) {
-     data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
+     if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
      data.forward.push(`No ships ${maxDistance === 1 ? 'one unit away' : `${maxDistance} units or less away`}.`);
      return;
     }
@@ -81,7 +81,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    const list = [];
    for (let label in prioShips) list.push(prioShips[label]);
    list.sort((a, b) => a.priority - b.priority);
-   data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
+   if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    if (maxDistance && filteredShips) {
     data.forward.push(`${ships.length} of ${shipsTotal} ${shipsTotal === 1 ? 'ship' : 'ships'}:`);
    }
@@ -95,7 +95,7 @@ const smships = (data, middleware, linkedMiddleware) => {
    if (filter) {
     ships = ships.filter(ship => ship.name.toLowerCase().indexOf(filter) !== -1);
     if (ships.length === 0) {
-     data.forward.push('#$#px starmap');
+     if (linkedMiddleware.device.soundpack.name) data.forward.push('#$#px starmap');
      data.forward.push(`No ships matching ${filter}.`);
      return;
     }
@@ -142,7 +142,7 @@ const smships = (data, middleware, linkedMiddleware) => {
      ships.splice(indexForInsertingCuddledShips, 0, ...cuddledShips);
     }
    }
-   data.forward.push(`#$#px starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
+   if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
    if (ships.length > maxNumberOfShips) ships = ships.slice(0, maxNumberOfShips);
    data.forward.push(...ships.map((ship, index) => modes[mode](ship, index, filter)));
   }
