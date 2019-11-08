@@ -1,3 +1,7 @@
+Version 2.1.11, released 2019-11-08:
+* Out-of-band messages for starmaps will no longer be included if you're not using a registered soundpack.
+* Added an SMM command that lets you see a compact version of starmap metadata.
+
 Version 2.1.10, released 2019-10-26:
 * Extended ASCII and certain CP-1252 characters will no longer be encoded/decoded for out-of-band messages.
 
