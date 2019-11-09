@@ -13,6 +13,8 @@ class GenericDevice {
   this.proxy.devicesCount++;
   this.events = new EventEmitter();
   this.keepAlive = options.keepAlive !== undefined ? options.keepAlive : 3000;
+  this.bytesReceived = 0;
+  this.bytesSent = 0;
   this.responsePipes = options.responsePipes || [];
   this.forwardPipes = options.forwardPipes || [];
   this.timers = new utils.Timers();
@@ -28,9 +30,9 @@ class GenericDevice {
    if (this.link) this.events.emit('ready');
   });
   this.events.on('disconnect', () => {
+   if (this.connected || !this.disconnectedSince) this.disconnectedSince = new Date();
    this.connected = false;
    if (this.connectionAttempts) this.connectionAttempts = 0;
-   this.disconnectedSince = new Date();
   });
   this.events.on('link', () => this.connected && this.events.emit('ready'));
   this.events.on('ready', () => this.socket.resume());
@@ -70,6 +72,7 @@ class GenericDevice {
   this.socket.on('error', error => this.proxy.console(`${this.title} socket error:`, error.message));
   this.socket.on('end', () => this.connectionEnded = true);
   this.socket.on('close', () => {
+   this.proxy.console(`${this.title} socket closed.`);
    this.socket.unref();
    delete this.socket;
    if (this.connected) this.events.emit('disconnect');
@@ -85,6 +88,7 @@ class GenericDevice {
      else return chunks.concat(protocol.incoming(chunk));
      return chunks;
     }, []), [{ data }]).forEach(chunk => this.input(chunk));
+    this.bytesReceived += data.length;
    }
    catch (error) {
     this.proxy.console(`${this.title} input error:`, error);
@@ -100,7 +104,10 @@ class GenericDevice {
     if (chunk.passThrough || !protocol.outgoing) chunks.push(chunk);
     else return chunks.concat(protocol.outgoing(chunk));
     return chunks;
-   }, []), [chunk]).forEach(chunk => this.socket.write(chunk.data));
+   }, []), [chunk]).forEach(chunk => {
+    this.socket.write(chunk.data);
+    this.bytesSent += chunk.data.length;
+   });
   }
   catch (error) {
    this.proxy.console(`${this.title} output error:`, error);

@@ -17,6 +17,7 @@ const defaultConfigJSON = JSON.stringify({
   host: 'toastsoft.net',
   port: 1443,
   tls: true,
+  ipv6: false,
   autoReconnect: true,
   autoReconnectInterval: 3000,
  },

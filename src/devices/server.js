@@ -8,6 +8,7 @@ class Server extends TelnetDevice {
  create(options) {
   this.host = options.host;
   this.port = options.port;
+  this.ipVersion = options.ipv6 ? 6 : 4;
   this.tls = options.tls;
   this.connectionAttempts = 0;
   this.autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;
@@ -33,10 +34,10 @@ class Server extends TelnetDevice {
  close(reconnect) {
   if (this.closed) return;
   if (reconnect && this.autoReconnect && (!this.connectionEnded || (this.lastLines.length > 1 && this.lastLines[this.lastLines.length - 2].startsWith('*** Server shutdown by ')))) {
-   if (this.connectionAttempts === 0) {
-    if ((this.disconnectedSince - this.connectedSince) > 2500) this.forward(`*** Auto reconnect in progress... ***`);
+   if (this.bytesReceivedSinceLastAutoReconnect !== this.bytesReceived) {
+    this.bytesReceivedSinceLastAutoReconnect = this.bytesReceived;
+    this.forward(`*** Auto reconnect in progress... ***`);
    }
-   else if (this.connectionAttempts === 1 && !this.connectedSince) this.forward(`*** Connection to ${this.host} on port ${this.port} failed. Auto reconnect in progress... ***`);
    this.timers.set('reconnect', () => this.connect(), this.autoReconnectInterval - ((new Date()) - this.lastConnectionAttempt));
   }
   else super.close();
@@ -46,7 +47,7 @@ class Server extends TelnetDevice {
   this.connectionAttempts++;
   this.lastConnectionAttempt = new Date();
   const connectionArgs = [
-   { host: this.host, port: this.port, rejectUnauthorized: false },
+   { host: this.host, port: this.port, family: this.ipVersion, rejectUnauthorized: false },
    () => {
     const { address, port } = this.socket.address();
     if (this.socket.authorized === false) {
@@ -76,6 +77,7 @@ class Server extends TelnetDevice {
     this.socket.destroy();
    });
   }
+  if (this.tls) this.socket.on('tlsClientError', error => this.proxy.console(`${this.title} TLS error:`, error.message));
   this.applySocketOptions();
  }
  input(chunk) {
