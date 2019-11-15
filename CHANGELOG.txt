@@ -1,3 +1,6 @@
+Version 2.1.12, released 2019-11-15:
+* sma, smc, smm, sms, and all the other starmap related commands now work whether sight mode is enabled or disabled. Remember that server-side line wrapping must still be disabled. In Miriani you can toggle line wrapping with the @wrap command.
+
 Version 2.1.11, released 2019-11-08:
 * Out-of-band messages for starmaps will no longer be included if you're not using a registered soundpack.
 * Added an SMM command that lets you see a compact version of starmap metadata.
