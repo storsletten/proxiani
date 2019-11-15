@@ -9,7 +9,7 @@ const smmeta = (data, middleware, linkedMiddleware) => {
   data.command[0] = data.command[0].slice(1);
   data.forward[0] = `@map ${data.command.splice(1, data.command.length - 1).join(' ')}`.trimEnd();
  }
- else data.forward[0] = `sm coords`;
+ else data.forward[0] = `sm co`;
  linkedMiddleware.setState('sm', {
   data: {},
  }, (data, middleware, linkedMiddleware) => {
