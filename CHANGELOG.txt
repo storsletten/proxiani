@@ -1,3 +1,7 @@
+Version 2.1.13, released 2019-11-16:
+* Fixed a bug with the loading of config.json that meant objects in objects didn't get checked for missing values.
+* Changed the server -> ipv6 config option to server -> ipVersion, which is now an integer that can be either 0, 4, or 6. It's 0 by default, which means it will use either IPv4 or IPv6 depending on what's available.
+
 Version 2.1.12, released 2019-11-15:
 * sma, smc, smm, sms, and all the other starmap related commands now work whether sight mode is enabled or disabled. Remember that server-side line wrapping must still be disabled. In Miriani you can toggle line wrapping with the @wrap command.
 
