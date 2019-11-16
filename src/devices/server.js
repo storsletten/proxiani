@@ -8,7 +8,7 @@ class Server extends TelnetDevice {
  create(options) {
   this.host = options.host;
   this.port = options.port;
-  this.ipVersion = options.ipv6 ? 6 : 4;
+  this.ipVersion = ([0, 4, 6]).includes(options.ipVersion) ? options.ipVersion : 0;
   this.tls = options.tls;
   this.connectionAttempts = 0;
   this.autoReconnect = options.autoReconnect !== undefined ? options.autoReconnect : true;

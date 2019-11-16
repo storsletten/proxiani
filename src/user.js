@@ -17,7 +17,7 @@ const defaultConfigJSON = JSON.stringify({
   host: 'toastsoft.net',
   port: 1443,
   tls: true,
-  ipv6: false,
+  ipVersion: 0,
   autoReconnect: true,
   autoReconnectInterval: 3000,
  },
@@ -88,17 +88,7 @@ class User {
     const configJSON = fs.readFileSync(configFile);
     const config = JSON.parse(configJSON);
     if (config && typeof config === 'object') {
-     let updateConfigFile = false;
-     for (let key in this.config) {
-      if (!(key in config)) {
-       updateConfigFile = true;
-       break;
-      }
-     }
-     for (let key in config) {
-      if (key in this.config) this.config[key] = config[key];
-     }
-     if (updateConfigFile) this.saveConfig();
+     if (deepUpdateObject(this.config, config)) this.saveConfig();
     }
     else this.proxy.console(`Parsing the config.json file returned typeof ${typeof config}.`);
    }
@@ -162,5 +152,20 @@ module.exports = custom;
   }
  }
 }
+
+const deepUpdateObject = (object, newData) => {
+ let missing = 0;
+ for (let key in object) {
+  if (key in newData) {
+   if (typeof object[key] === "object") {
+    if (typeof newData[key] === "object") missing += deepUpdateObject(object[key], newData[key]);
+    else missing++;
+   }
+   else object[key] = newData[key];
+  }
+  else missing++;
+ }
+ return missing;
+};
 
 module.exports = User;
