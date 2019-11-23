@@ -5,8 +5,11 @@ const calculate2d = (you, target) => {
  const [dxa, dya] = [Math.abs(dx), Math.abs(dy)];
  const distance = Math.max(dxa, dya);
  const dir = [];
- if (dx !== 0) dir.push(`${dxa}${dx > 0 ? 'E' : 'W'}`);
- if (dy !== 0) dir.push(`${dya}${dy > 0 ? 'S' : 'N'}`);
+ if (distance) {
+  if (dx !== 0) dir.push(`${distance > 1 ? dxa : ''}${dx > 0 ? 'E' : 'W'}`);
+  if (dy !== 0) dir.push(`${distance > 1 ? dya : ''}${dy > 0 ? 'S' : 'N'}`);
+ }
+ else dir.push('Here');
  return { dx, dy, dir: dir.join(' '), distance };
 };
 const calculate3d = (you, target) => {
@@ -16,9 +19,12 @@ const calculate3d = (you, target) => {
  const [dxa, dya, dza] = [Math.abs(dx), Math.abs(dy), Math.abs(dz)];
  const distance = Math.max(dxa, dya, dza);
  const dir = [];
- if (dx !== 0) dir.push(`${dxa}${dx > 0 ? 'E' : 'W'}`);
- if (dy !== 0) dir.push(`${dya}${dy > 0 ? 'S' : 'N'}`);
- if (dz !== 0) dir.push(`${dza}${dz > 0 ? 'D' : 'U'}`);
+ if (distance) {
+  if (dx !== 0) dir.push(`${distance > 1 ? dxa : ''}${dx > 0 ? 'E' : 'W'}`);
+  if (dy !== 0) dir.push(`${distance > 1 ? dya : ''}${dy > 0 ? 'S' : 'N'}`);
+  if (dz !== 0) dir.push(`${distance > 1 ? dza : ''}${dz > 0 ? 'D' : 'U'}`);
+ }
+ else dir.push('Here');
  return { dx, dy, dz, dir: dir.join(' '), distance };
 };
 
