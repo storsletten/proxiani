@@ -24,7 +24,7 @@ const smmeta = (data, middleware, linkedMiddleware) => {
   else if (state.header.isExplored) meta.push(`Explored`);
   if (state.header.isOutsideCommsRange) meta.push(`Out of Comms`);
   else if (state.header.isOutsideLocalSpace) meta.push(`Out of Local Space`);
-  const oob = starmap.oob(state);
+  const oob = starmap.oob(state, middleware.persistentStates);
   if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
   if (meta.length) data.forward.push(meta.join(', '));
   else data.forward.push(`Nothing special.`);

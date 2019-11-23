@@ -7,7 +7,7 @@ const aim = (data, middleware, linkedMiddleware) => {
    if (data.input.slice(0, 5) === 'Wait ' || [`I don't understand that.`, 'Invalid selection.', 'Those coordinates are already locked.', 'Those coordinates are occupied by this ship.', 'Those coordinates are too far away to establish a lock.'].includes(data.input)) return 0b10;
    const m = data.input.match(/^Locked onto coordinates\: ([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})$/);
    if (!m) return 0;
-   middleware.persistentStates.aim = { x: m[1], y: m[2], z: m[3] };
+   middleware.persistentStates.aim = { x: Number(m[1]), y: Number(m[2]), z: Number(m[3]) };
    state.detected = true;
    return 1;
   }

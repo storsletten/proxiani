@@ -24,7 +24,7 @@ const sm = (data, middleware, linkedMiddleware) => {
    const state = middleware.states.sm.data;
    if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
    if (!state.readingComplete) return 0b10;
-   const oob = starmap.oob(state);
+   const oob = starmap.oob(state, middleware.persistentStates);
    const maxNumberOfObjects = 10;
    const objectType = state.objectType.toLowerCase();
    if (!(objectType in state)) {

@@ -13,7 +13,7 @@ const focus = (data, middleware, linkedMiddleware) => {
   const m = data.input.match(/^([^[(:]{2,50})\: ([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})$/);
   if (!m) return 0;
   else if (['coordinates', 'current coordinates', 'current galactic coordinates', 'galactic coordinates', 'locked onto coordinates'].includes(m[1].toLowerCase())) return;
-  middleware.persistentStates.focus = { name: m[1], x: m[2], y: m[3], z: m[4] };
+  middleware.persistentStates.focus = { name: m[1], x: Number(m[2]), y: Number(m[3]), z: Number(m[4]) };
  });
 };
 

@@ -46,14 +46,15 @@ const smships = (data, middleware, linkedMiddleware) => {
   if (state.command[0] !== 'smships') state.command.splice(1, 0, aliases[state.command[0]] || 'name');
   if (state.command.length === 1 || isFinite(state.command[1])) state.command.splice(1, 0, 'name');
   const mode = state.command[1] in modes ? state.command[1] : 'name';
-  const oob = starmap.oob(state);
   if (!state.starships) {
+   const oob = starmap.oob(state, middleware.persistentStates);
    if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);
    if (mode === 'assess') additionalThreats.forEach(objectType => state[objectType] && data.forward.push(`${state[objectType].split('(').length - 1} ${objectType}`));
    data.forward.push(`No ships.`);
    return;
   }
   let ships = starmap.parseObjects('starships', state.starships, state.currentCoordinates);
+  const oob = starmap.oob(state, middleware.persistentStates, ships);
   if (mode === 'count') {
    const filter = state.command.length > 2 ? state.command.slice(2).join(' ') : undefined;
    if (linkedMiddleware.device.soundpack.name) data.forward.push(`#$#px starmap ${oob.join(' | ')}`);

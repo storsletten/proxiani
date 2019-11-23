@@ -206,7 +206,7 @@ const reader = (data, state) => {
    const m = data.input.match(/^Current Coordinates\: \(([0-9]{1,2}), ([0-9]{1,2}), ([0-9]{1,2})\)$/);
    if (m) {
     const [x, y, z] = m.slice(1, 4);
-    state.currentCoordinates = { x, y, z };
+    state.currentCoordinates = { x: Number(x), y: Number(y), z: Number(z) };
     state.readingComplete = true;
     return;
    }
@@ -253,11 +253,22 @@ const calculateShipPriority = ship => {
  return { label, priority };
 };
 
-const oob = state => {
+const oob = (state, persistentState = {}, ships = []) => {
  const data = [`cc ${state.currentCoordinates.x} ${state.currentCoordinates.y} ${state.currentCoordinates.z}`];
  if (state.galacticCoordinates) data.push(`gc ${state.galacticCoordinates.x} ${state.galacticCoordinates.y} ${state.galacticCoordinates.z}`);
  if (state.sensorInterference) data.push(`sensor interference`);
  if (state.nebula) data.push(`H II region`);
+ if (persistentState.aim) {
+  let range = Math.max(Math.abs(persistentState.aim.x - state.currentCoordinates.x), Math.abs(persistentState.aim.y - state.currentCoordinates.y), Math.abs(persistentState.aim.z - state.currentCoordinates.z));
+  let isThere;
+  if (persistentState.aim.type === 'Starship' && ships.length > 0) {
+   const ship = ships.find(ship => ship.name === persistentState.aim.name);
+   isThere = ship !== -1 && ship.x == persistentState.aim.x && ship.y == persistentState.aim.y && ship.z == persistentState.aim.z;
+  }
+  else isThere = true;
+  // Todo: Figure out how to match persistentState.aim.type with state.foundTypes since type values may be different from those two sources. Then we can check if the aimed object is there.
+  data.push(`range ${isThere ? range : -range}`);
+ }
  return data;
 };
 
