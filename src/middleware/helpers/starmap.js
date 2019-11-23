@@ -263,7 +263,7 @@ const oob = (state, persistentState = {}, ships = []) => {
   let isThere;
   if (persistentState.aim.type === 'Starship' && ships.length > 0) {
    const ship = ships.find(ship => ship.name === persistentState.aim.name);
-   isThere = ship !== -1 && ship.x == persistentState.aim.x && ship.y == persistentState.aim.y && ship.z == persistentState.aim.z;
+   isThere = ship && ship.x == persistentState.aim.x && ship.y == persistentState.aim.y && ship.z == persistentState.aim.z;
   }
   else isThere = true;
   // Todo: Figure out how to match persistentState.aim.type with state.foundTypes since type values may be different from those two sources. Then we can check if the aimed object is there.
