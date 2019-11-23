@@ -259,15 +259,10 @@ const oob = (state, persistentState = {}, ships = []) => {
  if (state.sensorInterference) data.push(`sensor interference`);
  if (state.nebula) data.push(`H II region`);
  if (persistentState.aim) {
-  let range = Math.max(Math.abs(persistentState.aim.x - state.currentCoordinates.x), Math.abs(persistentState.aim.y - state.currentCoordinates.y), Math.abs(persistentState.aim.z - state.currentCoordinates.z));
-  let isThere;
-  if (persistentState.aim.type === 'Starship' && ships.length > 0) {
-   const ship = ships.find(ship => ship.name === persistentState.aim.name);
-   isThere = ship && ship.x == persistentState.aim.x && ship.y == persistentState.aim.y && ship.z == persistentState.aim.z;
-  }
-  else isThere = true;
-  // Todo: Figure out how to match persistentState.aim.type with state.foundTypes since type values may be different from those two sources. Then we can check if the aimed object is there.
-  data.push(`range ${isThere ? range : -range}`);
+  const range = Math.max(Math.abs(persistentState.aim.x - state.currentCoordinates.x), Math.abs(persistentState.aim.y - state.currentCoordinates.y), Math.abs(persistentState.aim.z - state.currentCoordinates.z));
+  const hasTarget = persistentState.aim.type !== 'Starship' || (ships.length > 0 && ships.find(ship => ship.x == persistentState.aim.x && ship.y == persistentState.aim.y && ship.z == persistentState.aim.z));
+  // Todo: Make hasTarget work with other types than just starships. persistentState.aim.type may not match values in state.foundTypes, and I don't have the patience to sort that out now.
+  data.push(`range ${hasTarget ? range : -range}`);
  }
  return data;
 };
