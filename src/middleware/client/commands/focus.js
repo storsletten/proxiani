@@ -1,4 +1,8 @@
 const focus = (data, middleware, linkedMiddleware) => {
+ if (data.input.trim().split(/\s+/).length === 1 && linkedMiddleware.persistentStates.focus && linkedMiddleware.persistentStates.focus.resendName) {
+  data.forward[0] = `focus ${linkedMiddleware.persistentStates.focus.resendName}`;
+  delete linkedMiddleware.persistentStates.focus.resendName;
+ }
  linkedMiddleware.setState('focus', (data, middleware, linkedMiddleware) => {
   if (data.input.length === 0) return 0;
   else if (data.input === 'Select a ship:') {

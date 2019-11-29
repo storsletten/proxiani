@@ -41,16 +41,18 @@ const fd = (data, middleware, linkedMiddleware) => {
  });
 };
 
-const displayRelativeDirections = (ships, inputName, state, middleware, linkedMiddleware) => {
- if (ships.length === 0 || !inputName) return;
- const inputFromFocus = middleware.persistentStates.focus && middleware.persistentStates.focus.name === inputName;
+const displayRelativeDirections = (ships, rawInputName, state, middleware, linkedMiddleware) => {
+ if (ships.length === 0 || !rawInputName) return;
+ const inputFromFocus = middleware.persistentStates.focus && middleware.persistentStates.focus.name === rawInputName;
  const device = linkedMiddleware.device;
  let count = 1;
- let m = inputName.match(/^\s*(\d*)\./);
+ let inputName;
+ let m = rawInputName.match(/^\s*(\d*)\./);
  if (m) {
-  inputName = inputName.slice(m[0].length);
+  inputName = rawInputName.slice(m[0].length);
   count = Math.max(1, Number(m[1]));
  }
+ else inputName = rawInputName;
  let ship;
  if (inputName) {
   const searchName = ` ${inputName.toLowerCase()}`;
@@ -71,6 +73,7 @@ const displayRelativeDirections = (ships, inputName, state, middleware, linkedMi
  }
  else {
   middleware.persistentStates.focus = ship;
+  if (!inputFromFocus) middleware.persistentStates.focus.resendName = rawInputName;
   if (linkedMiddleware.device.soundpack.name) {
    ships.sort((a, b) => a.distance !== b.distance ? a.distance - b.distance : a.priority - b.priority);
    const oob = starmap.oob(state, middleware.persistentStates, ships);
