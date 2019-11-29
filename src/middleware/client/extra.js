@@ -6,7 +6,6 @@ const commandAliases = {
  sca: 'scan',
  sma: 'smships',
  smc: 'smships',
- smd: 'smships',
  smf: 'smships',
  sms: 'smships',
  smt: 'smships',
