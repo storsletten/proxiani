@@ -2,7 +2,7 @@ const dialog = require('../../helpers/dialog.js');
 const direction = require('../../helpers/direction');
 const starmap = require('../../helpers/starmap');
 
-const fd = (data, middleware, linkedMiddleware) => {
+const foc = (data, middleware, linkedMiddleware) => {
  if (linkedMiddleware.states.sm && linkedMiddleware.states.sm.readingStarmap) {
   data.forward.pop();
   return;
@@ -31,17 +31,17 @@ const fd = (data, middleware, linkedMiddleware) => {
      items: ships.map(ship => ship.name),
     }).then(response => {
      state.inputName = response.data.match;
-     displayRelativeDirections(ships, state.inputName, state, middleware, linkedMiddleware);
+     processRequest(ships, state.inputName, state, middleware, linkedMiddleware);
     });
     return;
    }
-   else displayRelativeDirections(ships, middleware.persistentStates.focus.name, state, middleware, linkedMiddleware);
+   else processRequest(ships, middleware.persistentStates.focus.name, state, middleware, linkedMiddleware);
   }
-  else displayRelativeDirections(ships, state.inputName, state, middleware, linkedMiddleware);
+  else processRequest(ships, state.inputName, state, middleware, linkedMiddleware);
  });
 };
 
-const displayRelativeDirections = (ships, rawInputName, state, middleware, linkedMiddleware) => {
+const processRequest = (ships, rawInputName, state, middleware, linkedMiddleware) => {
  if (ships.length === 0 || !rawInputName) return;
  const inputFromFocus = middleware.persistentStates.focus && middleware.persistentStates.focus.name === rawInputName;
  const device = linkedMiddleware.device;
@@ -79,8 +79,9 @@ const displayRelativeDirections = (ships, rawInputName, state, middleware, linke
    const oob = starmap.oob(state, middleware.persistentStates, ships);
    device.respond(`#$#px starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
   }
-  device.respond(`${ship.name}: ${ship.dir}  (${ship.x}, ${ship.y}, ${ship.z})`);
+  if (['fd', 'smd'].includes(state.command[0])) device.respond(`${ship.name}: ${ship.dir}  (${ship.x}, ${ship.y}, ${ship.z})`);
+  else device.respond(`${ship.name}: ${ship.x}, ${ship.y}, ${ship.z}`);
  }
 };
 
-module.exports = fd;
+module.exports = foc;

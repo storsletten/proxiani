@@ -1,4 +1,6 @@
 const commandAliases = {
+ fc: 'foc',
+ fd: 'foc',
  lock: 'aim',
  proxiani: 'px',
  'registered_soundpack': '#$#register_soundpack',
@@ -6,6 +8,7 @@ const commandAliases = {
  sca: 'scan',
  sma: 'smships',
  smc: 'smships',
+ smd: 'foc',
  smf: 'smships',
  sms: 'smships',
  smt: 'smships',
