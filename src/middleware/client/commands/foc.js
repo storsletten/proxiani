@@ -9,10 +9,11 @@ const foc = (data, middleware, linkedMiddleware) => {
  }
  const command = data.input.trim().toLowerCase().split(/\s+/);
  const inputName = command.length > 1 && data.input.trim().split(' ').slice(1).join(' ');
- data.forward[0] = 'sm co';
+ data.forward[0] = (false && linkedMiddleware.persistentStates.visualStarmapDetected) ? 'sm co' : 'sm';
  linkedMiddleware.setState('sm', { data: { command, inputName } }, (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
+  if (state.visualStarmapDetected) middleware.persistentStates.visualStarmapDetected = true;
   if (!state.readingComplete) return 0b10;
   if (!state.starships) {
    data.forward.push(`There are no ships here.`);

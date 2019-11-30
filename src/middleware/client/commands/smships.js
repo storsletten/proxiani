@@ -38,10 +38,11 @@ const smships = (data, middleware, linkedMiddleware) => {
   command[0] = command[0].slice(1);
   data.forward[0] = `@map ${command.splice(1, command.length - 1).join(' ')}`.trimEnd();
  }
- else data.forward[0] = 'sm co';
+ else data.forward[0] = (false && linkedMiddleware.persistentStates.visualStarmapDetected) ? 'sm co' : 'sm';
  linkedMiddleware.setState('sm', { data: { command } }, (data, middleware, linkedMiddleware) => {
   const state = middleware.states.sm.data;
   if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
+  if (state.visualStarmapDetected) middleware.persistentStates.visualStarmapDetected = true;
   if (!state.readingComplete) return 0b10;
   if (state.command[0] !== 'smships') state.command.splice(1, 0, aliases[state.command[0]] || 'name');
   if (state.command.length === 1 || isFinite(state.command[1])) state.command.splice(1, 0, 'name');

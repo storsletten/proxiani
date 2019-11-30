@@ -15,7 +15,7 @@ const sm = (data, middleware, linkedMiddleware) => {
    data.command[0] = data.command[0].slice(1);
    data.forward[0] = `@map ${data.command.splice(1, data.command.length - 1).join(' ')}`.trimEnd();
   }
-  else data.forward[0] = 'sm co';
+  else data.forward[0] = (false && linkedMiddleware.persistentStates.visualStarmapDetected) ? 'sm co' : 'sm';
   linkedMiddleware.setState('sm', {
    data: {
     objectType,
@@ -23,6 +23,7 @@ const sm = (data, middleware, linkedMiddleware) => {
   }, (data, middleware, linkedMiddleware) => {
    const state = middleware.states.sm.data;
    if (starmap.reader(data, state)) return state.readingStarmap ? 1 : 0;
+   if (state.visualStarmapDetected) middleware.persistentStates.visualStarmapDetected = true;
    if (!state.readingComplete) return 0b10;
    const oob = starmap.oob(state, middleware.persistentStates);
    const maxNumberOfObjects = 10;

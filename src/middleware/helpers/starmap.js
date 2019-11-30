@@ -187,9 +187,14 @@ const reader = (data, state) => {
     return true;
    }
   }
+  if (data.input === ' --------------------          --------------------') {
+   state.visualStarmapDetected = true;
+   state.readingStarmapObjects = true;
+   return true;
+  }
  }
  const colonPos = data.input.indexOf(': ');
- if (colonPos !== -1) {
+ if (colonPos > 0) {
   const objectType = data.input.slice(0, colonPos).toLowerCase();
   if (objectType !== 'current coordinates' && types.includes(objectType)) {
    state.readingStarmapObjects = true;
@@ -211,6 +216,9 @@ const reader = (data, state) => {
     return;
    }
   }
+ }
+ if (state.visualStarmapDetected && state.foundTypes.length === 0) {
+  if (colonPos > 0 || ['|', ' '].includes(data.input[0])) return true;
  }
  if (state.readingStarmapObjects || state.sensorInterference || state.nebula || state.galacticCoordinates) data.forward = state.bufferedInput;
  else {
