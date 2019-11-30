@@ -1,3 +1,7 @@
+Version 2.1.15, released 2019-11-30:
+* Added foc command, which is similar to focus except it uses the starmap behind the scenes instead of the focus command. One of the advantages is that Proxiani will remember the focused ship regardless of which room you're in, which might be helpful when multirooming.
+* Proxiani now knows how to handle visual starmaps without using the co argument to bypass it.
+
 Version 2.1.14, released 2019-11-29:
 * Changed the smd command so it works much more like the focus command, except it gives relative directions.
 
