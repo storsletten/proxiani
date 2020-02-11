@@ -80,7 +80,7 @@ const processRequest = (ships, rawInputName, state, middleware, linkedMiddleware
    const oob = starmap.oob(state, middleware.persistentStates, ships);
    device.respond(`#$#px starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
   }
-  if (['fd', 'smd'].includes(state.command[0])) device.respond(`${ship.name}: ${ship.dir}  (${ship.x}, ${ship.y}, ${ship.z})`);
+  if (['fod', 'smd'].includes(state.command[0])) device.respond(`${ship.name}: ${ship.dir}  (${ship.x}, ${ship.y}, ${ship.z})`);
   else device.respond(`${ship.name}: ${ship.x}, ${ship.y}, ${ship.z}`);
  }
 };

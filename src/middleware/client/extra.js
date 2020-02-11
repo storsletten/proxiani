@@ -1,6 +1,5 @@
 const commandAliases = {
- fc: 'foc',
- fd: 'foc',
+ fod: 'foc',
  lock: 'aim',
  proxiani: 'px',
  'registered_soundpack': '#$#register_soundpack',
