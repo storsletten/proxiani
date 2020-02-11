@@ -18,25 +18,25 @@ const alliances = {
 };
 
 const shipPriorities = [
- 'Elganamu',
- 'Ortamu',
- 'Mugatra',
- 'Bezation',
  'Frnalk',
+ 'Mugatra',
+ 'Elganamu',
+ 'Muzation',
+ 'Bezation',
  'Frnazalk',
+ 'Resa-Onati',
  'Ur-Potate',
  'Potate',
+ 'Ortamu',
  'Muzano',
  'Ohaxx',
  'Kritzn',
  'Onnota',
- 'Resa-Onati',
  'Resati',
  'Ozarti',
  'Ozasati',
  'Onati',
  'Onno',
- 'Bzzr',
  'Onz',
  'Muzati',
  'Orta',
@@ -44,6 +44,7 @@ const shipPriorities = [
  'Otona',
  'Muzatini',
  'Ontanka',
+ 'Bzzr',
  'Bzano',
  'Bzani',
  'Trajrrk',
@@ -51,7 +52,7 @@ const shipPriorities = [
  'Potateoton',
 ];
 
-const typeTitles = ['Accelerators', 'Artifacts', 'Asteroids', 'Blockades', 'Combat Drones', 'Control Beacons', 'Debris', 'Dry Docks', 'Interdictors', 'Jumpgates', 'Missiles', 'Mobile Platforms', 'Moons', 'Pellets', 'Planets', 'Private Moons', 'Private Planets', 'Private Space Stations', 'Proximity Weapons', 'Relics', 'Satellites', 'Space Stations', 'Stars', 'Starships', 'Unknown', 'Wormholes'];
+const typeTitles = ['Accelerators', 'Artifacts', 'Asteroids', 'Blockades', 'Buoys', 'Combat Drones', 'Control Beacons', 'Debris', 'Dry Docks', 'Interdictors', 'Jumpgates', 'Missiles', 'Mobile Platforms', 'Moons', 'Pellets', 'Planets', 'Private Moons', 'Private Planets', 'Private Space Stations', 'Proximity Weapons', 'Relics', 'Satellites', 'Space Stations', 'Stars', 'Starships', 'Unknown', 'Wormholes'];
 const types = typeTitles.map(objectType => objectType.toLowerCase());
 const findType = text => {
  if (text.length === 0) return;
