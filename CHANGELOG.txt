@@ -1,3 +1,7 @@
+Version 2.1.17, released 2020-05-02:
+* Removed the SPLIT command from Proxiani, as it seems that there is now a SPLIT command in Miriani.
+* Fixed GADZOOKS starships showing as Green when using the SMA command.
+
 Version 2.1.16, released 2020-02-11:
 * Added Buoys to the list of starmap labels that Proxiani will recognize.
 * Removed fd and fc as aliases for Proxiani's starmap-based focusing since they conflict with alternative navigation. The new aliases are fod and foc for directions and coords, respectively.
