@@ -76,7 +76,7 @@ const smships = (data, middleware, linkedMiddleware) => {
     else filteredShips = shipsTotal - ships.length;
    }
    ships.forEach(ship => {
-    const { label, priority } = starmap.calculateShipPriority(ship);
+    const { label, priority } = starmap.calculateShipPriority(ship, state.header);
     if (label in prioShips) prioShips[label].count++;
     else prioShips[label] = { label, priority, count: 1 };
    });
@@ -103,7 +103,7 @@ const smships = (data, middleware, linkedMiddleware) => {
     }
     ships.forEach((ship, index) => ship.match = `${index + 1}.${filter}`);
    }
-   ships.forEach(ship => ship.priority = starmap.calculateShipPriority(ship).priority);
+   ships.forEach(ship => ship.priority = starmap.calculateShipPriority(ship).priority, state.header);
    let focusedShip;
    if (middleware.persistentStates.focus) {
     focusedShip = ships.find(ship => ship.name === middleware.persistentStates.focus.name);

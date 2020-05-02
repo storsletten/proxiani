@@ -6,7 +6,7 @@ const alliances = {
  'C': 'C',
  'CW': 'Commonwealth',
  'F': 'Frnalk',
- 'G': 'Green',
+ 'G': 'GADZOOKS',
  'H': 'Hale',
  'HG': 'HG',
  'K': 'Krenelia',
@@ -238,7 +238,7 @@ const reader = (data, state) => {
  }
 };
 
-const calculateShipPriority = ship => {
+const calculateShipPriority = (ship, smHeader = {}) => {
  let label;
  let priority;
  if ('FP'.includes(ship.alliance) && ship.name.indexOf('Praelor ') !== -1) {
@@ -250,7 +250,8 @@ const calculateShipPriority = ship => {
   }
  }
  else if (ship.alliance in alliances) {
-  label = alliances[ship.alliance];
+  if (ship.alliance === 'G' && smHeader.type === 'simulator') label = 'Green';
+  else label = alliances[ship.alliance];
   priority = shipPriorities.length;
   if (ship.alliance === 'O') priority += 0xff;
   else if (ship.alliance !== 'T') priority += label.charCodeAt(0);
