@@ -1,3 +1,6 @@
+Version 2.1.19, released 2020-05-30:
+* Added support for mapping local ports to dedicated server configs. Also added support for Miriani's test server which you can connect to by using localhost at port 8888.
+
 Version 2.1.18, released 2020-05-06:
 * Changed the order of output from the fod and foc commands. Now the most significant information is displayed first.
 
