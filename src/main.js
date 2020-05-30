@@ -3,10 +3,11 @@ const Proxy = require('./proxy.js');
 
 const proxy = new Proxy();
 proxy.on('clientCreated', client => {
+ const config = client.proxy.user.config;
  const server = new Server({
   proxy: client.proxy,
   link: client,
-  ...client.proxy.user.config.server,
+  ...(config[`server${client.socket.address()['port']}`] || config.server),
  });
  client.on('close', () => server.close());
  server.on('close', () => client.close());
