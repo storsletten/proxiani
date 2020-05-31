@@ -71,7 +71,7 @@ module.exports = (data, middleware, linkedMiddleware) => {
       room.exits = [];
       return room.fullTitle ? 0b11 : 1;
      }
-     const m = data.input.match(/^You can (go|navigate) ([a-z ,]+)\.$/);
+     const m = data.input.match(/^You can (go|navigate) ([a-zA-Z ,]+)\.$/);
      if (m) {
       room.exits = m[2].replace(/,/g, '').split(' ');
       if (room.exits.length > 1) room.exits.splice(-2, 1);
