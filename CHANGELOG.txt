@@ -1,3 +1,6 @@
+Version 2.1.20, released 2020-05-31:
+* Fixed message about look options that appeared in places with special exit names such as Glibbo's Discount Tester Supply Store.
+
 Version 2.1.19, released 2020-05-30:
 * Added support for mapping local ports to dedicated server configs. Also added support for Miriani's test server which you can connect to by using localhost at port 8888.
 
