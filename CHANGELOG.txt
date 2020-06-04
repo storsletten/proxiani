@@ -1,3 +1,7 @@
+Version 2.2.0, released 2020-06-04:
+* Encoding of extended ASCII now uses %& instead of only % for declaring an encoded character. This should reduce the risk of unintentional encoding/decoding. It also means that old versions of Proxiani are not compatible with encoded characters from newer versions of Proxiani starting with this one, and vice versa.
+* Added mapping of horizontal tabs to double spaces since the MOO eats horizontal tabs as if they're tasty treats.
+
 Version 2.1.20, released 2020-05-31:
 * Fixed message about look options that appeared in places with special exit names such as Glibbo's Discount Tester Supply Store.
 
