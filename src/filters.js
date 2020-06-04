@@ -1,5 +1,6 @@
 // CP-1252 special character mappings.
 const special = {
+ 9: '  ', // Horizontal tab
  130: "'", // Single low-9 quotation mark
  132: '"', // Double low-9 quotation mark
  133: '...', // Horizontal ellipsis
@@ -34,18 +35,18 @@ const encode = (data, { lowFilter = 0, highFilter = 1, mapSpecial = 1 } = {}) =>
  let mode;
  let start = 0;
  for (let i=0; i<data.length; i++) {
+  if (mapSpecial && special[data[i]]) {
+   if (start !== i) buffers.push(data.slice(start, i));
+   start = i + 1;
+   buffers.push(Buffer.from(special[data[i]]));
+   continue;
+  }
   if (data[i] < 32) {
    if (!lowFilter) continue;
    else mode = lowFilter;
   }
   else if (data[i] > 127) {
-   if (mapSpecial && special[data[i]]) {
-    if (start !== i) buffers.push(data.slice(start, i));
-    start = i + 1;
-    buffers.push(Buffer.from(special[data[i]]));
-    continue;
-   }
-   else if (!highFilter) continue;
+   if (!highFilter) continue;
    else mode = highFilter;
   }
   else continue;
