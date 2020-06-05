@@ -3,6 +3,12 @@ const os = require('os');
 const path = require('path');
 
 const defaultConfigJSON = JSON.stringify({
+ textEditor: 'notepad.exe',
+ logging: true,
+ developerMode: false,
+ asciiEncodeHigh: true,
+ asciiDecodeHigh: true,
+ mapSpecialCP1252: true,
  proxyListen: [
   {
    host: 'localhost',
@@ -33,12 +39,6 @@ const defaultConfigJSON = JSON.stringify({
   autoReconnect: true,
   autoReconnectInterval: 3000,
  },
- textEditor: 'notepad.exe',
- logging: true,
- developerMode: false,
- asciiEncodeHigh: true,
- asciiDecodeHigh: true,
- mapSpecialCP1252: true,
 });
 
 class User {
@@ -168,16 +168,28 @@ module.exports = custom;
 }
 
 const deepUpdateObject = (object, newData) => {
+ // Returns the missing variable which indicates whether newData is missing any keys that the object has.
+ // It will not do the same if keys are missing in the object because there's no point updating the config file with keys that are already there.
  let missing = 0;
- for (let key in object) {
-  if (key in newData) {
-   if (typeof object[key] === "object") {
-    if (typeof newData[key] === "object") missing += deepUpdateObject(object[key], newData[key]);
-    else missing++;
+ if (Array.isArray(object)) {
+  if (!Array.isArray(newData) || newData.length === 0) missing++;
+  else object.splice(0, object.length, ...newData);
+ }
+ else {
+  for (let key in object) {
+   if (key in newData) {
+    if (typeof object[key] === "object") {
+     if (typeof newData[key] === "object") missing += deepUpdateObject(object[key], newData[key]);
+     else missing++;
+    }
+    else object[key] = newData[key];
    }
-   else object[key] = newData[key];
+   else missing++;
   }
-  else missing++;
+  // Now we load new keys onto the object that don't exist in default config.
+  for (let key in newData) {
+   if (!(key in object)) object[key] = newData[key];
+  }
  }
  return missing;
 };
