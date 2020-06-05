@@ -1,3 +1,7 @@
+Version 2.2.1, released 2020-06-05:
+* Addressed an issue where the config would revert to default settings if you manually updated config.json with invalid JSON data while Proxiani was running.
+* Fixed Proxiani rudely removing custom config keys from config.json. Thanks to anonymous user for reporting this!
+
 Version 2.2.0, released 2020-06-04:
 * Encoding of extended ASCII now uses %& instead of only % for declaring an encoded character. This should reduce the risk of unintentional encoding/decoding. It also means that old versions of Proxiani are not compatible with encoded characters from newer versions of Proxiani starting with this one, and vice versa.
 * Added mapping of horizontal tabs to double spaces since the MOO eats horizontal tabs as if they're tasty treats.
