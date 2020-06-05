@@ -94,6 +94,7 @@ class User {
  }
  loadConfig() {
   const configFile = path.join(this.dir, this.configFile);
+  const oldConfig = this.config;
   this.config = JSON.parse(defaultConfigJSON);
   if (fs.existsSync(configFile)) {
    try {
@@ -105,6 +106,7 @@ class User {
     else this.proxy.console(`Parsing the config.json file returned typeof ${typeof config}.`);
    }
    catch (error) {
+    if (oldConfig) this.config = oldConfig;
     this.proxy.console(`Failed to load config.json:`, error);
    }
   }
