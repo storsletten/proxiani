@@ -64,6 +64,7 @@ const connectChatServer = device => {
          device.respond(data);
         }
        });
+       if (chatServer.credentials && device.proxy && device.proxy.user) device.proxy.user.config.chatServer = chatServer.credentials;
       }
      });
     }
