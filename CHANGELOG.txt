@@ -1,3 +1,6 @@
+Version 2.3.0, released 2020-08-01:
+* Added Proxiani Chat Server integration.
+
 Version 2.2.1, released 2020-06-05:
 * Addressed an issue where the config would revert to default settings if you manually updated config.json with invalid JSON data while Proxiani was running.
 * Fixed Proxiani rudely removing custom config keys from config.json. Thanks to anonymous user for reporting this!
