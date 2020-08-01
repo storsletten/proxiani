@@ -39,6 +39,12 @@ const defaultConfigJSON = JSON.stringify({
   autoReconnect: true,
   autoReconnectInterval: 3000,
  },
+ chatServer: {
+  host: '',
+  port: 1235,
+  username: '',
+  password: '',
+ },
 });
 
 class User {

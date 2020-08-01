@@ -1,6 +1,11 @@
 const commandAliases = {
+ cm: 'pc',
+ cs: 'pc',
+ cu: 'pc',
+ cw: 'pc',
  fod: 'foc',
  lock: 'aim',
+ pm: 'pc',
  proxiani: 'px',
  'registered_soundpack': '#$#register_soundpack',
  sc: 'scan',

@@ -1,4 +1,5 @@
 const TelnetDevice = require('./telnet.js');
+const { connectChatServer } = require('../chatServer.js');
 
 class Client extends TelnetDevice {
  create(options) {
@@ -11,6 +12,11 @@ class Client extends TelnetDevice {
   });
   this.applySocketOptions();
   super.create(options);
+  if (this.proxy.user.config.chatServer) {
+   if (!this.chatServer) this.chatServer = {};
+   this.chatServer.credentials = this.proxy.user.config.chatServer;
+   connectChatServer(this);
+  }
   this.events.emit('connect');
  }
 } 
