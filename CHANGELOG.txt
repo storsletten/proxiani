@@ -1,3 +1,7 @@
+Version 2.3.4, released 2020-08-02:
+* Added a helpful message about the syntax for updating credentials when executing a chat server command while it's trying to reconnect to a Proxiani Chat Server.
+* Added QUIT argument to the PC command for terminating the connection to a Proxiani Chat Server.
+
 Version 2.3.3, released 2020-08-02:
 * Added keep-alive for Proxiani Chat Server connections.
 
