@@ -1,3 +1,6 @@
+Version 2.3.2, released 2020-08-02:
+* Fixed some issues with the Proxiani Chat Server integration. It will no longer believe that the server rejected your login credentials when you successfully hijack an active session.
+
 Version 2.3.1, released 2020-08-01:
 * Successfully connecting to a Proxiani Chat Server using the PC command will now also update the chatServer config.
 
