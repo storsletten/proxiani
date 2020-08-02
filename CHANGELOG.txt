@@ -1,3 +1,6 @@
+Version 2.3.3, released 2020-08-02:
+* Added keep-alive for Proxiani Chat Server connections.
+
 Version 2.3.2, released 2020-08-02:
 * Fixed some issues with the Proxiani Chat Server integration. It will no longer believe that the server rejected your login credentials when you successfully hijack an active session.
 
