@@ -8,6 +8,16 @@ const pc = (data, middleware, linkedMiddleware) => {
  const chatServer = device.chatServer;
  const verb = data.input.trim().split(' ', 1)[0].toLowerCase();
  if (verb === 'pc') {
+  if (data.input.match(/^\s*[^\s]+\s+(q|qui|quit|exit|sleep|stop|discon|disconn|disconnect)$/)) {
+   if (!chatServer.connecting && !chatServer.connected) device.respond(`Chat server is not connected.`);
+   else {
+    device.respond(chatServer.authorized ? `You disconnect from the chat server.` : `You stop the chat server connection attempt.`);
+    chatServer.autoReconnect = false;
+    if (chatServer.close) chatServer.close();
+    else chatServer.connecting = false;
+   }
+   return;
+  }
   const credentials = data.input.match(/^\s*[^\s]+\s+([^:]+):([^@]*)@([^:]+):(\d+)$/);
   if (credentials) {
    chatServer.credentials = { username: credentials[1].trim(), password: credentials[2] ? credentials[2].trim() : '', host: credentials[3].trim(), port: parseInt(credentials[4].trim()) };
