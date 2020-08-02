@@ -10,7 +10,7 @@ const pc = (data, middleware, linkedMiddleware) => {
  if (verb === 'pc') {
   const credentials = data.input.match(/^\s*[^\s]+\s+([^:]+):([^@]*)@([^:]+):(\d+)$/);
   if (credentials) {
-   chatServer.credentials = { username: credentials[1].trim(), password: credentials[2] ? credentials[2].trim() : '', host: credentials[3], port: Number(credentials[4]) };
+   chatServer.credentials = { username: credentials[1].trim(), password: credentials[2] ? credentials[2].trim() : '', host: credentials[3].trim(), port: parseInt(credentials[4].trim()) };
    if (chatServer.close) chatServer.close(`Reconnecting chat server...`);
    connectChatServer(device);
    return;

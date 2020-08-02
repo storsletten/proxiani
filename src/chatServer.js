@@ -7,7 +7,11 @@ const major = 1;
 const connectChatServer = device => {
  const chatServer = device.chatServer;
  if (!chatServer || !chatServer.credentials || !chatServer.credentials.username || !chatServer.credentials.host) return;
- if (chatServer.connecting) return device.respond(`Proxiani is already attempting to connect to the chat server.`);
+ if (chatServer.connecting) {
+  device.respond(`Proxiani is already attempting to connect to the chat server.`);
+  device.respond(`If you need to provide new credentials, then use the PC command with the following syntax: pc username:password@host:port`);
+  return;
+ }
  if (chatServer.close) chatServer.close();
  if (typeof chatServer.credentials.password !== 'string' || !chatServer.credentials.password.match(/^[a-z0-9]{64}$/)) {
   chatServer.credentials.password = crypto.createHash('sha256').update(chatServer.credentials.password ? String(chatServer.credentials.password).trim() : '').digest('hex');
