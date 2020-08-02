@@ -7,11 +7,13 @@ const major = 1;
 const connectChatServer = device => {
  const chatServer = device.chatServer;
  if (!chatServer || !chatServer.credentials || !chatServer.credentials.username || !chatServer.credentials.host) return;
+ if (chatServer.connecting) return device.respond(`Proxiani is already attempting to connect to the chat server.`);
  if (chatServer.close) chatServer.close();
  if (typeof chatServer.credentials.password !== 'string' || !chatServer.credentials.password.match(/^[a-z0-9]{64}$/)) {
   chatServer.credentials.password = crypto.createHash('sha256').update(chatServer.credentials.password ? String(chatServer.credentials.password).trim() : '').digest('hex');
  }
  chatServer.autoReconnect = true;
+ chatServer.connecting = true;
  const socket = net.createConnection(chatServer.credentials);
  socket.setEncoding('utf8');
  const closeHandle = msg => {
@@ -28,10 +30,15 @@ const connectChatServer = device => {
     if (device.socket && !device.socket.destroyed) device.respond(msg);
    }
    if (chatServer.autoReconnect && device.socket && !device.socket.destroyed) {
+    chatServer.connecting = true;
     setTimeout(() => {
-     if (!chatServer.socket && device.socket && !device.socket.destroyed) connectChatServer(device);
+     if (chatServer.connecting && !chatServer.socket) {
+      chatServer.connecting = false;
+      if (device.socket && !device.socket.destroyed) connectChatServer(device);
+     }
     }, 3000);
    }
+   else chatServer.connecting = false;
   }
   if (!socket.destroyed) socket.destroy();
  };
@@ -59,7 +66,9 @@ const connectChatServer = device => {
       if (socket === chatServer.socket) {
        if (!data.split("\n").includes('PCS: Authorized')) return closeHandle(`The chat server did not accept your username and/or password.`);
        chatServer.authorized = true;
+       chatServer.connecting = false;
        device.respond(`Chat server connected.`);
+       socket.setKeepAlive(true, 30000);
        socket.on('data', data => {
         data = data.trim();
         if (data) {

@@ -11,24 +11,22 @@ const pc = (data, middleware, linkedMiddleware) => {
   const credentials = data.input.match(/^\s*[^\s]+\s+([^:]+):([^@]*)@([^:]+):(\d+)$/);
   if (credentials) {
    chatServer.credentials = { username: credentials[1].trim(), password: credentials[2] ? credentials[2].trim() : '', host: credentials[3], port: Number(credentials[4]) };
+   if (chatServer.close) chatServer.close(`Reconnecting chat server...`);
    connectChatServer(device);
    return;
   }
  }
- if (chatServer.socket) {
-  if (chatServer.authorized) {
-   if (verb === 'pc') {
-    const cmd = data.input.match(/^\s*[^\s]+\s+(.+)$/);
-    if (cmd) chatServer.socket.write(`${cmd[1].trim()}\n`);
-    else device.respond(`Chat server is connected and ready.`);
-   }
-   else chatServer.socket.write(`${data.input.trim()}\n`);
+ if (chatServer.authorized) {
+  if (verb === 'pc') {
+   const cmd = data.input.match(/^\s*[^\s]+\s+(.+)$/);
+   if (cmd) chatServer.socket.write(`${cmd[1].trim()}\n`);
+   else device.respond(`Chat server is connected and ready.`);
   }
-  else if (chatServer.connected) device.respond(`Chat server is authenticating. Please wait.`);
-  else device.respond(`Chat server is connecting. Please wait.`);
+  else chatServer.socket.write(`${data.input.trim()}\n`);
  }
+ else if (chatServer.connected) device.respond(`Chat server is authenticating. Please wait.`);
  else if (chatServer.credentials && chatServer.credentials.host && chatServer.credentials.username) {
-  device.respond(`Attempting to reconnect chat server...`);
+  if (!chatServer.connecting) device.respond(`Reconnecting chat server...`);
   connectChatServer(device);
  }
  else device.respond(`Syntax: pc username:password@host:port`);
