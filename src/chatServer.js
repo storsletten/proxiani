@@ -1,7 +1,8 @@
 const crypto = require('crypto');
 const net = require('net');
 
-const chatServerWelcomeMessage = `Who's there?\n`;
+// Edit major accordingly when there are breaking changes:
+const major = 1;
 
 const connectChatServer = device => {
  const chatServer = device.chatServer;
@@ -49,17 +50,20 @@ const connectChatServer = device => {
    chatServer.connected = true;
    socket.once('data', data => {
     if (socket === chatServer.socket) {
-     if (data !== chatServerWelcomeMessage) return closeHandle(`Chat server is incompatible.`);
+     data = data.trim().match(/^PCS: (\d{1,10})$/);
+     if (!data) return closeHandle(`That server does not appear to be a Proxiani Chat Server.`);
+     const serverMajor = parseInt(data[1]);
+     if (major !== serverMajor) return closeHandle(`You'll need ${major < serverMajor ? 'a newer version of Proxiani' : 'an older version of Proxiani'} if you want to connect to that chat server.`);
      socket.write(`${chatServer.credentials.username} ${chatServer.credentials.password}\n`);
      socket.once('data', data => {
       if (socket === chatServer.socket) {
-       if (data.indexOf(`*** Connected ***`) === -1) return closeHandle(`Chat server did not accept the username and/or the password.`);
+       if (!data.split("\n").includes('PCS: Authorized')) return closeHandle(`The chat server did not accept your username and/or password.`);
        chatServer.authorized = true;
        device.respond(`Chat server connected.`);
        socket.on('data', data => {
         data = data.trim();
         if (data) {
-         if (data.split("\n").includes(`*** Disconnected ***`)) chatServer.autoReconnect = false;
+         if (data.split("\n").includes(`PCS: Disconnect`)) chatServer.autoReconnect = false;
          device.link && device.link.logger && device.link.logger.write(data);
          device.respond(data);
         }
