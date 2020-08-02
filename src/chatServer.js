@@ -73,12 +73,22 @@ const connectChatServer = device => {
        chatServer.connecting = false;
        device.respond(`Chat server connected.`);
        socket.setKeepAlive(true, 30000);
+       socket.bufferedData = '';
        socket.on('data', data => {
-        data = data.trim();
-        if (data) {
-         if (data.split("\n").includes(`PCS: Disconnect`)) chatServer.autoReconnect = false;
-         device.link && device.link.logger && device.link.logger.write(data);
-         device.respond(data);
+        if (socket.bufferedData) data = `${data.bufferedData}${data}`;
+        data = data.split("\n");
+        socket.bufferedData = data[data.length - 1];
+        if (data.length > 1) {
+         data.slice(0, -1).forEach(line => {
+          device.link && device.link.logger && device.link.logger.write(line);
+          if (line === 'PCS: Disconnect') chatServer.autoReconnect = false;
+          else device.respond(line);
+         });
+        }
+        else if (socket.bufferedData.length > 5000000) {
+         socket.bufferedData = '';
+         device.respond(`*** Exceeded max line length from chat server ***`);
+         socket.destroy();
         }
        });
        if (chatServer.credentials && device.proxy && device.proxy.user) device.proxy.user.config.chatServer = chatServer.credentials;
