@@ -18,10 +18,11 @@ const pc = (data, middleware, linkedMiddleware) => {
    }
    return;
   }
-  const credentials = data.input.match(/^\s*[^\s]+\s+([^:]+):([^@]*)@([^:]+):(\d+)$/);
+  const credentials = data.input.match(/^\s*[^\s]+\s+(tls:\/\/)?([^:]+):([^@]*)@([^:]+):(\d+)$/);
   if (credentials) {
-   chatServer.credentials = { username: credentials[1].trim(), password: credentials[2] ? credentials[2].trim() : '', host: credentials[3].trim(), port: parseInt(credentials[4].trim()) };
+   chatServer.credentials = { tls: credentials[1] ? true : false, username: credentials[2].trim(), password: credentials[3] ? credentials[3].trim() : '', host: credentials[4].trim(), port: parseInt(credentials[5].trim()) };
    if (chatServer.close) chatServer.close(`Reconnecting chat server...`);
+   else device.respond(`Connecting chat server...`);
    connectChatServer(device);
    return;
   }
