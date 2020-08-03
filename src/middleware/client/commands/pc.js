@@ -8,7 +8,7 @@ const pc = (data, middleware, linkedMiddleware) => {
  const chatServer = device.chatServer;
  const verb = data.input.trim().split(' ', 1)[0].toLowerCase();
  if (verb === 'pc') {
-  if (data.input.match(/^\s*[^\s]+\s+(q|qui|quit|exit|sleep|stop|discon|disconn|disconnect)$/)) {
+  if (data.input.match(/^\s*[^\s]+\s+(q|qui|quit|exit|sleep|stop|discon|disconn|disconnect)\s*$/)) {
    if (!chatServer.connecting && !chatServer.connected) device.respond(`Chat server is not connected.`);
    else {
     device.respond(chatServer.authorized ? `You disconnect from the chat server.` : `You stop the chat server connection attempt.`);
@@ -18,9 +18,15 @@ const pc = (data, middleware, linkedMiddleware) => {
    }
    return;
   }
-  const credentials = data.input.match(/^\s*[^\s]+\s+(tls:\/\/)?([^:]+):([^@]*)@([^:]+):(\d+)$/);
+  if (data.input.match(/^\s*[^\s]+\s+(always\s+)?trust(\s+always)?\s*$/)) {
+   if (!chatServer.login) device.respond(`There's no certificate to trust at this time.`);
+   else chatServer.login(data.input.indexOf('always') !== -1);
+   return;
+  }
+  const credentials = data.input.match(/^\s*[^\s]+\s+(tls:\/\/)?([^:]+):([^@]*)@([^:]+):(\d+)\s*$/);
   if (credentials) {
-   chatServer.credentials = { tls: credentials[1] ? true : false, username: credentials[2].trim(), password: credentials[3] ? credentials[3].trim() : '', host: credentials[4].trim(), port: parseInt(credentials[5].trim()) };
+   if (!chatServer.credentials) chatServer.credentials = {};
+   chatServer.credentials = { ...chatServer.credentials, tls: credentials[1] ? true : false, username: credentials[2].trim(), password: credentials[3] ? credentials[3].trim() : '', host: credentials[4].trim(), port: parseInt(credentials[5].trim()) };
    if (chatServer.close) chatServer.close(`Reconnecting chat server...`);
    else device.respond(`Connecting chat server...`);
    connectChatServer(device);

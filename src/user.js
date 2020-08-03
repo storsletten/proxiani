@@ -44,6 +44,8 @@ const defaultConfigJSON = JSON.stringify({
   port: 1235,
   username: '',
   password: '',
+  tls: false,
+  fingerprints: [],
  },
 });
 
