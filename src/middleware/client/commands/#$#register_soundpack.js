@@ -3,4 +3,5 @@ module.exports = (data, middleware, linkedMiddleware) => {
  if (!args) return;
  const [name, version] = args[1].split(' | ', 2);
  middleware.device.soundpack = { name, version };
+ if (middleware.device.chatServer && middleware.device.chatServer.authorized) middleware.device.chatServer.socket.write(`#$#register_soundpack ${name}\n`);
 };

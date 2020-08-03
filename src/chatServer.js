@@ -74,6 +74,7 @@ const connectChatServer = device => {
        chatServer.authorized = true;
        chatServer.connecting = false;
        device.respond(`Chat server connected.`);
+       if (device.soundpack && device.soundpack.name) socket.write(`#$#register_soundpack ${device.soundpack.name}\n`);
        socket.setKeepAlive(true, 30000);
        socket.bufferedData = '';
        socket.on('data', data => {
