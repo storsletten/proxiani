@@ -83,7 +83,7 @@ const connectChatServer = device => {
         socket.bufferedData = data[data.length - 1];
         if (data.length > 1) {
          data.slice(0, -1).forEach(line => {
-          device.link && device.link.logger && device.link.logger.write(line);
+          device.link && device.link.logger && !line.startsWith('#$#') && device.link.logger.write(line);
           if (line === 'PCS: Disconnect') chatServer.autoReconnect = false;
           else device.respond(line);
          });
