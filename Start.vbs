@@ -12,4 +12,4 @@ With WScript.Arguments
  Next
 End With
 
-CreateObject("WScript.Shell").Run "node ./src/main.js " & Trim(args), 0, True
+CreateObject("WScript.Shell").Run "node .\src\main.js " & Trim(args), 0, True
