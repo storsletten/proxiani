@@ -1,3 +1,6 @@
+Version 2.3.10, released 2020-08-03:
+* Maybe possibly fixed Start.vbs.
+
 Version 2.3.9, released 2020-08-03:
 * Proxiani now supports chat servers that use self-signed certificates for TLS. The user will be prompted to decide whether or not to trust a certificate that can not be automatically verified, either temporarily or permanently. It keeps fingerprints in the config.json file.
 
