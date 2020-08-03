@@ -1,3 +1,6 @@
+Version 2.3.7, released 2020-08-03:
+* Proxiani now registers the client's soundpack on the chat server if applicable.
+
 Version 2.3.6, released 2020-08-02:
 * Added TLS support to the chat server integration.
 
