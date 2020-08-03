@@ -19,6 +19,10 @@ const connectChatServer = device => {
  }
  chatServer.autoReconnect = true;
  chatServer.connecting = true;
+ if (chatServer.pendingReconnect) {
+  clearTimeout(chatServer.pendingReconnect);
+  chatServer.pendingReconnect = undefined;
+ }
  const secure = chatServer.credentials.tls;
  const socket = secure ? tls.connect({ rejectUnauthorized: false, ...chatServer.credentials }) : net.createConnection(chatServer.credentials);
  socket.setEncoding('utf8');
@@ -30,19 +34,21 @@ const connectChatServer = device => {
    chatServer.socket = undefined;
    device.events.off('close', closeHandle);
    socket.off('close', closeHandle);
-   socket.removeAllListeners('data');
    if (msg) {
     chatServer.autoReconnect = false;
     if (device.socket && !device.socket.destroyed) device.respond(msg);
    }
    if (chatServer.autoReconnect && device.socket && !device.socket.destroyed) {
     chatServer.connecting = true;
-    setTimeout(() => {
-     if (chatServer.connecting && !chatServer.socket) {
+    if (chatServer.pendingReconnect) clearTimeout(chatServer.pendingReconnect);
+    const pendingReconnect = setTimeout(() => {
+     if (chatServer.pendingReconnect === pendingReconnect) {
+      chatServer.pendingReconnect = undefined;
       chatServer.connecting = false;
       if (device.socket && !device.socket.destroyed) connectChatServer(device);
      }
     }, 3000);
+    chatServer.pendingReconnect = pendingReconnect;
    }
    else chatServer.connecting = false;
   }
@@ -93,7 +99,13 @@ const connectChatServer = device => {
          if (data.length > 1) {
           data.slice(0, -1).forEach(line => {
            device.link && device.link.logger && !line.startsWith('#$#') && device.link.logger.write(line);
-           if (line === 'PCS: Disconnect') chatServer.autoReconnect = false;
+           if (line === 'PCS: Disconnect') {
+            chatServer.autoReconnect = false;
+            if (chatServer.pendingReconnect) {
+             clearTimeout(chatServer.pendingReconnect);
+             chatServer.pendingReconnect = undefined;
+            }
+           }
            else device.respond(line);
           });
          }
