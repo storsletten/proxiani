@@ -1,3 +1,6 @@
+Version 2.3.11, released 2020-08-04:
+* Hopefully fixed issue with Proxiani not auto reconnecting to chat server in some cases where it's supposed to.
+
 Version 2.3.10, released 2020-08-03:
 * Maybe possibly fixed Start.vbs.
 
