@@ -57,7 +57,7 @@ const connectChatServer = device => {
  chatServer.socket = socket;
  chatServer.close = closeHandle;
  device.events.on('close', closeHandle);
- socket.on('error', err => closeHandle(err.message.startsWith('connect E') ? undefined : `Chat server connection error: ${err.message}`));
+ socket.on('error', err => closeHandle(err.message.match(/^(connect E|read E|write E).+$/) ? undefined : `Chat server connection error: ${err.message}`));
  socket.on('close', () => {
   if (device.socket && !device.socket.destroyed && socket === chatServer.socket) {
    if (chatServer.authorized) device.respond(`Connection to chat server dropped.`);
