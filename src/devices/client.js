@@ -15,7 +15,7 @@ class Client extends TelnetDevice {
   if (this.proxy.user.config.chatServer) {
    if (!this.chatServer) this.chatServer = {};
    this.chatServer.credentials = this.proxy.user.config.chatServer;
-   connectChatServer(this);
+   if (this.chatServer.credentials.autoConnect) connectChatServer(this);
   }
   this.events.emit('connect');
  }

@@ -15,6 +15,7 @@ const pc = (data, middleware, linkedMiddleware) => {
     chatServer.autoReconnect = false;
     if (chatServer.close) chatServer.close();
     else chatServer.connecting = false;
+    if (device.proxy.user.config.chatServer) device.proxy.user.config.chatServer.autoConnect = false;
    }
    return;
   }

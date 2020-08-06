@@ -45,6 +45,7 @@ const defaultConfigJSON = JSON.stringify({
   username: '',
   password: '',
   tls: false,
+  autoConnect: true,
   fingerprints: [],
  },
 });
