@@ -1,3 +1,6 @@
+Version 2.3.12, released 2020-08-06:
+* Added chatServer.autoConnect in config.json, which is automatically set to false when you disconnect from chatServer by typing pc q.
+
 Version 2.3.11, released 2020-08-04:
 * Hopefully fixed issue with Proxiani not auto reconnecting to chat server in some cases where it's supposed to.
 
