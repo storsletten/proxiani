@@ -1,3 +1,6 @@
+Version 2.3.13, released 2020-08-09:
+* Added Praelor Urtra to the list of Praelor ships that Proxiani will recognize.
+
 Version 2.3.12, released 2020-08-06:
 * Added chatServer.autoConnect in config.json, which is automatically set to false when you disconnect from chatServer by typing pc q.
 
