@@ -34,6 +34,7 @@ const shipPriorities = [
  'Frnalk',
  'Frnazalk',
  'Resati',
+ 'Tazarti',
  'Ozarti',
  'Ozasati',
  'Onati',
