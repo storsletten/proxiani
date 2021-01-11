@@ -1,3 +1,6 @@
+Version 2.3.15, released 2021-01-11:
+* Added support for three new Praelor ship classes: Natoznalk, Ijfrlna, and Mugana.
+
 Version 2.3.14, released 2020-08-31:
 * Added Praelor Tazarti to the list of Praelor ships.
 
