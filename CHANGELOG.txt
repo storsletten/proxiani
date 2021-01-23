@@ -1,3 +1,6 @@
+Version 2.3.16, released 2021-01-23:
+* Re jiggered the output of fod, foc, and smd. Also added fox as a command for showing coords, direction, ship name.
+
 Version 2.3.15, released 2021-01-11:
 * Added support for three new Praelor ship classes: Natoznalk, Ijfrlna, and Mugana.
 
