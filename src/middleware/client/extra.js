@@ -4,6 +4,7 @@ const commandAliases = {
  cu: 'pc',
  cw: 'pc',
  fod: 'foc',
+ fox: 'foc',
  lock: 'aim',
  pm: 'pc',
  proxiani: 'px',

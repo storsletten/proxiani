@@ -73,6 +73,7 @@ const processRequest = (ships, rawInputName, state, middleware, linkedMiddleware
   else return device.respond(`That object was not found.`);
  }
  else {
+  const shipName = ship.name.startsWith('Praelor ') ? ship.name.slice(8) : ship.name;
   middleware.persistentStates.focus = ship;
   if (!inputFromFocus) middleware.persistentStates.focus.resendName = rawInputName;
   if (linkedMiddleware.device.soundpack.name) {
@@ -80,8 +81,10 @@ const processRequest = (ships, rawInputName, state, middleware, linkedMiddleware
    const oob = starmap.oob(state, middleware.persistentStates, ships);
    device.respond(`#$#px starmap nearest ${ships[0].distance} | ${oob.join(' | ')}`);
   }
-  if (['fod', 'smd'].includes(state.command[0])) device.respond(`${ship.dir} (${ship.name}: ${ship.x}, ${ship.y}, ${ship.z})`);
-  else device.respond(`${ship.x}, ${ship.y}, ${ship.z} (${ship.name})`);
+  if (state.command[0] === 'smd') device.respond(`${ship.dir}, ${shipName}, ${ship.x} ${ship.y} ${ship.z}`);
+  else if (state.command[0] === 'fod') device.respond(`${ship.dir}, ${ship.x} ${ship.y} ${ship.z}, ${shipName}`);
+  else if (state.command[0] === 'fox') device.respond(`${ship.x} ${ship.y} ${ship.z}, ${ship.dir}, ${shipName}`);
+  else device.respond(`${ship.x} ${ship.y} ${ship.z}, ${shipName}`);
  }
 };
 
