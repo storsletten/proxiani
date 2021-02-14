@@ -39,11 +39,11 @@ if "!InputString!"=="" (
 for /f "tokens=* USEBACKQ" %%a in (`npm version !NewRelease!`) do set tag=%%a
 
 if exist "%NewCommitsFile%" (
- echo Version %tag:~1%, released %date%:>"%ChangelogFile%.tmp"
+ echo Version %tag:~0%, released %date%:>"%ChangelogFile%.tmp"
  type "%NewCommitsFile%" >>"%ChangelogFile%.tmp"
  del /q "%NewCommitsFile%" >nul
 ) else (
- echo Version %tag:~1%, released %date%.>"%ChangelogFile%.tmp"
+ echo Version %tag:~0%, released %date%.>"%ChangelogFile%.tmp"
 )
 echo.>>"%ChangelogFile%.tmp"
 type "%ChangelogFile%" >>"%ChangelogFile%.tmp"
