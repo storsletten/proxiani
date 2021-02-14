@@ -289,8 +289,9 @@ const commands = {
   description: `Shows the version of Proxiani that is currently running.`,
   func: (data, middleware) => {
    const proxy = middleware.device.proxy;
-   data.respond.push(`${proxy.name} ${proxy.version}`);
-   if (proxy.outdated) data.respond.push(`New ${proxy.outdated} update available: ${proxy.latestVersion}`);
+   data.respond.push(`${proxy.name} v${proxy.version}`);
+   data.respond.push(`NodeJS ${process.version}`);
+   if (proxy.outdated) data.respond.push(`New ${proxy.outdated} update of ${proxy.name} is available: ${proxy.latestVersion}`);
   },
  },
 };
