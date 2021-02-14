@@ -100,9 +100,12 @@ const commands = {
     }
    }
    else {
-    dialog.promptMultiline({ middleware, title: `Enter JS code to run:` }).then(({ state }) => {
+    dialog.promptMultiline({ middleware, title: `Enter JS code to run:` }).then(data => {
+     if (!data) {
+      return;
+     }
      try {
-      middleware.device.respond(vm.runInNewContext(state.data.join("\r\n"), vmVars, vmOptions));
+      middleware.device.respond(vm.runInNewContext(data.state.data.join("\r\n"), vmVars, vmOptions));
      }
      catch (error) {
       middleware.device.respond(error.stack.replace(/\n/, "\r\n"));

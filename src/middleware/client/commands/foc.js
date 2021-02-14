@@ -31,8 +31,10 @@ const foc = (data, middleware, linkedMiddleware) => {
      title: `Select a ship:`,
      items: ships.map(ship => ship.name),
     }).then(response => {
-     state.inputName = response.data.match;
-     processRequest(ships, state.inputName, state, middleware, linkedMiddleware);
+     if (response) {
+      state.inputName = response.data.match;
+      processRequest(ships, state.inputName, state, middleware, linkedMiddleware);
+     }
     });
     return;
    }
