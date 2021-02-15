@@ -12,4 +12,10 @@ With WScript.Arguments
  Next
 End With
 
+On Error Resume Next
 CreateObject("WScript.Shell").Run "node .\src\main.js " & Trim(args), 0, True
+
+If Err.Number <> 0 Then
+ MsgBox "Couldn't start Proxiani. Please make sure that NodeJS is installed and then try again.", 64, "Proxiani"
+ Err.Clear
+End If
