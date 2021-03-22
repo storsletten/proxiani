@@ -1,3 +1,6 @@
+Version 2.3.18, released 2021-03-22:
+* Starmap commands will recognize Praelor Onatoznalk instead of Praelor Natoznalk to reflect that name change in Miriani.
+
 Version 2.3.17, released 2021-02-15:
 * Added NodeJS version to the px version command.
 * Addressed a mistake that I made years ago that didn't become an issue until NodeJS 15. Now Proxiani will hopefully work flawlessly with Node 15 as well!
