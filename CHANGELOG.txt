@@ -1,3 +1,6 @@
+Version 2.3.19, released 2021-03-24:
+* Fixed compatibility issues with MUDMixer.
+
 Version 2.3.18, released 2021-03-22:
 * Starmap commands will recognize Praelor Onatoznalk instead of Praelor Natoznalk to reflect that name change in Miriani.
 
