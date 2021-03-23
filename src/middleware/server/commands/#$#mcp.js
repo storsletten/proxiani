@@ -1,6 +1,7 @@
 const { randomBytes } = require('crypto');
 
 module.exports = (data, middleware) => {
+ if (middleware.device.mudMixer) return;
  const command = data.input.split(' ');
  if (command.length !== 5 || command[1] !== 'version:' || command[3] !== 'to:' || !isFinite(command[4])) return;
  data.forward.pop();

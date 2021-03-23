@@ -35,7 +35,17 @@ class GenericDevice {
    if (this.connectionAttempts) this.connectionAttempts = 0;
   });
   this.events.on('link', () => this.connected && this.events.emit('ready'));
-  this.events.on('ready', () => this.socket.resume());
+  this.events.on('ready', () => {
+   this.socket.resume();
+   if (this.type === 'server' && this.link && this.link.type === 'client') {
+    if (!this.mudMixer && this.link.mudMixer) this.mudMixer = this.link.mudMixer;
+    if (!this.hasRegisteredSoundpack && this.link.soundpack) {
+     this.hasRegisteredSoundpack = true;
+     this.respond(`register_soundpack ${this.link.soundpack.name || 'unknown'} | ${this.link.soundpack.version || 'unknown'}`);
+    }
+    if (this.link.lastConnectCommand) this.respond(this.link.lastConnectCommand);
+   }
+  });
   this.create(options);
  }
  create(options) {

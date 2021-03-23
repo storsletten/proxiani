@@ -1,6 +1,7 @@
 const dialog = require('../../helpers/dialog.js');
 
 const echo = (data, middleware) => {
+ if (middleware.device.mudMixer) return;
  data.forward.pop();
  const args = data.input.match(/^\s*\w+\s(.+)$/);
  if (args) data.respond.push(args[1]);

@@ -45,6 +45,7 @@ const openEditor = async (middleware, lines, upload) => {
 };
 
 module.exports = (data, middleware) => {
+ if (middleware.device.mudMixer) return;
  if (data.input.startsWith(`#$# edit name: `)) {
   const i = data.input.lastIndexOf(' upload:');
   if (i !== -1) {

@@ -55,6 +55,7 @@ const unsetCommands = middleware => {
 };
 
 module.exports = (data, middleware) => {
+ if (middleware.device.mudMixer) return;
  const mcp = middleware.persistentStates.mcp;
  if (!mcp) return;
  const command = utils.parseArgstr(data.input);
