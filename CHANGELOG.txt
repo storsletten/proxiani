@@ -1,3 +1,6 @@
+Version 2.3.20, released 2021-03-25:
+* Character encoding/decoding/converting will now always be disabled for MUDMixer connections. That is to say, MUDMixer connecting to Proxiani.
+
 Version 2.3.19, released 2021-03-24:
 * Fixed compatibility issues with MUDMixer.
 
