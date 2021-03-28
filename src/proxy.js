@@ -193,7 +193,14 @@ class Proxy {
    return;
   }
   for (let id in this.sockets) this.sockets[id].close();
-  for (let id in this.devices) this.devices[id].close();
+  for (let id in this.devices) {
+   const device = this.devices[id];
+   if (device.type === 'client') {
+    device.respond(`*** PX ${restart ? 'restarting' : 'shutting down'} ***`);
+    device.respond(`*** Disconnected ***`);
+   }
+   device.close();
+  }
  }
  getNewID() {
   return String(++this.idCount);

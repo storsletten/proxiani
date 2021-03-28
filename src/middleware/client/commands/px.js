@@ -222,8 +222,6 @@ const commands = {
    }
    else {
     middleware.device.proxy.console(`Restart command from ${middleware.device.type} ${middleware.device.id}`);
-    middleware.device.respond(`Proxiani restarting... Goodbye!`);
-    middleware.device.respond(`*** Disconnected ***`);
     middleware.device.proxy.close(true);
    }
   },
@@ -233,8 +231,6 @@ const commands = {
   description: `Shuts down Proxiani.`,
   func: (data, middleware) => {
    middleware.device.proxy.console(`Shutdown command from ${middleware.device.type} ${middleware.device.id}`);
-   middleware.device.respond(`Proxiani shutting down... Goodbye!`);
-   middleware.device.respond(`*** Disconnected ***`);
    middleware.device.proxy.close();
   },
  },
