@@ -1,3 +1,6 @@
+Version 2.3.22, released 2021-03-31:
+* Removed the Proxiani alias. It's easier to just type PX.
+
 Version 2.3.21, released 2021-03-28:
 * Changed the messages when restarting or shutting down Proxiani to make MUDMixer happy.
 
