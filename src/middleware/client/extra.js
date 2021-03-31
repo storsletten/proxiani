@@ -7,7 +7,6 @@ const commandAliases = {
  fox: 'foc',
  lock: 'aim',
  pm: 'pc',
- proxiani: 'px',
  'registered_soundpack': '#$#register_soundpack',
  sc: 'scan',
  sca: 'scan',
